@@ -28,14 +28,14 @@ export class UsersService {
     });
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(id: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { id },
       relations: { userSetting: true, comments: true },
     });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
     const updatedUser = { ...user, ...updateUserDto };
     return await this.userRepository.save(updatedUser);
