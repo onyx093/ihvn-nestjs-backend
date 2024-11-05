@@ -5,6 +5,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserSetting } from './entities/user-setting.entity';
+import { hash } from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -14,11 +15,19 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const { password, ...others } = createUserDto;
+    const hashedPassword = await hash(password);
+
     const userSetting = new UserSetting({
       ...createUserDto.userSetting,
       notificationsEnabled: true,
     });
-    const user = new User({ ...createUserDto, userSetting, comments: [] });
+    const user = new User({
+      password: hashedPassword,
+      ...others,
+      userSetting,
+      comments: [],
+    });
     return await this.entityManager.save(user);
   }
 
@@ -28,7 +37,7 @@ export class UsersService {
     });
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { id },
       relations: { userSetting: true, comments: true },
@@ -43,5 +52,12 @@ export class UsersService {
 
   async remove(id: number) {
     await this.userRepository.delete(id);
+  }
+
+  async findByEmail(email: string): Promise<User | undefined> {
+    return await this.userRepository.findOne({
+      where: { email },
+      relations: { userSetting: true, comments: true },
+    });
   }
 }

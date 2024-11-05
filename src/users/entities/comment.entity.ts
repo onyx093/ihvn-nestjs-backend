@@ -1,5 +1,5 @@
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity({ name: 'comments' })
@@ -14,5 +14,6 @@ export class Comment extends AbstractEntity<Comment> {
   updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.comments)
+  @JoinColumn()
   user: User;
 }
