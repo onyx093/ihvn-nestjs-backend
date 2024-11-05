@@ -14,6 +14,9 @@ export class User extends AbstractEntity<User> {
   @Column()
   password: string;
 
+  @Column({ default: null })
+  hashedRefreshToken?: string;
+
   @Column({ default: new Date() })
   createdAt: Date;
 

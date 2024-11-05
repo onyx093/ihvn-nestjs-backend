@@ -60,4 +60,13 @@ export class UsersService {
       relations: { userSetting: true, comments: true },
     });
   }
+
+  async updateHashedRefreshToken(
+    userId: string,
+    hashedRefreshToken: string | null,
+  ) {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    const updatedUser = { ...user, hashedRefreshToken };
+    return await this.userRepository.save(updatedUser);
+  }
 }

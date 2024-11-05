@@ -6,6 +6,7 @@ import {
   Request,
   Get,
   Res,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
@@ -55,10 +56,15 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleCallback(@Request() req, @Res() res: Response) {
-    // console.log('Google User', req.user);
     const response = await this.authService.login(req.user.id, req.user.name);
     res.redirect(
       `${process.env.FRONTEND_URL}/api/auth/google/callback?userId=${response.id}&name=${response.name}&accessToken=${response.accessToken}&refreshToken=${response.refreshToken}`,
     );
+  }
+
+  @UseGuards(JWTAuthGuard)
+  @Post('sign-out')
+  signOut(@Req() req) {
+    return this.authService.signOut(req.user.id);
   }
 }
