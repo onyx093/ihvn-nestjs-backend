@@ -12,5 +12,5 @@ export class CreateUserDto {
   @IsString()
   password: string;
 
-  userSetting: CreateUserSettingDto;
+  userSetting?: CreateUserSettingDto;
 }
