@@ -1,3 +1,4 @@
+import { Comment } from '../../users/entities/comment.entity';
 import { UserSetting } from '../../users/entities/user-setting.entity';
 import { User } from '../../users/entities/user.entity';
 import { faker } from '@faker-js/faker';
