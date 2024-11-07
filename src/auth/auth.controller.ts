@@ -12,10 +12,10 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UsersService } from '@/users/users.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response } from 'express';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -29,13 +29,13 @@ export class AuthController {
     return this.authService.register(createUserDto);
   }
 
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Request() req) {
     return this.authService.login(req.user.id, req.user.name);
   }
 
-  @UseGuards(JWTAuthGuard)
   @Get('profile')
   getAll(@Request() req) {
     return {
@@ -43,6 +43,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refreshToken(@Request() req) {
@@ -62,7 +63,6 @@ export class AuthController {
     );
   }
 
-  @UseGuards(JWTAuthGuard)
   @Post('sign-out')
   signOut(@Req() req) {
     return this.authService.signOut(req.user.id);
