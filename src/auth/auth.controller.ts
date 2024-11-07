@@ -9,8 +9,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '@/users/dto/create-user.dto';
-import { UsersService } from '@/users/users.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
@@ -19,10 +18,7 @@ import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UsersService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   register(@Body() createUserDto: CreateUserDto) {

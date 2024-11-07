@@ -1,5 +1,5 @@
-import { UserSetting } from '@/users/entities/user-setting.entity';
-import { User } from '@/users/entities/user.entity';
+import { UserSetting } from '../users/entities/user-setting.entity';
+import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';

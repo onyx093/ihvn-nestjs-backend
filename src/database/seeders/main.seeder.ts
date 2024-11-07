@@ -1,5 +1,5 @@
-import { UserSetting } from '@/users/entities/user-setting.entity';
-import { User } from '@/users/entities/user.entity';
+import { UserSetting } from '../../users/entities/user-setting.entity';
+import { User } from '../../users/entities/user.entity';
 import { faker } from '@faker-js/faker';
 import { hash } from 'argon2';
 import { DataSource } from 'typeorm';

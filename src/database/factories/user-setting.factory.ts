@@ -1,4 +1,4 @@
-import { UserSetting } from '@/users/entities/user-setting.entity';
+import { UserSetting } from '../../users/entities/user-setting.entity';
 import { setSeederFactory } from 'typeorm-extension';
 
 export const UserSettingFactory = setSeederFactory(UserSetting, (faker) => {
