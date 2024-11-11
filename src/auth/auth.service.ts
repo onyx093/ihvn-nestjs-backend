@@ -59,7 +59,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return { id: user.id, name: user.name };
+    return { id: user.id, name: user.name, role: user.role };
   }
 
   async generateTokens(userId: number) {
@@ -80,6 +80,7 @@ export class AuthService {
 
     const currentUser = {
       id: user.id,
+      role: user.role,
     };
 
     return currentUser;
