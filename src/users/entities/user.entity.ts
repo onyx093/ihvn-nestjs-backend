@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Comment } from './comment.entity';
-import { Role } from '@/enums/role.enum';
+import { Role } from '../../enums/role.enum';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {
