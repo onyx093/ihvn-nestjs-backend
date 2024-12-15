@@ -1,46 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserSetting } from './entities/user-setting.entity';
 import { hash } from 'argon2';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly entityManager: EntityManager,
-  ) {}
+    @InjectQueue('email') private readonly emailQueue: Queue,
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { password, ...others } = createUserDto;
     const hashedPassword = await hash(password);
 
-    const userSetting = new UserSetting({
+    /* const userSetting = new UserSetting({
       ...createUserDto.userSetting,
       notificationsEnabled: true,
-    });
-    const user = new User({
+    }); */
+    const user = this.userRepository.create({
       password: hashedPassword,
       ...others,
-      userSetting,
-      comments: [],
+      /* userSetting,
+      comments: [], */
     });
-    return await this.entityManager.save(user);
+    const registeredUser = await this.userRepository.save(user);
+    await this.emailQueue.add('sendWelcomeEmail', {
+      email: user.email,
+      name: user.name,
+    });
+    return registeredUser;
   }
 
   async findAll(): Promise<User[]> {
     return await this.userRepository.find({
-      relations: { userSetting: true, comments: true },
+      relations: { userSetting: true, },
     });
   }
 
   async findOne(id: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { id },
-      relations: { userSetting: true, comments: true },
+      relations: { userSetting: true, },
     });
   }
 
@@ -57,7 +64,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { email },
-      relations: { userSetting: true, comments: true },
+      relations: { userSetting: true, },
     });
   }
 
