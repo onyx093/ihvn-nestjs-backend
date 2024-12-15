@@ -1,4 +1,3 @@
-import { Comment } from '../users/entities/comment.entity';
 import { UserSetting } from '../users/entities/user-setting.entity';
 import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
@@ -27,5 +26,5 @@ export const dataSource = new DataSource(options);
 export default new DataSource({
   type: 'postgres',
 
-  entities: [User, UserSetting, Comment],
+  entities: [User, UserSetting],
 });

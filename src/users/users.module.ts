@@ -4,12 +4,19 @@ import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserSetting } from './entities/user-setting.entity';
-import { Comment } from './entities/comment.entity';
+import { BullModule } from '@nestjs/bull';
+import { EmailModule } from '../queues/email.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserSetting, Comment])],
+  imports: [
+    TypeOrmModule.forFeature([User, UserSetting]),
+    BullModule.registerQueue({
+      name: 'email',
+    }),
+    EmailModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule { }
