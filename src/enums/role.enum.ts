@@ -4,4 +4,5 @@ export enum Role {
   EDITOR = 'EDITOR',
   USER = 'USER',
   STUDENT = 'STUDENT',
+  GUEST = 'GUEST',
 }
