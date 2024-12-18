@@ -34,6 +34,8 @@ export class UsersService {
     await this.emailQueue.add('sendWelcomeEmail', {
       email: user.email,
       name: user.name,
+    }, {
+      attempts: 3,
     });
     return registeredUser;
   }

@@ -6,12 +6,20 @@ import { User } from './entities/user.entity';
 import { UserSetting } from './entities/user-setting.entity';
 import { BullModule } from '@nestjs/bull';
 import { EmailModule } from '../queues/email.module';
+import { ConfigService } from '@nestjs/config';
+
+const configService = new ConfigService();
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UserSetting]),
     BullModule.registerQueue({
       name: 'email',
+      redis: {
+        host: configService.getOrThrow('REDIS_HOST'),
+        port: configService.getOrThrow('REDIS_PORT'),
+      },
+
     }),
     EmailModule,
   ],
