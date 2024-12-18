@@ -39,7 +39,7 @@ describe('UsersController', () => {
   });
 
   it('should register a new user', async () => {
-    const mockUser: User = {
+    const mockUser = {
       name: 'John Doe', email: 'john@example.com', password: 'password',
       createdAt: undefined,
       updatedAt: undefined,

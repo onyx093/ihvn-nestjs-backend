@@ -17,6 +17,12 @@ export class User extends AbstractEntity<User> {
   @Column({ default: null })
   hashedRefreshToken?: string;
 
+  @Column({ nullable: true })
+  otp: string;
+
+  @Column({ nullable: true })
+  otpExpiry: Date;
+
   @Column({ default: new Date() })
   createdAt: Date;
 

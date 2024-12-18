@@ -1,27 +1,37 @@
+import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
-    private transporter;
+    // private transporter;
 
-    constructor(private readonly configService: ConfigService) {
-        this.transporter = nodemailer.createTransport({
-            service: configService.getOrThrow('EMAIL_SERVICE'),
-            auth: {
-                user: this.configService.getOrThrow('EMAIL_USERNAME'),
-                pass: this.configService.getOrThrow('EMAIL_PASSWORD'),
-            },
-        });
-    }
+    constructor(private readonly mailerService: MailerService) { }
 
     async sendWelcomeEmail(email: string, name: string) {
-        await this.transporter.sendMail({
-            from: this.configService.getOrThrow('EMAIL_USERNAME'),
-            to: email,
-            subject: 'Welcome to Our App',
-            text: `Hello ${name}, welcome to our app!`,
-        });
+        try {
+            await this.mailerService.sendMail({
+                to: email,
+                subject: 'Welcome to Our App',
+                text: `Hello ${name}, welcome to our app!`,
+            });
+            console.log("Email sent successfully");
+
+        } catch (error) {
+            console.error('Error sending email:', error.message);
+        }
+    }
+
+    async sendOTPEmail(email: string, otp: string) {
+        try {
+            await this.mailerService.sendMail({
+                to: email,
+                subject: 'Password Recovery OTP',
+                text: `Your OTP is ${otp}. It is valid for 10 minutes.`,
+            });
+            console.log("Email sent successfully");
+
+        } catch (error) {
+            console.error('Error sending email:', error.message);
+        }
     }
 }

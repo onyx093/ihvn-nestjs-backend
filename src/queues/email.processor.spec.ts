@@ -31,7 +31,7 @@ describe('EmailProcessor', () => {
             data: { email: 'john@example.com', name: 'John Doe' },
         };
 
-        await emailProcessor.handleSendEmail(mockJob as any);
+        await emailProcessor.handleWelcomeEmail(mockJob as any);
 
         expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith('john@example.com', 'John Doe');
     });
