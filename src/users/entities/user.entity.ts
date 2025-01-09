@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Role } from '../../enums/role.enum';

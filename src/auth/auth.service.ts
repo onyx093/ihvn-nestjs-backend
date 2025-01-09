@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -11,6 +12,9 @@ import { AuthJWTPayload } from './types/auth-jwt-payload';
 import { JwtService } from '@nestjs/jwt';
 import refreshConfig from './config/refresh.config';
 import { ConfigType } from '@nestjs/config';
+import { AuthCredentialsSchema } from '@/schemas/auth.schema';
+import { ZodError } from 'zod';
+import errors from '@/config/errors.config';
 
 @Injectable()
 export class AuthService {
@@ -18,15 +22,15 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     @Inject(refreshConfig.KEY)
-    private refreshTokenConfig: ConfigType<typeof refreshConfig>,
+    private refreshTokenConfig: ConfigType<typeof refreshConfig>
   ) {}
 
   async register(createUserDto: CreateUserDto) {
     const existingUser = await this.userService.findByEmail(
-      createUserDto.email,
+      createUserDto.email
     );
     if (existingUser) {
-      throw new ConflictException('A user already exist with this email');
+      throw new ConflictException(errors.conflictError());
     }
 
     return await this.userService.create(createUserDto);
@@ -37,7 +41,7 @@ export class AuthService {
     const hashedRefreshToken = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(
       `${userId}`,
-      hashedRefreshToken,
+      hashedRefreshToken
     );
     return {
       id: userId,
@@ -48,15 +52,35 @@ export class AuthService {
   }
 
   async validateLocalUser(email: string, password: string) {
+    try {
+      AuthCredentialsSchema.parse({ email, password });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const formattedErrors = error.errors.map((err) => ({
+          field: err.path.join('.'),
+          error: err.message,
+        }));
+
+        throw new BadRequestException(
+          errors.validationFailedWithFieldErrors(formattedErrors)
+        );
+      }
+
+      throw error;
+    }
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(
+        errors.unauthorizedAccess('User not found!')
+      );
     }
 
     const isPasswordMatched = await verify(user.password, password);
 
     if (!isPasswordMatched) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(
+        errors.unauthorizedAccess('Invalid credentials')
+      );
     }
 
     return { id: user.id, name: user.name, role: user.role };
@@ -75,7 +99,9 @@ export class AuthService {
   async validateJWTUser(userId: number) {
     const user = await this.userService.findOne(`${userId}`);
     if (!user) {
-      throw new UnauthorizedException('User not found!');
+      throw new UnauthorizedException(
+        errors.unauthorizedAccess('User not found!')
+      );
     }
 
     const currentUser = {
@@ -89,15 +115,19 @@ export class AuthService {
   async validateRefreshToken(userId: number, refreshToken: string) {
     const user = await this.userService.findOne(`${userId}`);
     if (!user) {
-      throw new UnauthorizedException('User not found!');
+      throw new UnauthorizedException(
+        errors.unauthorizedAccess('User not found!')
+      );
     }
 
     const isRefreshTokenMatched = await verify(
       user.hashedRefreshToken,
-      refreshToken,
+      refreshToken
     );
     if (!isRefreshTokenMatched) {
-      throw new UnauthorizedException('Invalid Refresh Token!');
+      throw new UnauthorizedException(
+        errors.unauthorizedAccess('Invalid Refresh Token!')
+      );
     }
     const currentUser = {
       id: user.id,
@@ -111,7 +141,7 @@ export class AuthService {
     const hashedRefreshToken = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(
       `${userId}`,
-      hashedRefreshToken,
+      hashedRefreshToken
     );
     return {
       id: userId,

@@ -7,7 +7,9 @@ import { Public } from '@/auth/decorators/public.decorator';
 
 @Controller('password-recovery')
 export class PasswordRecoveryController {
-  constructor(private readonly passwordRecoveryService: PasswordRecoveryService) { }
+  constructor(
+    private readonly passwordRecoveryService: PasswordRecoveryService
+  ) {}
 
   @Public()
   @Post('send-otp')

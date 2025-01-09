@@ -21,9 +21,9 @@ const configService = new ConfigService();
       },
     }),
     EmailModule,
-    UsersModule
+    UsersModule,
   ],
   controllers: [PasswordRecoveryController],
   providers: [PasswordRecoveryService],
 })
-export class PasswordRecoveryModule { }
+export class PasswordRecoveryModule {}

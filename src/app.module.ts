@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -8,8 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { BullModule } from '@nestjs/bull';
 import { PasswordRecoveryModule } from './password-recovery/password-recovery.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 const configService = new ConfigService();
 
@@ -32,11 +30,13 @@ const configService = new ConfigService();
         secure: false,
         auth: {
           user: configService.getOrThrow('EMAIL_USERNAME'),
-          pass: configService.getOrThrow('EMAIL_PASSWORD')
-        }
+          pass: configService.getOrThrow('EMAIL_PASSWORD'),
+        },
+        // debug: true,
+        // logger: true,
       },
       defaults: {
-        from: '"No Reply" <no-reply@idnng.com>'
+        from: '"No Reply" <no-reply@idnng.com>',
       },
       /* template: {
         dir: join(__dirname, 'templates'),
@@ -51,6 +51,7 @@ const configService = new ConfigService();
     PasswordRecoveryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, Logger],
+  exports: [Logger],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
 import { UserSetting } from './entities/user-setting.entity';
 import { Role } from '../../src/enums/role.enum';
 import { INestApplication } from '@nestjs/common';
@@ -40,16 +39,22 @@ describe('UsersController', () => {
 
   it('should register a new user', async () => {
     const mockUser = {
-      name: 'John Doe', email: 'john@example.com', password: 'password',
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password',
       createdAt: undefined,
       updatedAt: undefined,
       userSetting: new UserSetting({}),
       role: Role.GUEST,
-      id: ''
+      id: '',
     };
     jest.spyOn(usersService, 'create').mockResolvedValue(mockUser);
 
-    const result = await usersController.create({ name: 'John Doe', email: 'john@example.com', password: 'securepassword' });
+    const result = await usersController.create({
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'securepassword',
+    });
 
     expect(usersService.create).toHaveBeenCalledWith({
       name: 'John Doe',
@@ -72,13 +77,13 @@ describe('UserController (e2e)', () => {
         }),
         TypeOrmModule.forRoot({
           type: 'postgres',
-          host: 'localhost',         // PostgreSQL host
-          port: 5432,                // PostgreSQL port
-          username: 'testuser',      // PostgreSQL username
-          password: 'testpassword',  // PostgreSQL password
-          database: 'testdb',        // Test database name
+          host: 'localhost', // PostgreSQL host
+          port: 5432, // PostgreSQL port
+          username: 'testuser', // PostgreSQL username
+          password: 'testpassword', // PostgreSQL password
+          database: 'testdb', // Test database name
           entities: [__dirname + '/../src/**/*.entity{.ts,.js}'],
-          synchronize: true,         // Sync schema (use only in tests)
+          synchronize: true, // Sync schema (use only in tests)
         }),
         BullModule.forRoot({
           redis: {
@@ -87,7 +92,7 @@ describe('UserController (e2e)', () => {
           },
         }),
         UsersModule,
-        EmailModule
+        EmailModule,
       ],
     }).compile();
 
@@ -95,7 +100,7 @@ describe('UserController (e2e)', () => {
     emailQueue = moduleFixture.get<Queue>(getQueueToken('email'));
 
     await app.init();
-    await app.listen(5000, () => { });
+    await app.listen(5000, () => {});
     console.log(await app.getUrl());
   });
 

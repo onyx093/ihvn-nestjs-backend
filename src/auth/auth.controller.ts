@@ -29,9 +29,9 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req) {
+  @UseGuards(LocalAuthGuard)
+  login(@Body() body, @Request() req) {
     return this.authService.login(req.user.id, req.user.name);
   }
 
@@ -59,7 +59,7 @@ export class AuthController {
   async googleCallback(@Request() req, @Res() res: Response) {
     const response = await this.authService.login(req.user.id, req.user.name);
     res.redirect(
-      `${process.env.FRONTEND_URL}/api/auth/google/callback?userId=${response.id}&name=${response.name}&accessToken=${response.accessToken}&refreshToken=${response.refreshToken}`,
+      `${process.env.FRONTEND_URL}/api/auth/google/callback?userId=${response.id}&name=${response.name}&accessToken=${response.accessToken}&refreshToken=${response.refreshToken}`
     );
   }
 
