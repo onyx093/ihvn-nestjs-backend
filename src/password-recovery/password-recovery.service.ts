@@ -25,10 +25,28 @@ export class PasswordRecoveryService {
   async sendOtp(sendOtpDto: SendOtpDto) {
     const { email } = sendOtpDto;
 
-    const user = await this.userRepository.findOne({ where: { email } });
+    /* try {
+      ForgotPasswordSchema.parse({ email });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const formattedErrors = errors.formatZodErrors(error);
+
+        throw new BadRequestException(
+          errors.validationFailedWithFieldErrors(formattedErrors)
+        );
+      }
+
+      throw error;
+    } */
+
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
     if (!user) throw new NotFoundException(errors.notFound('User not found'));
 
     if (new Date() < user.otpExpiry) {
+      console.log(user);
+
       await this.emailQueue.add(
         'sendOTPEmail',
         {
@@ -54,7 +72,7 @@ export class PasswordRecoveryService {
       'sendOTPEmail',
       {
         email: user.email,
-        name: user.name,
+        otp: user.otp,
       },
       {
         attempts: 3,

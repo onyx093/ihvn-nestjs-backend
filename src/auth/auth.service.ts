@@ -56,10 +56,7 @@ export class AuthService {
       AuthCredentialsSchema.parse({ email, password });
     } catch (error) {
       if (error instanceof ZodError) {
-        const formattedErrors = error.errors.map((err) => ({
-          field: err.path.join('.'),
-          error: err.message,
-        }));
+        const formattedErrors = errors.formatZodErrors(error);
 
         throw new BadRequestException(
           errors.validationFailedWithFieldErrors(formattedErrors)
@@ -162,6 +159,10 @@ export class AuthService {
   }
 
   async signOut(userId: string) {
-    return await this.userService.updateHashedRefreshToken(userId, null);
+    const result = await this.userService.updateHashedRefreshToken(
+      userId,
+      null
+    );
+    return result;
   }
 }

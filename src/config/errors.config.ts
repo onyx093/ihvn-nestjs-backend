@@ -48,6 +48,13 @@ const errors = {
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     message: message ?? 'An unexpected error occurred on the server',
   }),
+
+  formatZodErrors: (error) => {
+    return error.errors.map((err) => ({
+      field: err.path.join('.'),
+      error: err.message,
+    }));
+  },
 };
 
 export default errors;

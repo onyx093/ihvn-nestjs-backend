@@ -21,7 +21,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     );
 
     const errorDetails = exception.getResponse();
-    this.logger.error(errorDetails);
+    console.log(errorDetails);
+
     response.status(status).json({
       status: 'error',
       data: errorDetails,

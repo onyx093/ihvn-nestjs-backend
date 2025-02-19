@@ -8,11 +8,17 @@ export class User extends AbstractEntity<User> {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  username: string;
+
   @Column({ unique: true })
   email: string;
 
   @Column()
   password: string;
+
+  @Column({ nullable: true })
+  phoneNumber: string;
 
   @Column({ default: null })
   hashedRefreshToken?: string;

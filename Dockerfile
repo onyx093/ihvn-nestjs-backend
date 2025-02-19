@@ -21,4 +21,4 @@ RUN npm install
 #EXPOSE 5000
 
 # Run the application.
-CMD ["npm", "run", "start:dev"]
+CMD ["yarn", "start:dev"]
