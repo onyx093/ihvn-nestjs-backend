@@ -10,7 +10,6 @@ services:
       - ${PORT}:${PORT}
     env_file:
       - ./.env
-    # command: sh -c "npx prisma db push && npm run start:dev"
     depends_on:
       - postgres
     volumes:

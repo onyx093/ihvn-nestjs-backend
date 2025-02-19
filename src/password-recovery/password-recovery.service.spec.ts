@@ -30,7 +30,9 @@ describe('Password Recovery', () => {
       ],
     }).compile();
 
-    passwordRecoveryService = module.get<PasswordRecoveryService>(PasswordRecoveryService);
+    passwordRecoveryService = module.get<PasswordRecoveryService>(
+      PasswordRecoveryService
+    );
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     emailQueue = module.get<Queue>('BullQueue_email');
   });
@@ -40,13 +42,23 @@ describe('Password Recovery', () => {
   });
 
   it('should send OTP to user email', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', name: 'John Doe', otp: null, otpExpiry: null };
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      name: 'John Doe',
+      otp: null,
+      otpExpiry: null,
+    };
     jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser as any);
     jest.spyOn(userRepository, 'save').mockResolvedValue(mockUser as any);
 
-    const result = await passwordRecoveryService.sendOtp({ email: 'test@example.com' });
+    const result = await passwordRecoveryService.sendOtp({
+      email: 'test@example.com',
+    });
 
-    expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      where: { email: 'test@example.com' },
+    });
     expect(emailQueue.add).toHaveBeenCalled();
     expect(result.message).toBe('OTP sent to your email address');
   });
@@ -60,17 +72,28 @@ describe('Password Recovery', () => {
     };
     jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser as any);
 
-    const result = await passwordRecoveryService.verifyOtp({ email: 'test@example.com', otp: '123456' });
+    const result = await passwordRecoveryService.verifyOtp({
+      email: 'test@example.com',
+      otp: '123456',
+    });
 
     expect(result.message).toBe('OTP verified successfully');
   });
 
   it('should update the password', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', password: 'oldPassword' };
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      password: 'oldPassword',
+    };
     jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser as any);
     jest.spyOn(userRepository, 'save').mockResolvedValue(mockUser as any);
 
-    const result = await passwordRecoveryService.updatePassword({ email: 'test@example.com', newPassword: 'newPassword', confirmPassword: 'newPassword' });
+    const result = await passwordRecoveryService.updatePassword({
+      email: 'test@example.com',
+      newPassword: 'newPassword',
+      confirmPassword: 'newPassword',
+    });
 
     expect(userRepository.save).toHaveBeenCalled();
     expect(result.message).toBe('Password updated successfully');

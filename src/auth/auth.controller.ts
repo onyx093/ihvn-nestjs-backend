@@ -7,6 +7,8 @@ import {
   Get,
   Res,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -24,19 +26,22 @@ export class AuthController {
 
   @Public()
   @Post('register')
+  @HttpCode(HttpStatus.CREATED)
   register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
 
   @Public()
-  @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Request() req) {
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
+  login(@Body() body, @Request() req) {
     return this.authService.login(req.user.id, req.user.name);
   }
 
   @Roles(Role.ADMIN)
   @Get('profile')
+  @HttpCode(HttpStatus.OK)
   getAll(@Request() req) {
     return {
       message: `Now, you can access this protected route. This is your user ID: ${req.user.id}`,
@@ -46,24 +51,28 @@ export class AuthController {
   @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   refreshToken(@Request() req) {
     return this.authService.refreshToken(req.user.id, req.user.name);
   }
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
+  @HttpCode(HttpStatus.OK)
   googleLogin() {}
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
+  @HttpCode(HttpStatus.OK)
   async googleCallback(@Request() req, @Res() res: Response) {
     const response = await this.authService.login(req.user.id, req.user.name);
     res.redirect(
-      `${process.env.FRONTEND_URL}/api/auth/google/callback?userId=${response.id}&name=${response.name}&accessToken=${response.accessToken}&refreshToken=${response.refreshToken}`,
+      `${process.env.FRONTEND_URL}/api/auth/google/callback?userId=${response.id}&name=${response.name}&accessToken=${response.accessToken}&refreshToken=${response.refreshToken}`
     );
   }
 
   @Post('sign-out')
+  @HttpCode(HttpStatus.NO_CONTENT)
   signOut(@Req() req) {
     return this.authService.signOut(req.user.id);
   }

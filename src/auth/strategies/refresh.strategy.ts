@@ -12,7 +12,7 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh-jwt') {
   constructor(
     @Inject(refreshConfig.KEY)
     private refreshTokenConfig: ConfigType<typeof refreshConfig>,
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromBodyField('refresh'),

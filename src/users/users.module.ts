@@ -19,7 +19,6 @@ const configService = new ConfigService();
         host: configService.getOrThrow('REDIS_HOST'),
         port: configService.getOrThrow('REDIS_PORT'),
       },
-
     }),
     EmailModule,
   ],
@@ -27,4 +26,4 @@ const configService = new ConfigService();
   providers: [UsersService],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

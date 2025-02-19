@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Role } from '../../enums/role.enum';
@@ -8,11 +8,17 @@ export class User extends AbstractEntity<User> {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  username: string;
+
   @Column({ unique: true })
   email: string;
 
   @Column()
   password: string;
+
+  @Column({ nullable: true })
+  phoneNumber: string;
 
   @Column({ default: null })
   hashedRefreshToken?: string;
