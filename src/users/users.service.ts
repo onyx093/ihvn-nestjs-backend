@@ -7,11 +7,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'argon2';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { Role } from '@/roles/entities/role.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectQueue('email') private readonly emailQueue: Queue
   ) {}
 
@@ -39,14 +41,14 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return await this.userRepository.find({
-      relations: { userSetting: true },
+      relations: { userSetting: true, roles: true },
     });
   }
 
   async findOne(id: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { id },
-      relations: { userSetting: true },
+      relations: { userSetting: true, roles: true },
     });
   }
 
@@ -56,8 +58,15 @@ export class UsersService {
     return await this.userRepository.save(updatedUser);
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<void> {
     await this.userRepository.delete(id);
+  }
+
+  async assignRoles(userId: string, roleIds: string[]): Promise<User> {
+    const user = await this.findOne(userId);
+    const roles = await this.roleRepository.findByIds(roleIds);
+    user.roles = roles;
+    return this.userRepository.save(user);
   }
 
   async findByEmail(email: string): Promise<User | undefined> {

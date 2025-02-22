@@ -15,7 +15,7 @@ COPY package*.json ./
 COPY . .
 
 # Install all your dependencies.
-RUN npm install
+RUN yarn
 
 # Expose the port that the application listens on.
 #EXPOSE 5000

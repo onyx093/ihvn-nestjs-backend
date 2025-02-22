@@ -7,12 +7,13 @@ import { UserSetting } from './entities/user-setting.entity';
 import { BullModule } from '@nestjs/bull';
 import { EmailModule } from '../queues/email.module';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '@/roles/entities/role.entity';
 
 const configService = new ConfigService();
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserSetting]),
+    TypeOrmModule.forFeature([User, UserSetting, Role]),
     BullModule.registerQueue({
       name: 'email',
       redis: {

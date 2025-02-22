@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { BullModule } from '@nestjs/bull';
 import { PasswordRecoveryModule } from './password-recovery/password-recovery.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { PermissionsModule } from './permissions/permissions.module';
+import { RolesModule } from './roles/roles.module';
 
 const configService = new ConfigService();
 
@@ -49,6 +51,8 @@ const configService = new ConfigService();
     UsersModule,
     AuthModule,
     PasswordRecoveryModule,
+    PermissionsModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
