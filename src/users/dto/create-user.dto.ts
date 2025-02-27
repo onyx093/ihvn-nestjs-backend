@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 import { CreateUserSettingDto } from './create-user-setting.dto';
 
 export class CreateUserDto {
@@ -6,7 +6,8 @@ export class CreateUserDto {
   name: string;
 
   @IsString()
-  username: string;
+  @IsOptional()
+  username?: string;
 
   @IsString()
   @IsEmail()
@@ -16,7 +17,8 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  phoneNumber: string;
+  @IsOptional()
+  phoneNumber?: string;
 
   userSetting?: CreateUserSettingDto;
 }

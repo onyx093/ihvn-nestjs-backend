@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=20.17.0
+ARG NODE_VERSION=22.14.0
 
 ################################################################################
 # Use node image for base image for all stages.
@@ -16,9 +16,6 @@ COPY . .
 
 # Install all your dependencies.
 RUN yarn
-
-# Expose the port that the application listens on.
-#EXPOSE 5000
 
 # Run the application.
 CMD ["yarn", "start:dev"]

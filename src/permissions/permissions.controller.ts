@@ -6,38 +6,51 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Subject } from '@/decorators/subject.decorator';
 import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '@/casl/guard/permissions.guard';
+import {
+  PermissionActions,
+  PermissionSubject,
+} from './actions/permissions.action';
 
-@Subject('Permission')
+@Subject(PermissionSubject.NAME)
 @Controller('permissions')
+@UseGuards(PermissionsGuard)
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
-  @Permission('create_permissions')
+  @Permission(PermissionActions.CREATE_PERMISSIONS)
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionsService.create(createPermissionDto);
   }
 
-  @Permission('read_permissions')
+  @Permission(PermissionActions.READ_PERMISSIONS)
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll() {
     return this.permissionsService.findAll();
   }
 
-  @Permission('read_one_permissions')
+  @Permission(PermissionActions.READ_ONE_PERMISSIONS)
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(id);
   }
 
-  @Permission('update_permissions')
+  @Permission(PermissionActions.UPDATE_PERMISSIONS)
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto
@@ -45,8 +58,9 @@ export class PermissionsController {
     return this.permissionsService.update(id, updatePermissionDto);
   }
 
-  @Permission('delete_permissions')
+  @Permission(PermissionActions.DELETE_PERMISSIONS)
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.permissionsService.remove(id);
   }

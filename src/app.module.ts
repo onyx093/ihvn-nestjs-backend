@@ -10,6 +10,7 @@ import { PasswordRecoveryModule } from './password-recovery/password-recovery.mo
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
+import { CASLModule } from './casl/casl.module';
 
 const configService = new ConfigService();
 

@@ -1,3 +1,7 @@
+import { Permission } from '@/permissions/entities/permission.entity';
+import { Role } from '@/roles/entities/role.entity';
+import { UserSetting } from '@/users/entities/user-setting.entity';
+import { User } from '@/users/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,8 +12,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.getOrThrow('DATABASE_URL'),
-        autoLoadEntities: true,
+        autoLoadEntities: false,
+        entities: [User, UserSetting, Role, Permission],
         synchronize: configService.getOrThrow('SYNCHRONIZE'),
+        migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),
       }),
       inject: [ConfigService],
     }),

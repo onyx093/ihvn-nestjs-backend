@@ -8,6 +8,7 @@ import { hash } from 'argon2';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Role } from '@/roles/entities/role.entity';
+import { PredefinedRoles } from '@/enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +26,11 @@ export class UsersService {
       password: hashedPassword,
       ...others,
     });
+
+    const guestRole = await this.roleRepository.findOneBy({
+      name: PredefinedRoles.GUEST,
+    });
+    user.roles = [guestRole];
     const registeredUser = await this.userRepository.save(user);
     await this.emailQueue.add(
       'sendWelcomeEmail',
@@ -58,7 +64,7 @@ export class UsersService {
     return await this.userRepository.save(updatedUser);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
   }
 

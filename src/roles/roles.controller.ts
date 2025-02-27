@@ -6,51 +6,63 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Subject } from '@/decorators/subject.decorator';
 import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '@/casl/guard/permissions.guard';
+import { RoleActions, RoleSubject } from './actions/roles.action';
 
-@Subject('Role')
+@Subject(RoleSubject.NAME)
 @Controller('roles')
+@UseGuards(PermissionsGuard)
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
-  @Permission('create_roles')
+  @Permission(RoleActions.CREATE_ROLES)
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
   }
 
-  @Permission('read_roles')
+  @Permission(RoleActions.READ_ROLES)
   @Get()
+  @HttpCode(HttpStatus.OK)
   findAll() {
     return this.rolesService.findAll();
   }
 
-  @Permission('read_one_roles')
+  @Permission(RoleActions.READ_ONE_ROLES)
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
   }
 
-  @Permission('update_roles')
+  @Permission(RoleActions.UPDATE_ROLES)
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(id, updateRoleDto);
   }
 
-  @Permission('delete_roles')
+  @Permission(RoleActions.DELETE_ROLES)
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.rolesService.remove(id);
   }
 
   // Assign permissions to a role
-  @Permission('assign_permissions_to_role')
+  @Permission(RoleActions.ASSIGN_PERMISSIONS_TO_ROLES)
   @Post(':id/permissions')
+  @HttpCode(HttpStatus.OK)
   assignPermissions(
     @Param('id') id: string,
     @Body('permissionIds') permissionIds: string[]

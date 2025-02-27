@@ -3,6 +3,8 @@ import { config } from 'dotenv';
 import { UserSetting } from './src/users/entities/user-setting.entity';
 import { User } from './src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
+import { Role } from '@/roles/entities/role.entity';
+import { Permission } from '@/permissions/entities/permission.entity';
 
 config();
 
@@ -10,11 +12,7 @@ const configService = new ConfigService();
 
 export default new DataSource({
   type: 'postgres',
-  host: configService.getOrThrow('POSTGRES_HOST'),
-  port: configService.getOrThrow('POSTGRES_PORT'),
-  database: configService.getOrThrow('POSTGRES_DB'),
-  username: configService.getOrThrow('POSTGRES_USER'),
-  password: configService.getOrThrow('POSTGRES_PASSWORD'),
-  entities: [User, UserSetting],
+  url: configService.getOrThrow('DATASOURCE_URL'),
+  entities: [User, UserSetting, Role, Permission],
   synchronize: configService.getOrThrow('SYNCHRONIZE'),
 });

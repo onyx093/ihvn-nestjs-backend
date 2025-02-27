@@ -1,9 +1,11 @@
+import { Role } from '@/roles/entities/role.entity';
 import { UserSetting } from '../users/entities/user-setting.entity';
 import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
+import { Permission } from '@/permissions/entities/permission.entity';
 
 config();
 
@@ -26,5 +28,5 @@ export const dataSource = new DataSource(options);
 export default new DataSource({
   type: 'postgres',
 
-  entities: [User, UserSetting],
+  entities: [User, UserSetting, Role, Permission],
 });

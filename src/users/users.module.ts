@@ -8,6 +8,7 @@ import { BullModule } from '@nestjs/bull';
 import { EmailModule } from '../queues/email.module';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '@/roles/entities/role.entity';
+import { CASLModule } from '@/casl/casl.module';
 
 const configService = new ConfigService();
 
@@ -22,6 +23,7 @@ const configService = new ConfigService();
       },
     }),
     EmailModule,
+    CASLModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
