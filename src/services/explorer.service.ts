@@ -7,9 +7,9 @@ import {
   Receptionist,
   Student,
   SuperAdmin,
-} from '@/enums/role.enum';
-import { Permission } from '@/permissions/entities/permission.entity';
-import { Role } from '@/roles/entities/role.entity';
+} from '../enums/role.enum';
+import { Permission } from '../permissions/entities/permission.entity';
+import { Role } from '../roles/entities/role.entity';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';

@@ -1,4 +1,4 @@
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { InjectQueue } from '@nestjs/bull';
 import {
   BadRequestException,

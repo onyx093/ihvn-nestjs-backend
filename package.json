@@ -21,7 +21,8 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
     "migration:generate": "yarn typeorm migration:generate --dataSource ./typeorm.config.ts",
     "migration:run": "yarn typeorm migration:run -d ./typeorm.config.ts",
-    "migration:revert": "yarn typeorm migration:revert -d ./typeorm.config.ts"
+    "migration:revert": "yarn typeorm migration:revert -d ./typeorm.config.ts",
+    "db:seed": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run  -d src/database/data-source.ts"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",

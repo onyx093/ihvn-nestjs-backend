@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Role } from '@/roles/entities/role.entity';
+import { Role } from '../../roles/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {

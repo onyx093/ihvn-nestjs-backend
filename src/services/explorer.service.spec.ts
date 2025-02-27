@@ -1,7 +1,7 @@
 import { DiscoveryService, Reflector } from '@nestjs/core';
 import { PermissionsExplorerService } from './explorer.service';
 import { Repository } from 'typeorm';
-import { Permission } from '@/permissions/entities/permission.entity';
+import { Permission } from '../permissions/entities/permission.entity';
 
 describe('PermissionsExplorerService', () => {
   let service: PermissionsExplorerService;

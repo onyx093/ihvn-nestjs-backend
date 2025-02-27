@@ -1,6 +1,6 @@
-import { AbstractEntity } from '@/database/entities/abstract.entity';
-import { Permission } from '@/permissions/entities/permission.entity';
-import { User } from '@/users/entities/user.entity';
+import { AbstractEntity } from '../../database/entities/abstract.entity';
+import { Permission } from '../../permissions/entities/permission.entity';
+import { User } from '../../users/entities/user.entity';
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 
 @Entity({ name: 'roles' })

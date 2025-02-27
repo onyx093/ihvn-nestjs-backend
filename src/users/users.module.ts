@@ -7,7 +7,7 @@ import { UserSetting } from './entities/user-setting.entity';
 import { BullModule } from '@nestjs/bull';
 import { EmailModule } from '../queues/email.module';
 import { ConfigService } from '@nestjs/config';
-import { Role } from '@/roles/entities/role.entity';
+import { Role } from '../roles/entities/role.entity';
 import { CASLModule } from '@/casl/casl.module';
 
 const configService = new ConfigService();

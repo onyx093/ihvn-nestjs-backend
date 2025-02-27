@@ -5,7 +5,7 @@ import { EmailModule } from '@/queues/email.module';
 import { UsersModule } from '@/users/users.module';
 import { BullModule } from '@nestjs/bull';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 
 const configService = new ConfigService();

@@ -1,6 +1,9 @@
-import { mapEnumToObjects, mapSpecifiedEnumMembersToObjects } from '@/lib/util';
-import { RoleActions, RoleSubject } from '@/roles/actions/roles.action';
-import { UserActions, UserSubject } from '@/users/actions/users.action';
+import {
+  mapEnumToObjects,
+  mapSpecifiedEnumMembersToObjects,
+} from '../lib/util';
+import { RoleActions, RoleSubject } from '../roles/actions/roles.action';
+import { UserActions, UserSubject } from '../users/actions/users.action';
 
 export enum PredefinedRoles {
   SUPER_ADMIN = 'Super Admin',

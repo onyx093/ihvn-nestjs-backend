@@ -1,10 +1,11 @@
-import { Permission } from '@/permissions/entities/permission.entity';
-import { Role } from '@/roles/entities/role.entity';
+import { Permission } from '../permissions/entities/permission.entity';
+import { Role } from '../roles/entities/role.entity';
 import { UserSetting } from '@/users/entities/user-setting.entity';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import 'reflect-metadata';
 
 @Module({
   imports: [

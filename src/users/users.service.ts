@@ -7,8 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'argon2';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { Role } from '@/roles/entities/role.entity';
-import { PredefinedRoles } from '@/enums/role.enum';
+import { Role } from '../roles/entities/role.entity';
+import { PredefinedRoles } from '../enums/role.enum';
 
 @Injectable()
 export class UsersService {

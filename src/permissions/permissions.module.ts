@@ -6,7 +6,7 @@ import { Permission } from './entities/permission.entity';
 import { DiscoveryModule } from '@nestjs/core';
 import { PermissionsExplorerService } from '@/services/explorer.service';
 import { CASLModule } from '@/casl/casl.module';
-import { Role } from '@/roles/entities/role.entity';
+import { Role } from '../roles/entities/role.entity';
 
 @Module({
   imports: [

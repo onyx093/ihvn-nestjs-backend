@@ -3,8 +3,8 @@ import { config } from 'dotenv';
 import { UserSetting } from './src/users/entities/user-setting.entity';
 import { User } from './src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { Role } from '@/roles/entities/role.entity';
-import { Permission } from '@/permissions/entities/permission.entity';
+import { Role } from './src/roles/entities/role.entity';
+import { Permission } from './src/permissions/entities/permission.entity';
 
 config();
 
