@@ -8,6 +8,7 @@ export type AppAbility = Ability<[string, string]>;
 export class CaslAbilityFactory {
   createForUser(user: User): AppAbility {
     const rules = [];
+
     const seen = new Set<string>();
     for (const role of user.roles) {
       for (const permission of role.permissions) {

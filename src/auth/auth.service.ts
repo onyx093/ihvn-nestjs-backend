@@ -39,11 +39,12 @@ export class AuthService {
   async login(userId: number, name?: string) {
     const { accessToken, refreshToken } = await this.generateTokens(userId);
     const hashedRefreshToken = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(
+    const user = await this.userService.updateHashedRefreshToken(
       `${userId}`,
       hashedRefreshToken
     );
     return {
+      ...user,
       id: userId,
       name: name,
       accessToken,
@@ -103,7 +104,7 @@ export class AuthService {
 
     const currentUser = {
       id: user.id,
-      role: user.roles,
+      roles: user.roles,
     };
 
     return currentUser;

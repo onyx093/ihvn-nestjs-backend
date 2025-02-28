@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -46,10 +47,10 @@ export class UsersController {
   }
 
   @Permission(UserActions.READ_SELF_USERS)
-  @Get('/me')
+  @Get('/me/profile')
   @HttpCode(HttpStatus.OK)
-  async getMe(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async getMe(@Request() req) {
+    return this.usersService.findOne(req.user.id);
   }
 
   @Permission(UserActions.UPDATE_USERS)

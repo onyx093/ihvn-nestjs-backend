@@ -46,7 +46,7 @@ export class User extends AbstractEntity<User> {
   @JoinColumn()
   userSetting: UserSetting;
 
-  @ManyToMany(() => Role, (role) => role.users, { cascade: true })
+  @ManyToMany(() => Role, (role) => role.users, { cascade: true, eager: true })
   @JoinTable({
     name: 'user_roles',
     joinColumn: { name: 'userId', referencedColumnName: 'id' },

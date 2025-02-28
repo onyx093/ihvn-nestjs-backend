@@ -54,7 +54,7 @@ export class UsersService {
   async findOne(id: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { id },
-      relations: { userSetting: true, roles: true },
+      relations: { userSetting: true },
     });
   }
 
@@ -86,7 +86,10 @@ export class UsersService {
     userId: string,
     hashedRefreshToken: string | null
   ) {
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['roles'],
+    });
     const updatedUser = { ...user, hashedRefreshToken };
     return await this.userRepository.save(updatedUser);
   }

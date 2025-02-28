@@ -10,6 +10,7 @@ export class Role extends AbstractEntity<Role> {
 
   @ManyToMany(() => Permission, (permission) => permission.roles, {
     cascade: true,
+    eager: true,
   })
   @JoinTable({
     name: 'role_permissions',
