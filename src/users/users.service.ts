@@ -88,7 +88,6 @@ export class UsersService {
   ) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['roles'],
     });
     const updatedUser = { ...user, hashedRefreshToken };
     return await this.userRepository.save(updatedUser);

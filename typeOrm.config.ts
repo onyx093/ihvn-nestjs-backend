@@ -5,6 +5,7 @@ import { User } from './src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { Role } from './src/roles/entities/role.entity';
 import { Permission } from './src/permissions/entities/permission.entity';
+import { Course } from './src/courses/entities/course.entity';
 
 config();
 
@@ -12,7 +13,12 @@ const configService = new ConfigService();
 
 export default new DataSource({
   type: 'postgres',
-  url: configService.getOrThrow('DATASOURCE_URL'),
-  entities: [User, UserSetting, Role, Permission],
+  host: configService.getOrThrow('POSTGRES_HOST'),
+  port: configService.getOrThrow('POSTGRES_PORT'),
+  database: configService.getOrThrow('POSTGRES_DB'),
+  username: configService.getOrThrow('POSTGRES_USER'),
+  password: configService.getOrThrow('POSTGRES_PASSWORD'),
+
+  entities: [User, UserSetting, Role, Permission, Course],
   synchronize: configService.getOrThrow('SYNCHRONIZE'),
 });

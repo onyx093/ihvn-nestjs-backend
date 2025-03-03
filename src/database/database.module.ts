@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Permission } from '../permissions/entities/permission.entity';
 import { Role } from '../roles/entities/role.entity';
 import { UserSetting } from '@/users/entities/user-setting.entity';
@@ -5,7 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import 'reflect-metadata';
+import { Course } from '../courses/entities/course.entity';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import 'reflect-metadata';
         type: 'postgres',
         url: configService.getOrThrow('DATABASE_URL'),
         autoLoadEntities: false,
-        entities: [User, UserSetting, Role, Permission],
+        entities: [User, UserSetting, Role, Permission, Course],
         synchronize: configService.getOrThrow('SYNCHRONIZE'),
         migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),
       }),

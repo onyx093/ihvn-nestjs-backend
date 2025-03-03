@@ -1,4 +1,8 @@
 import {
+  CourseActions,
+  CourseSubject,
+} from '../courses/actions/courses.actions';
+import {
   mapEnumToObjects,
   mapSpecifiedEnumMembersToObjects,
 } from '../lib/util';
@@ -19,6 +23,7 @@ export const SuperAdmin = {
   permissions: [
     ...mapEnumToObjects(UserActions, UserSubject),
     ...mapEnumToObjects(RoleActions, RoleSubject),
+    ...mapEnumToObjects(CourseActions, CourseSubject),
   ],
 };
 
@@ -27,6 +32,7 @@ export const Admin = {
   permissions: [
     ...mapEnumToObjects(UserActions, UserSubject),
     ...mapEnumToObjects(RoleActions, RoleSubject),
+    ...mapEnumToObjects(CourseActions, CourseSubject),
   ],
 };
 
@@ -36,6 +42,7 @@ export const Editor = {
     ...mapSpecifiedEnumMembersToObjects(UserActions, UserSubject, [
       'READ_SELF_USERS',
     ]),
+    ...mapEnumToObjects(CourseActions, CourseSubject),
   ],
 };
 
@@ -49,6 +56,10 @@ export const Receptionist = {
       'UPDATE_USERS',
       'CREATE_USERS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
+      'READ_COURSES',
+      'READ_ONE_COURSES',
+    ]),
   ],
 };
 
@@ -57,6 +68,10 @@ export const Student = {
   permissions: [
     ...mapSpecifiedEnumMembersToObjects(UserActions, UserSubject, [
       'READ_SELF_USERS',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
+      'READ_COURSES',
+      'READ_ONE_COURSES',
     ]),
   ],
 };

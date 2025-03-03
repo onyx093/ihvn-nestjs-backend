@@ -6,6 +6,7 @@ import { config } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { Permission } from '../permissions/entities/permission.entity';
 import { SeederOptions } from 'typeorm-extension';
+import { Course } from '../courses/entities/course.entity';
 
 config();
 
@@ -22,7 +23,7 @@ const options: DataSourceOptions & SeederOptions = {
   seeds: ['src/database/seeders/**/*{.ts,.js}'],
   factories: ['src/database/factories/**/*{.ts,.js}'],
   synchronize: configService.getOrThrow('SYNCHRONIZE'),
-  entities: [User, UserSetting, Role, Permission],
+  entities: [User, UserSetting, Role, Permission, Course],
 };
 
 export const dataSource = new DataSource(options);

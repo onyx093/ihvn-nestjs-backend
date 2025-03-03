@@ -11,6 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { CASLModule } from './casl/casl.module';
+import { CoursesModule } from './courses/courses.module';
 
 const configService = new ConfigService();
 
@@ -54,6 +55,7 @@ const configService = new ConfigService();
     PasswordRecoveryModule,
     PermissionsModule,
     RolesModule,
+    CoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
