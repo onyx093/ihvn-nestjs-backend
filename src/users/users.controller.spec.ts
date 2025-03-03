@@ -12,7 +12,7 @@ import * as request from 'supertest';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from '../queues/email.module';
 
-describe('UsersController', () => {
+/* describe('UsersController', () => {
   let usersController: UsersController;
   let usersService: UsersService;
 
@@ -62,6 +62,71 @@ describe('UsersController', () => {
       password: 'securepassword',
     });
     expect(result).toEqual(mockUser);
+  });
+}); */
+
+describe('UsersController', () => {
+  let controller: UsersController;
+  let service: any;
+
+  beforeEach(() => {
+    service = {
+      create: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+      assignRoles: jest.fn(),
+    };
+    controller = new UsersController(service);
+  });
+
+  it('should call create on service', async () => {
+    const dto = { username: 'john', email: 'john@example.com' };
+    service.create.mockResolvedValue(dto);
+    const result = await controller.create(dto);
+    expect(service.create).toHaveBeenCalledWith(dto);
+    expect(result).toEqual(dto);
+  });
+
+  it('should call findAll on service', async () => {
+    const users = [{ id: 1, username: 'john' }];
+    service.findAll.mockResolvedValue(users);
+    const result = await controller.findAll();
+    expect(service.findAll).toHaveBeenCalled();
+    expect(result).toEqual(users);
+  });
+
+  it('should call findOne on service', async () => {
+    const user = { id: 1, username: 'john' };
+    service.findOne.mockResolvedValue(user);
+    const result = await controller.findOne(1);
+    expect(service.findOne).toHaveBeenCalledWith(1);
+    expect(result).toEqual(user);
+  });
+
+  it('should call update on service', async () => {
+    const dto = { username: 'john_updated' };
+    service.update.mockResolvedValue(dto);
+    const result = await controller.update(1, dto);
+    expect(service.update).toHaveBeenCalledWith(1, dto);
+    expect(result).toEqual(dto);
+  });
+
+  it('should call remove on service', async () => {
+    service.remove.mockResolvedValue(null);
+    const result = await controller.remove(1);
+    expect(service.remove).toHaveBeenCalledWith(1);
+    expect(result).toBeNull();
+  });
+
+  it('should assign roles to a user', async () => {
+    const dto = [1, 2];
+    const user = { id: 1, roles: [] };
+    service.assignRoles.mockResolvedValue(user);
+    const result = await controller.assignRoles(1, dto);
+    expect(service.assignRoles).toHaveBeenCalledWith(1, dto);
+    expect(result).toEqual(user);
   });
 });
 

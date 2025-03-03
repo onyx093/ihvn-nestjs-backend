@@ -1,7 +1,14 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+} from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Role } from '../../enums/role.enum';
+import { Role } from '../../roles/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {
@@ -39,10 +46,11 @@ export class User extends AbstractEntity<User> {
   @JoinColumn()
   userSetting: UserSetting;
 
-  @Column({
-    type: 'enum',
-    enum: Role,
-    default: Role.GUEST,
+  @ManyToMany(() => Role, (role) => role.users, { cascade: true, eager: true })
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'roleId', referencedColumnName: 'id' },
   })
-  role: Role;
+  roles: Role[];
 }

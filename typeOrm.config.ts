@@ -3,6 +3,9 @@ import { config } from 'dotenv';
 import { UserSetting } from './src/users/entities/user-setting.entity';
 import { User } from './src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
+import { Role } from './src/roles/entities/role.entity';
+import { Permission } from './src/permissions/entities/permission.entity';
+import { Course } from './src/courses/entities/course.entity';
 
 config();
 
@@ -15,6 +18,7 @@ export default new DataSource({
   database: configService.getOrThrow('POSTGRES_DB'),
   username: configService.getOrThrow('POSTGRES_USER'),
   password: configService.getOrThrow('POSTGRES_PASSWORD'),
-  entities: [User, UserSetting],
+
+  entities: [User, UserSetting, Role, Permission, Course],
   synchronize: configService.getOrThrow('SYNCHRONIZE'),
 });

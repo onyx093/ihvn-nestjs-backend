@@ -7,11 +7,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'argon2';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { Role } from '../roles/entities/role.entity';
+import { PredefinedRoles } from '../enums/role.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectQueue('email') private readonly emailQueue: Queue
   ) {}
 
@@ -23,6 +26,11 @@ export class UsersService {
       password: hashedPassword,
       ...others,
     });
+
+    const guestRole = await this.roleRepository.findOneBy({
+      name: PredefinedRoles.GUEST,
+    });
+    user.roles = [guestRole];
     const registeredUser = await this.userRepository.save(user);
     await this.emailQueue.add(
       'sendWelcomeEmail',
@@ -39,7 +47,7 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return await this.userRepository.find({
-      relations: { userSetting: true },
+      relations: { userSetting: true, roles: true },
     });
   }
 
@@ -56,8 +64,15 @@ export class UsersService {
     return await this.userRepository.save(updatedUser);
   }
 
-  async remove(id: number) {
+  async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
+  }
+
+  async assignRoles(userId: string, roleIds: string[]): Promise<User> {
+    const user = await this.findOne(userId);
+    const roles = await this.roleRepository.findByIds(roleIds);
+    user.roles = roles;
+    return this.userRepository.save(user);
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
@@ -71,7 +86,9 @@ export class UsersService {
     userId: string,
     hashedRefreshToken: string | null
   ) {
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
     const updatedUser = { ...user, hashedRefreshToken };
     return await this.userRepository.save(updatedUser);
   }

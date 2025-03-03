@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PasswordRecoveryService } from './password-recovery.service';
 import { Repository } from 'typeorm';
-import { User } from '@/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Queue } from 'bull';
 import { getRepositoryToken } from '@nestjs/typeorm';
 

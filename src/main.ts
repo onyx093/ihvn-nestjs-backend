@@ -4,6 +4,8 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './exception-filters/http-exception.filter';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { Connection } from 'typeorm';
+import { runSeeders } from 'typeorm-extension';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +21,12 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
+  // Optionally seed the database on startup (for development)
+  if (configService.get('SEED_DB') === 'true') {
+    const connection = app.get(Connection);
+    console.log('Seeding database...');
+    // await runSeeders();
+  }
   const port = configService.get('PORT');
   await app.listen(port);
 }
