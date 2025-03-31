@@ -12,6 +12,7 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { CASLModule } from './casl/casl.module';
 import { CoursesModule } from './courses/courses.module';
+import { EventsModule } from './events/events.module';
 
 const configService = new ConfigService();
 
@@ -56,6 +57,7 @@ const configService = new ConfigService();
     PermissionsModule,
     RolesModule,
     CoursesModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

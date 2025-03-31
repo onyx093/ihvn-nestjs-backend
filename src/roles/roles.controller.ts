@@ -27,8 +27,18 @@ export class RolesController {
   @Permission(RoleActions.CREATE_ROLES)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.rolesService.create(createRoleDto);
+  async create(
+    @Body() createRoleDto: CreateRoleDto,
+    @Body('permissions') permissions: string[]
+  ) {
+    let createdRole = await this.rolesService.create(createRoleDto);
+    if (permissions.length > 0) {
+      createdRole = await this.rolesService.assignPermissions(
+        createdRole.id,
+        permissions
+      );
+    }
+    return createdRole;
   }
 
   @Permission(RoleActions.READ_ROLES)
@@ -48,8 +58,19 @@ export class RolesController {
   @Permission(RoleActions.UPDATE_ROLES)
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(id, updateRoleDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateRoleDto: UpdateRoleDto,
+    @Body('permissions') permissions: string[]
+  ) {
+    let updatedRole = await this.rolesService.update(id, updateRoleDto);
+    if (permissions.length > 0) {
+      updatedRole = await this.rolesService.assignPermissions(
+        updatedRole.id,
+        permissions
+      );
+    }
+    return updatedRole;
   }
 
   @Permission(RoleActions.DELETE_ROLES)

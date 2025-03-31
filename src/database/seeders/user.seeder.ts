@@ -39,7 +39,7 @@ export default class UserSeeder implements Seeder {
       name: 'John Doe',
       username: 'john',
       email: 'john@example.com',
-      roles: [superAdminRole, receptionistRole],
+      roles: [superAdminRole],
     };
 
     const adminUser = {

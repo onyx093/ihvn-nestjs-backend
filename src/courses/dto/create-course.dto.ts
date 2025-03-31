@@ -1,13 +1,10 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateCourseDto {
   @IsString()
   @IsNotEmpty()
   title: string;
-
-  @IsString()
-  @IsNotEmpty()
-  slug: string;
 
   @IsString()
   @IsNotEmpty()
@@ -17,7 +14,8 @@ export class CreateCourseDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
+  @Type(() => Number)
   price: number;
 }
