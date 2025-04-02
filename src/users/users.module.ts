@@ -9,11 +9,13 @@ import { EmailModule } from '../queues/email.module';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
 import { CASLModule } from '@/casl/casl.module';
+import { DiscoveryModule } from '@nestjs/core';
 
 const configService = new ConfigService();
 
 @Module({
   imports: [
+    DiscoveryModule,
     TypeOrmModule.forFeature([User, UserSetting, Role]),
     BullModule.registerQueue({
       name: 'email',

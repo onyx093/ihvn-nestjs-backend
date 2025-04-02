@@ -13,6 +13,10 @@ import {
   PermissionActions,
   PermissionSubject,
 } from '../permissions/actions/permissions.action';
+import {
+  AttendanceActions,
+  AttendanceSubject,
+} from '../attendance/actions/attendance.action';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -37,6 +41,7 @@ export const SuperAdmin = {
     ...mapEnumToObjects(PermissionActions, PermissionSubject),
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
+    ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
   ],
 };
 
@@ -48,6 +53,7 @@ export const Admin = {
     ...mapEnumToObjects(RoleActions, RoleSubject),
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
+    ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
   ],
 };
 
@@ -87,6 +93,7 @@ export const Receptionist = {
       'READ_EVENTS',
       'READ_ONE_EVENTS',
     ]),
+    ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
   ],
 };
 

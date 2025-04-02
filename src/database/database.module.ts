@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Course } from '../courses/entities/course.entity';
 import { Event } from '../events/entities/event.entity';
+import { Attendance } from '../attendance/entities/attendance.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,15 @@ import { Event } from '../events/entities/event.entity';
         type: 'postgres',
         url: configService.getOrThrow('DATABASE_URL'),
         autoLoadEntities: false,
-        entities: [User, UserSetting, Role, Permission, Course, Event],
+        entities: [
+          User,
+          UserSetting,
+          Role,
+          Permission,
+          Course,
+          Event,
+          Attendance,
+        ],
         synchronize: configService.getOrThrow('SYNCHRONIZE'),
         migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),
       }),
