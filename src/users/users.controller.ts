@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,7 @@ import { Subject } from '@/decorators/subject.decorator';
 import { Permission } from '@/decorators/permission.decorator';
 import { PermissionsGuard } from '@/casl/guard/permissions.guard';
 import { UserActions, UserSubject } from './actions/users.action';
+import errors from '@/config/errors.config';
 
 @Subject(UserSubject.NAME)
 @Controller('users')
@@ -29,21 +31,25 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return await this.usersService.create(createUserDto);
   }
 
   @Permission(UserActions.READ_USERS)
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return this.usersService.findAll();
+    return await this.usersService.findAll();
   }
 
   @Permission(UserActions.READ_ONE_USERS)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+    const user = this.usersService.findOne(id);
+    if (!user) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+    return await this.usersService.findOne(id);
   }
 
   @Permission(UserActions.READ_SELF_USERS)
@@ -57,7 +63,7 @@ export class UsersController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+    return await this.usersService.update(id, updateUserDto);
   }
 
   @Permission(UserActions.DELETE_USERS)

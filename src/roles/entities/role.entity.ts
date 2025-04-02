@@ -1,3 +1,4 @@
+import { RoleType } from '../../enums/role.enum';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Permission } from '../../permissions/entities/permission.entity';
 import { User } from '../../users/entities/user.entity';
@@ -7,6 +8,13 @@ import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 export class Role extends AbstractEntity<Role> {
   @Column({ unique: true })
   name: string;
+
+  @Column({
+    type: 'enum',
+    enum: RoleType,
+    default: RoleType.CUSTOM,
+  })
+  type: RoleType;
 
   @ManyToMany(() => Permission, (permission) => permission.roles, {
     cascade: true,

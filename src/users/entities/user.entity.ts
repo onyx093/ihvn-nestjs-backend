@@ -4,11 +4,13 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Role } from '../../roles/entities/role.entity';
+import { Attendance } from '../../attendance/entities/attendance.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {
@@ -45,6 +47,9 @@ export class User extends AbstractEntity<User> {
   @OneToOne(() => UserSetting, { cascade: true })
   @JoinColumn()
   userSetting: UserSetting;
+
+  @OneToMany(() => Attendance, (attendance) => attendance.user)
+  attendances: Attendance[];
 
   @ManyToMany(() => Role, (role) => role.users, { cascade: true, eager: true })
   @JoinTable({

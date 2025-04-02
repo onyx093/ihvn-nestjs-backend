@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Role } from '../roles/entities/role.entity';
 import { PredefinedRoles } from '../enums/role.enum';
+import errors from '@/config/errors.config';
 
 @Injectable()
 export class UsersService {
@@ -35,8 +36,8 @@ export class UsersService {
     await this.emailQueue.add(
       'sendWelcomeEmail',
       {
-        email: user.email,
-        name: user.name,
+        email: registeredUser.email,
+        name: registeredUser.name,
       },
       {
         attempts: 3,
@@ -54,13 +55,16 @@ export class UsersService {
   async findOne(id: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { id },
-      relations: { userSetting: true },
+      relations: { userSetting: true, roles: true },
     });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
-    const updatedUser = { ...user, ...updateUserDto };
+    if (!user) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+    const updatedUser = { ...user, ...updateUserDto, updatedAt: new Date() };
     return await this.userRepository.save(updatedUser);
   }
 
