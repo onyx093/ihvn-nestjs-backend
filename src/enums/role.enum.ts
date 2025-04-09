@@ -63,6 +63,7 @@ export const Editor = {
   permissions: [
     ...mapSpecifiedEnumMembersToObjects(UserActions, UserSubject, [
       'READ_SELF_USERS',
+      'UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN',
     ]),
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
@@ -84,6 +85,7 @@ export const Receptionist = {
       'READ_SELF_USERS',
       'UPDATE_USERS',
       'CREATE_USERS',
+      'UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
       'READ_COURSES',
@@ -103,6 +105,7 @@ export const Student = {
   permissions: [
     ...mapSpecifiedEnumMembersToObjects(UserActions, UserSubject, [
       'READ_SELF_USERS',
+      'UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
       'READ_COURSES',
@@ -121,6 +124,7 @@ export const Guest = {
   permissions: [
     ...mapSpecifiedEnumMembersToObjects(UserActions, UserSubject, [
       'READ_SELF_USERS',
+      'UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
       'READ_COURSES',

@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Course } from '../courses/entities/course.entity';
 import { Event } from '../events/entities/event.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
+import { Account } from '../users/entities/account.entity';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { Attendance } from '../attendance/entities/attendance.entity';
           Course,
           Event,
           Attendance,
+          Account,
         ],
         synchronize: configService.getOrThrow('SYNCHRONIZE'),
         migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),

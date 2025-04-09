@@ -10,13 +10,14 @@ import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
 import { CASLModule } from '@/casl/casl.module';
 import { DiscoveryModule } from '@nestjs/core';
+import { Account } from './entities/account.entity';
 
 const configService = new ConfigService();
 
 @Module({
   imports: [
     DiscoveryModule,
-    TypeOrmModule.forFeature([User, UserSetting, Role]),
+    TypeOrmModule.forFeature([User, UserSetting, Role, Account]),
     BullModule.registerQueue({
       name: 'email',
       redis: {

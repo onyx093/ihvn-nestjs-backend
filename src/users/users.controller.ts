@@ -30,7 +30,7 @@ export class UsersController {
   @Permission(UserActions.CREATE_USERS)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Request() req, @Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
 
@@ -81,5 +81,20 @@ export class UsersController {
     @Body('roleIds') roleIds: string[]
   ) {
     return this.usersService.assignRoles(id, roleIds);
+  }
+
+  @Permission(UserActions.UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN)
+  @Post('update-self-password-on-first-login')
+  @HttpCode(HttpStatus.OK)
+  async updateSelfPasswordOnFirstLogin(
+    @Request() req,
+    @Body('newPassword') newPassword: string,
+    @Body('confirmPassword') confirmPassword: string
+  ) {
+    return this.usersService.updateSelfPasswordOnFirstLogin(
+      req.user.id,
+      newPassword,
+      confirmPassword
+    );
   }
 }

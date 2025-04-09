@@ -1,3 +1,4 @@
+import { Account } from '../../users/entities/account.entity';
 import { PredefinedRoles } from '../../enums/role.enum';
 import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
@@ -82,23 +83,47 @@ export default class UserSeeder implements Seeder {
     const superAdminFactory = await factoryManager
       .get(User)
       .make(superAdminUser);
+    superAdminFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: true,
+      isAccountGenerated: true,
+    });
     await userRepository.save(superAdminFactory);
 
     const adminFactory = await factoryManager.get(User).make(adminUser);
+    adminFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: false,
+      isAccountGenerated: false,
+    });
     await userRepository.save(adminFactory);
 
     const editorFactory = await factoryManager.get(User).make(editorUser);
+    editorFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: false,
+      isAccountGenerated: false,
+    });
     await userRepository.save(editorFactory);
 
     const receptionistFactory = await factoryManager
       .get(User)
       .make(receptionistUser);
+    receptionistFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: true,
+      isAccountGenerated: true,
+    });
     await userRepository.save(receptionistFactory);
 
     const studentFactory = await factoryManager.get(User).make(studentUser);
+    studentFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: true,
+      isAccountGenerated: false,
+    });
     await userRepository.save(studentFactory);
 
     const guestFactory = await factoryManager.get(User).make(guestUser);
+    guestFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: true,
+      isAccountGenerated: true,
+    });
     await userRepository.save(guestFactory);
   }
 }

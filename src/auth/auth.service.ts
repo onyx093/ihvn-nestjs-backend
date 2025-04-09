@@ -30,7 +30,9 @@ export class AuthService {
       createUserDto.email
     );
     if (existingUser) {
-      throw new ConflictException(errors.conflictError());
+      throw new ConflictException(
+        errors.conflictError('A user with this email already exists')
+      );
     }
 
     return await this.userService.create(createUserDto);

@@ -7,12 +7,21 @@ export class EmailService {
 
   constructor(private readonly mailerService: MailerService) {}
 
-  async sendWelcomeEmail(email: string, name: string) {
+  async sendWelcomeEmail(email: string, name: string, password: string) {
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: 'Welcome to Our App',
-        text: `Hello ${name}, welcome to our app!`,
+        subject: 'Welcome to IHVN',
+        text: `Hello ${name}, welcome to IHVN!
+
+        Here are your login credentials:
+        Email: ${email}
+        Password: ${password}
+
+        Please change your password after logging in for the first time.
+        
+        We are thrilled to have you as part of our community. Your journey with us begins now, and we can't wait to see what you'll achieve.
+        If you have any questions or need assistance, feel free to reach out to us.`,
       });
       console.log('Email sent successfully');
     } catch (error) {

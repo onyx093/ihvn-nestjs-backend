@@ -8,7 +8,7 @@ export const CourseFactory = setSeederFactory(
     // faker;
     const course = new Course({});
     // Use custom data if provided; otherwise, use faker defaults.
-    const courseName = fakerEN.lorem.words(3);
+    const courseName = fakerEN.lorem.word();
 
     course.title = context.title || courseName;
     course.slug = context.slug || slugify(courseName);

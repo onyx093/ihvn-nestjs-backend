@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { WeekType } from '@/enums/attendance.enum';
+import { WeekType } from '../../enums/attendance.enum';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { User } from '../../users/entities/user.entity';
 
