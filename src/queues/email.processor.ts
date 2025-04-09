@@ -9,9 +9,9 @@ export class EmailProcessor {
   @Process('sendWelcomeEmail')
   async handleWelcomeEmail(job: Job) {
     try {
-      const { email, name } = job.data;
+      const { email, name, password } = job.data;
       console.log(`Sending an email to ${email}`);
-      await this.emailService.sendWelcomeEmail(email, name);
+      await this.emailService.sendWelcomeEmail(email, name, password);
       console.log(`Email sent!`);
     } catch (error) {
       console.error(`Failed to send email for job ${job.id}:`, error);

@@ -1,5 +1,6 @@
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 import { CreateUserSettingDto } from './create-user-setting.dto';
+import { CreateAccountDto } from './create-account.dto';
 
 export class CreateUserDto {
   @IsString()
@@ -14,11 +15,10 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
-  password: string;
-
-  @IsString()
   @IsOptional()
   phoneNumber?: string;
+
+  account?: CreateAccountDto;
 
   userSetting?: CreateUserSettingDto;
 }

@@ -6,6 +6,7 @@ export enum UserActions {
   UPDATE_USERS = 'update_users',
   DELETE_USERS = 'delete_users',
   ASSIGN_ROLES_TO_USERS = 'assign_roles_to_users',
+  UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN = 'update_self_password_on_first_login',
 }
 
 export enum UserSubject {

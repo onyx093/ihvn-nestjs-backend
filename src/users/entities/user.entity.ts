@@ -11,6 +11,7 @@ import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { Attendance } from '../../attendance/entities/attendance.entity';
+import { Account } from './account.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {
@@ -47,6 +48,9 @@ export class User extends AbstractEntity<User> {
   @OneToOne(() => UserSetting, { cascade: true })
   @JoinColumn()
   userSetting: UserSetting;
+
+  @OneToOne(() => Account, (account) => account.user, { cascade: true })
+  account: Account;
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendances: Attendance[];

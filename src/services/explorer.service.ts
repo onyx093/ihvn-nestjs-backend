@@ -126,6 +126,7 @@ export class PermissionsExplorerService implements OnApplicationBootstrap {
         // Otherwise, create a new role entity and assign the fetched permissions.
         roleEntity = await this.roleRepository.create();
         roleEntity.name = role.roleName;
+        roleEntity.type = role.type;
         roleEntity.permissions = permissions;
         console.log(`Creating new role: ${roleEntity.name}`);
       }
