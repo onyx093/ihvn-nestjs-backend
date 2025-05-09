@@ -1,5 +1,6 @@
+import { CourseCategory } from '../../course-categories/entities/course-category.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity({ name: 'courses' })
 export class Course extends AbstractEntity<Course> {
@@ -10,20 +11,20 @@ export class Course extends AbstractEntity<Course> {
   slug: string;
 
   @Column()
-  courseInstructor: string;
-
-  @Column()
   description: string;
 
   @Column({ nullable: true })
-  imageUrl: string;
+  thumbnail: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  price: number;
+  @Column('int')
+  estimatedDurationForCompletion: number;
 
   @Column({ default: new Date() })
   createdAt: Date;
 
   @Column({ default: new Date() })
   updatedAt: Date;
+
+  @ManyToOne(() => CourseCategory, (category) => category.courses)
+  category: CourseCategory;
 }

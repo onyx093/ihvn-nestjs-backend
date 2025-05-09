@@ -10,10 +10,10 @@ import { PasswordRecoveryModule } from './password-recovery/password-recovery.mo
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
-import { CASLModule } from './casl/casl.module';
 import { CoursesModule } from './courses/courses.module';
 import { EventsModule } from './events/events.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { CourseCategoryModule } from './course-categories/course-category.module';
 
 const configService = new ConfigService();
 
@@ -60,6 +60,7 @@ const configService = new ConfigService();
     CoursesModule,
     EventsModule,
     AttendanceModule,
+    CourseCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

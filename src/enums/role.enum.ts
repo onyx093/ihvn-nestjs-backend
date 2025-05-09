@@ -17,6 +17,10 @@ import {
   AttendanceActions,
   AttendanceSubject,
 } from '../attendance/actions/attendance.action';
+import {
+  CourseCategoryActions,
+  CourseCategorySubject,
+} from '../course-categories/actions/course-categories.actions';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -42,6 +46,7 @@ export const SuperAdmin = {
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
+    ...mapEnumToObjects(CourseCategoryActions, CourseCategorySubject),
   ],
 };
 
@@ -54,6 +59,7 @@ export const Admin = {
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
+    ...mapEnumToObjects(CourseCategoryActions, CourseCategorySubject),
   ],
 };
 
@@ -72,6 +78,16 @@ export const Editor = {
       'CREATE_EVENTS',
       'UPDATE_EVENTS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(
+      CourseCategoryActions,
+      CourseCategorySubject,
+      [
+        'READ_COURSE_CATEGORIES',
+        'READ_ONE_COURSE_CATEGORIES',
+        'CREATE_COURSE_CATEGORIES',
+        'UPDATE_COURSE_CATEGORIES',
+      ]
+    ),
   ],
 };
 
@@ -96,6 +112,11 @@ export const Receptionist = {
       'READ_ONE_EVENTS',
     ]),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
+    ...mapSpecifiedEnumMembersToObjects(
+      CourseCategoryActions,
+      CourseCategorySubject,
+      ['READ_COURSE_CATEGORIES', 'READ_ONE_COURSE_CATEGORIES']
+    ),
   ],
 };
 
@@ -115,6 +136,11 @@ export const Student = {
       'READ_EVENTS',
       'READ_ONE_EVENTS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(
+      CourseCategoryActions,
+      CourseCategorySubject,
+      ['READ_COURSE_CATEGORIES', 'READ_ONE_COURSE_CATEGORIES']
+    ),
   ],
 };
 
@@ -134,5 +160,10 @@ export const Guest = {
       'READ_EVENTS',
       'READ_ONE_EVENTS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(
+      CourseCategoryActions,
+      CourseCategorySubject,
+      ['READ_COURSE_CATEGORIES', 'READ_ONE_COURSE_CATEGORIES']
+    ),
   ],
 };

@@ -9,6 +9,7 @@ import { SeederOptions } from 'typeorm-extension';
 import { Course } from '../courses/entities/course.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
 import { Account } from '../users/entities/account.entity';
+import { CourseCategory } from '../course-categories/entities/course-category.entity';
 
 config();
 
@@ -25,7 +26,16 @@ const options: DataSourceOptions & SeederOptions = {
   seeds: ['src/database/seeders/**/*{.ts,.js}'],
   factories: ['src/database/factories/**/*{.ts,.js}'],
   synchronize: configService.getOrThrow('SYNCHRONIZE'),
-  entities: [User, UserSetting, Role, Permission, Course, Attendance, Account],
+  entities: [
+    User,
+    UserSetting,
+    Role,
+    Permission,
+    Course,
+    CourseCategory,
+    Attendance,
+    Account,
+  ],
 };
 
 export const dataSource = new DataSource(options);
