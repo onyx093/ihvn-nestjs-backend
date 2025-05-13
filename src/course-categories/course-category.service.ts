@@ -6,6 +6,8 @@ import { CourseCategory } from './entities/course-category.entity';
 import { Repository } from 'typeorm';
 import errors from '@/config/errors.config';
 import { slugify } from '@/lib/helpers';
+import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @Injectable()
 export class CourseCategoryService {
@@ -24,8 +26,23 @@ export class CourseCategoryService {
     return this.courseCategoryRepository.save(courseCategory);
   }
 
-  findAll(): Promise<CourseCategory[]> {
-    return this.courseCategoryRepository.find({ relations: { courses: true } });
+  async findAll(
+    paginationDto: PaginationDto
+  ): Promise<PaginationResult<CourseCategory>> {
+    const { page, limit } = paginationDto;
+    const [data, total] = await this.courseCategoryRepository.findAndCount({
+      relations: { courses: true },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<CourseCategory | null> {
@@ -55,6 +72,12 @@ export class CourseCategoryService {
   }
 
   async remove(id: string): Promise<void> {
+    const courseCategory = await this.courseCategoryRepository.findOneBy({
+      id,
+    });
+    if (!courseCategory) {
+      throw new NotFoundException(errors.notFound('Category not found'));
+    }
     await this.courseCategoryRepository.delete(id);
   }
 }

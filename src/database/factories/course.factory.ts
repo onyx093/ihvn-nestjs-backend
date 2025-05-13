@@ -13,11 +13,6 @@ export const CourseFactory = setSeederFactory(
     course.title = context.title || courseName;
     course.slug = context.slug || slugify(courseName);
     course.description = context.description || fakerEN.lorem.sentences(3);
-    course.courseInstructor =
-      context.courseInstructor || fakerEN.person.fullName();
-    course.price =
-      context.price ||
-      parseFloat(fakerEN.finance.amount({ min: 10, max: 100 }));
     return course;
   }
 );

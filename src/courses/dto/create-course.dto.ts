@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsString, IsUrl, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
 export class CreateCourseDto {
   @IsString()
@@ -9,13 +10,10 @@ export class CreateCourseDto {
   @IsNotEmpty()
   description: string;
 
-  @IsString()
-  @IsUrl()
-  thumbnail: string;
-
   @IsUUID()
   categoryId: string;
 
+  @Type(() => Number)
   @IsNumber()
   estimatedDurationForCompletion: number;
 }

@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { CourseCategoryService } from './course-category.service';
 import { CreateCourseCategoryDto } from './dto/create-course-category.dto';
@@ -22,6 +23,7 @@ import {
 } from './actions/course-categories.actions';
 import { Permission } from '@/decorators/permission.decorator';
 import errors from '@/config/errors.config';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @Subject(CourseCategorySubject.NAME)
 @Controller('course-categories')
@@ -39,8 +41,8 @@ export class CourseCategoryController {
   @Permission(CourseCategoryActions.READ_COURSE_CATEGORIES)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll() {
-    return this.courseCategoryService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto) {
+    return this.courseCategoryService.findAll(paginationDto);
   }
 
   @Permission(CourseCategoryActions.READ_ONE_COURSE_CATEGORIES)

@@ -6,9 +6,12 @@ import { HttpExceptionFilter } from './exception-filters/http-exception.filter';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { Connection } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as mkdirp from 'mkdirp';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const loggerInstance = app.get(Logger);
   app.useGlobalFilters(new HttpExceptionFilter(loggerInstance));
   app.useGlobalInterceptors(new ResponseInterceptor());
@@ -19,6 +22,11 @@ async function bootstrap() {
       whitelist: true,
     })
   );
+  mkdirp.sync(join(__dirname, '..', 'uploads', 'thumbnails'));
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/thumbnails',
+  });
 
   const configService = app.get(ConfigService);
   // Optionally seed the database on startup (for development)

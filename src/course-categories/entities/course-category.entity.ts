@@ -1,7 +1,8 @@
-import { Column, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Course } from '../../courses/entities/course.entity';
 
+@Entity({ name: 'course_categories' })
 export class CourseCategory extends AbstractEntity<CourseCategory> {
   @Column({ unique: true })
   name: string;
