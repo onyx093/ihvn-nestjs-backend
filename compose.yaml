@@ -12,8 +12,10 @@ services:
       - ./.env
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./src:/usr/src/app/src
+      - ./uploads:/usr/src/app/uploads
   postgres:
     image: postgres:15-alpine
     restart: always

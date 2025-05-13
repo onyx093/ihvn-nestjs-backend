@@ -10,10 +10,12 @@ import { PasswordRecoveryModule } from './password-recovery/password-recovery.mo
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
-import { CASLModule } from './casl/casl.module';
 import { CoursesModule } from './courses/courses.module';
 import { EventsModule } from './events/events.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { CourseCategoryModule } from './course-categories/course-category.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const configService = new ConfigService();
 
@@ -52,6 +54,14 @@ const configService = new ConfigService();
         }
       }, */
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
     UsersModule,
     AuthModule,
     PasswordRecoveryModule,
@@ -60,6 +70,8 @@ const configService = new ConfigService();
     CoursesModule,
     EventsModule,
     AttendanceModule,
+    CourseCategoryModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

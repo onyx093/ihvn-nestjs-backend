@@ -10,6 +10,7 @@ import { Course } from '../courses/entities/course.entity';
 import { Event } from '../events/entities/event.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
 import { Account } from '../users/entities/account.entity';
+import { CourseCategory } from '../course-categories/entities/course-category.entity';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Account } from '../users/entities/account.entity';
           Role,
           Permission,
           Course,
+          CourseCategory,
           Event,
           Attendance,
           Account,
