@@ -24,6 +24,10 @@ export default class UserSeeder implements Seeder {
       name: PredefinedRoles.EDITOR,
     });
 
+    const instructorRole = await dataSource.getRepository(Role).findOneBy({
+      name: PredefinedRoles.INSTRUCTOR,
+    });
+
     const receptionistRole = await dataSource.getRepository(Role).findOneBy({
       name: PredefinedRoles.RECEPTIONIST,
     });
@@ -54,6 +58,13 @@ export default class UserSeeder implements Seeder {
       name: 'Joseph Doe',
       username: 'joseph',
       email: 'joseph@example.com',
+      roles: [instructorRole],
+    };
+
+    const instructorUser = {
+      name: 'Kenneth Doe',
+      username: 'kenneth',
+      email: 'kenneth@example.com',
       roles: [editorRole],
     };
 
@@ -102,6 +113,15 @@ export default class UserSeeder implements Seeder {
       isAccountGenerated: false,
     });
     await userRepository.save(editorFactory);
+
+    const instructorFactory = await factoryManager
+      .get(User)
+      .make(instructorUser);
+    instructorFactory.account = await factoryManager.get(Account).make({
+      firstTimeLogin: false,
+      isAccountGenerated: false,
+    });
+    await userRepository.save(instructorFactory);
 
     const receptionistFactory = await factoryManager
       .get(User)

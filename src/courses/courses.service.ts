@@ -1,6 +1,5 @@
 import fs from 'fs';
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,19 +8,18 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { slugify } from '@/lib/helpers';
 import errors from '@/config/errors.config';
-import { CourseCategoryService } from '../course-categories/course-category.service';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { CourseStatus } from '../enums/course-status.enum';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
-    private readonly courseRepository: Repository<Course>,
-    private readonly courseCategoryService: CourseCategoryService
+    private readonly courseRepository: Repository<Course>
   ) {}
 
   async create(
@@ -33,14 +31,6 @@ export class CoursesService {
         errors.validationFailed('A thumbnail is required')
       );
     } */
-    const courseCategory = await this.courseCategoryService.findOne(
-      createCourseDto.categoryId
-    );
-    if (!courseCategory) {
-      throw new NotFoundException(
-        errors.notFound('Selected category for the course, not found')
-      );
-    }
 
     console.log('Uploaded File:', {
       originalname: file?.originalname,
@@ -49,7 +39,7 @@ export class CoursesService {
       size: file?.size,
     });
 
-    const slug = slugify(createCourseDto.title);
+    const slug = slugify(createCourseDto.name);
     let thumbnailPath = null;
     if (file) {
       thumbnailPath = `/thumbnails/${file.filename}`;
@@ -58,7 +48,6 @@ export class CoursesService {
       ...createCourseDto,
       slug,
       thumbnail: thumbnailPath,
-      category: courseCategory,
     });
     try {
       return this.courseRepository.save(course);
@@ -76,7 +65,9 @@ export class CoursesService {
   ): Promise<PaginationResult<Course>> {
     const { page, limit } = paginationDto;
     const [data, total] = await this.courseRepository.findAndCount({
-      relations: { category: true },
+      where: {
+        status: CourseStatus.PUBLISHED,
+      },
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -93,7 +84,6 @@ export class CoursesService {
   async findOne(id: string): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id },
-      relations: { category: true },
     });
   }
 
@@ -113,14 +103,6 @@ export class CoursesService {
       );
     } */
 
-    const courseCategory = await this.courseCategoryService.findOne(
-      updateCourseDto.categoryId
-    );
-    if (!courseCategory) {
-      throw new NotFoundException(
-        errors.notFound('Selected category for the course, not found')
-      );
-    }
     if (file) {
       console.log('Uploaded File:', {
         originalname: file?.originalname,
@@ -136,10 +118,7 @@ export class CoursesService {
     const updatedCourse = {
       ...course,
       ...updateCourseDto,
-      slug: updateCourseDto.title
-        ? slugify(updateCourseDto.title)
-        : course.slug,
-      category: courseCategory,
+      slug: updateCourseDto.name ? slugify(updateCourseDto.name) : course.slug,
       thumbnail: thumbnailPath ?? null,
       updatedAt: new Date(),
     };
@@ -159,6 +138,39 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
+    if (course.schedules.length > 0) {
+      throw new InternalServerErrorException(
+        errors.serverError('Course cannot be deleted because it has schedules')
+      );
+    }
+    if (course.lessons.length > 0) {
+      throw new InternalServerErrorException(
+        errors.serverError('Course cannot be deleted because it has lessons')
+      );
+    }
+    if (course.thumbnail) {
+      const thumbnailPath = `./uploads${course.thumbnail}`;
+      if (fs.existsSync(thumbnailPath)) {
+        fs.unlinkSync(thumbnailPath);
+      }
+    }
+
     await this.courseRepository.delete(id);
+  }
+
+  async softDelete(id: string): Promise<void> {
+    const course = await this.courseRepository.findOneBy({ id });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
+    await this.courseRepository.softDelete(id);
+  }
+
+  async restore(id: string): Promise<void> {
+    const course = await this.courseRepository.findOneBy({ id });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
+    await this.courseRepository.restore(id);
   }
 }

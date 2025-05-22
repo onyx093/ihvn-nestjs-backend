@@ -79,4 +79,18 @@ export class CoursesController {
   async remove(@Param('id') id: string) {
     return await this.coursesService.remove(id);
   }
+
+  @Permission(CourseActions.SOFT_DELETE_COURSES)
+  @Patch(':id/soft-delete')
+  @HttpCode(HttpStatus.OK)
+  async softDelete(@Param('id') id: string) {
+    return this.coursesService.softDelete(id);
+  }
+
+  @Permission(CourseActions.RESTORE_COURSES)
+  @Patch(':id/restore')
+  @HttpCode(HttpStatus.OK)
+  async restore(@Param('id') id: string) {
+    return this.coursesService.restore(id);
+  }
 }

@@ -4,6 +4,7 @@ import {
   Admin,
   Editor,
   Guest,
+  Instructor,
   Receptionist,
   Student,
   SuperAdmin,
@@ -95,7 +96,15 @@ export class PermissionsExplorerService implements OnApplicationBootstrap {
 
   public async persistRoles() {
     // Array of role objects you want to persist
-    const roles = [SuperAdmin, Admin, Editor, Receptionist, Student, Guest];
+    const roles = [
+      SuperAdmin,
+      Admin,
+      Editor,
+      Instructor,
+      Receptionist,
+      Student,
+      Guest,
+    ];
 
     for (const role of roles) {
       // For each permission in the role's permissions array, fetch the matching Permission entity

@@ -13,9 +13,13 @@ import { RolesModule } from './roles/roles.module';
 import { CoursesModule } from './courses/courses.module';
 import { EventsModule } from './events/events.module';
 import { AttendanceModule } from './attendance/attendance.module';
-import { CourseCategoryModule } from './course-categories/course-category.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CohortModule } from './cohorts/cohorts.module';
+import { LessonModule } from './lesson/lesson.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { StudentsModule } from './students/students.module';
+import { CourseSchedulesModule } from './course-schedules/course-schedules.module';
 
 const configService = new ConfigService();
 
@@ -70,8 +74,12 @@ const configService = new ConfigService();
     CoursesModule,
     EventsModule,
     AttendanceModule,
-    CourseCategoryModule,
     FileUploadModule,
+    CohortModule,
+    LessonModule,
+    EnrollmentsModule,
+    StudentsModule,
+    CourseSchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

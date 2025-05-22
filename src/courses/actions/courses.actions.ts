@@ -4,6 +4,8 @@ export enum CourseActions {
   READ_ONE_COURSES = 'read_one_courses',
   UPDATE_COURSES = 'update_courses',
   DELETE_COURSES = 'delete_courses',
+  SOFT_DELETE_COURSES = 'soft_delete_courses',
+  RESTORE_COURSES = 'restore_courses',
 }
 
 export enum CourseSubject {

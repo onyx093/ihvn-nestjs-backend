@@ -9,7 +9,11 @@ import { SeederOptions } from 'typeorm-extension';
 import { Course } from '../courses/entities/course.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
 import { Account } from '../users/entities/account.entity';
-import { CourseCategory } from '../course-categories/entities/course-category.entity';
+import { Cohort } from '../cohorts/entities/cohort.entity';
+import { CourseSchedule } from '../course-schedules/entities/course-schedule.entity';
+import { Lesson } from '../lesson/entities/lesson.entity';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { Student } from '../students/entities/student.entity';
 
 config();
 
@@ -32,9 +36,13 @@ const options: DataSourceOptions & SeederOptions = {
     Role,
     Permission,
     Course,
-    CourseCategory,
     Attendance,
     Account,
+    Cohort,
+    CourseSchedule,
+    Lesson,
+    Enrollment,
+    Student,
   ],
 };
 

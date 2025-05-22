@@ -17,10 +17,11 @@ import {
   AttendanceActions,
   AttendanceSubject,
 } from '../attendance/actions/attendance.action';
+import { CohortActions, CohortSubject } from '@/cohorts/actions/cohort.actions';
 import {
-  CourseCategoryActions,
-  CourseCategorySubject,
-} from '../course-categories/actions/course-categories.actions';
+  CourseScheduleActions,
+  CourseScheduleSubject,
+} from '@/course-schedules/actions/course-schedules.actions';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -31,6 +32,7 @@ export enum PredefinedRoles {
   SUPER_ADMIN = 'Super Admin',
   ADMIN = 'Admin',
   EDITOR = 'Editor',
+  INSTRUCTOR = 'Instructor',
   RECEPTIONIST = 'Receptionist',
   STUDENT = 'Student',
   GUEST = 'Guest',
@@ -46,7 +48,8 @@ export const SuperAdmin = {
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
-    ...mapEnumToObjects(CourseCategoryActions, CourseCategorySubject),
+    ...mapEnumToObjects(CohortActions, CohortSubject),
+    ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
   ],
 };
 
@@ -59,7 +62,8 @@ export const Admin = {
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
-    ...mapEnumToObjects(CourseCategoryActions, CourseCategorySubject),
+    ...mapEnumToObjects(CohortActions, CohortSubject),
+    ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
   ],
 };
 
@@ -71,22 +75,59 @@ export const Editor = {
       'READ_SELF_USERS',
       'UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN',
     ]),
-    ...mapEnumToObjects(CourseActions, CourseSubject),
+    ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
+      'READ_COURSES',
+      'READ_ONE_COURSES',
+      'CREATE_COURSES',
+      'UPDATE_COURSES',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
       'READ_EVENTS',
       'READ_ONE_EVENTS',
       'CREATE_EVENTS',
       'UPDATE_EVENTS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
+      'READ_COHORTS',
+      'READ_ONE_COHORTS',
+      'UPDATE_COHORTS',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(
-      CourseCategoryActions,
-      CourseCategorySubject,
+      CourseScheduleActions,
+      CourseScheduleSubject,
       [
-        'READ_COURSE_CATEGORIES',
-        'READ_ONE_COURSE_CATEGORIES',
-        'CREATE_COURSE_CATEGORIES',
-        'UPDATE_COURSE_CATEGORIES',
+        'READ_COURSE_SCHEDULES',
+        'READ_ONE_COURSE_SCHEDULES',
+        'UPDATE_COURSE_SCHEDULES',
       ]
+    ),
+  ],
+};
+
+export const Instructor = {
+  roleName: PredefinedRoles.INSTRUCTOR,
+  type: RoleType.PREDEFINED,
+  permissions: [
+    ...mapSpecifiedEnumMembersToObjects(UserActions, UserSubject, [
+      'READ_SELF_USERS',
+      'UPDATE_SELF_PASSWORD_ON_FIRST_LOGIN',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
+      'READ_COURSES',
+      'READ_ONE_COURSES',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
+      'READ_EVENTS',
+      'READ_ONE_EVENTS',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
+      'READ_COHORTS',
+      'READ_ONE_COHORTS',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(
+      CourseScheduleActions,
+      CourseScheduleSubject,
+      ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
   ],
 };
@@ -112,10 +153,14 @@ export const Receptionist = {
       'READ_ONE_EVENTS',
     ]),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
+    ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
+      'READ_COHORTS',
+      'READ_ONE_COHORTS',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(
-      CourseCategoryActions,
-      CourseCategorySubject,
-      ['READ_COURSE_CATEGORIES', 'READ_ONE_COURSE_CATEGORIES']
+      CourseScheduleActions,
+      CourseScheduleSubject,
+      ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
   ],
 };
@@ -136,10 +181,14 @@ export const Student = {
       'READ_EVENTS',
       'READ_ONE_EVENTS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
+      'READ_COHORTS',
+      'READ_ONE_COHORTS',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(
-      CourseCategoryActions,
-      CourseCategorySubject,
-      ['READ_COURSE_CATEGORIES', 'READ_ONE_COURSE_CATEGORIES']
+      CourseScheduleActions,
+      CourseScheduleSubject,
+      ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
   ],
 };
@@ -160,10 +209,14 @@ export const Guest = {
       'READ_EVENTS',
       'READ_ONE_EVENTS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
+      'READ_COHORTS',
+      'READ_ONE_COHORTS',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(
-      CourseCategoryActions,
-      CourseCategorySubject,
-      ['READ_COURSE_CATEGORIES', 'READ_ONE_COURSE_CATEGORIES']
+      CourseScheduleActions,
+      CourseScheduleSubject,
+      ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
   ],
 };

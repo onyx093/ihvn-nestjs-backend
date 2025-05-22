@@ -10,7 +10,11 @@ import { Course } from '../courses/entities/course.entity';
 import { Event } from '../events/entities/event.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
 import { Account } from '../users/entities/account.entity';
-import { CourseCategory } from '../course-categories/entities/course-category.entity';
+import { Lesson } from '../lesson/entities/lesson.entity';
+import { CourseSchedule } from '../course-schedules/entities/course-schedule.entity';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { Student } from '../students/entities/student.entity';
+import { Cohort } from '../cohorts/entities/cohort.entity';
 
 @Module({
   imports: [
@@ -25,10 +29,14 @@ import { CourseCategory } from '../course-categories/entities/course-category.en
           Role,
           Permission,
           Course,
-          CourseCategory,
           Event,
           Attendance,
           Account,
+          Lesson,
+          CourseSchedule,
+          Enrollment,
+          Student,
+          Cohort,
         ],
         synchronize: configService.getOrThrow('SYNCHRONIZE'),
         migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),
