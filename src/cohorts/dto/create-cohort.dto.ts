@@ -9,7 +9,42 @@ import {
   Min,
   registerDecorator,
   ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
+
+@ValidatorConstraint({ name: 'IsAfterDate', async: false })
+export class IsAfterDateConstraint implements ValidatorConstraintInterface {
+  validate(value: string, args: ValidationArguments) {
+    const [relatedPropertyName] = args.constraints;
+    const relatedValue = (args.object as any)[relatedPropertyName];
+
+    return (
+      new Date(value) >
+      (relatedPropertyName === 'today' ? new Date() : new Date(relatedValue))
+    );
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `${args.property} must be after ${args.constraints[0]}`;
+  }
+}
+
+export function IsAfterDate(
+  property: string,
+  validationOptions?: ValidationOptions
+) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [property],
+      validator: IsAfterDateConstraint,
+    });
+  };
+}
 
 export class CreateCohortDto {
   @IsString()
@@ -32,25 +67,4 @@ export class CreateCohortDto {
   @IsBoolean()
   @IsOptional()
   isActive: boolean;
-}
-
-export function IsAfterDate(property: string) {
-  return function (object: Object, propertyName: string) {
-    registerDecorator({
-      name: 'isAfterDate',
-      target: object.constructor,
-      propertyName: propertyName,
-      constraints: [property],
-      validator: {
-        validate(value: Date, args: ValidationArguments) {
-          const [relatedPropertyName] = args.constraints;
-          const relatedValue = args.object[relatedPropertyName];
-          return (
-            value >
-            (relatedPropertyName === 'today' ? new Date() : relatedValue)
-          );
-        },
-      },
-    });
-  };
 }

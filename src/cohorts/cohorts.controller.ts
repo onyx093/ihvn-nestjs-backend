@@ -40,6 +40,13 @@ export class CohortsController {
     return this.cohortsService.findAll(paginationDto);
   }
 
+  @Permission(CohortActions.READ_ACTIVE_COHORTS)
+  @Get('active')
+  @HttpCode(HttpStatus.OK)
+  findActive() {
+    return this.cohortsService.findActive();
+  }
+
   @Permission(CohortActions.READ_ONE_COHORTS)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -83,12 +90,5 @@ export class CohortsController {
   @HttpCode(HttpStatus.OK)
   async activate(@Param('id') id: string) {
     return this.cohortsService.activateCohort(id);
-  }
-
-  @Permission(CohortActions.READ_ACTIVE_COHORTS)
-  @Get('active')
-  @HttpCode(HttpStatus.OK)
-  findActive() {
-    return this.cohortsService.findActive();
   }
 }
