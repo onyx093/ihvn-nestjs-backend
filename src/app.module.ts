@@ -20,6 +20,9 @@ import { LessonModule } from './lesson/lesson.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { StudentsModule } from './students/students.module';
 import { CourseSchedulesModule } from './course-schedules/course-schedules.module';
+import { APP_FILTER } from '@nestjs/core';
+import { DatabaseExceptionFilter } from './exception-filters/database-exception.filter';
+import { ActiveCoursesModule } from './active-courses/active-courses.module';
 
 const configService = new ConfigService();
 
@@ -80,9 +83,17 @@ const configService = new ConfigService();
     EnrollmentsModule,
     StudentsModule,
     CourseSchedulesModule,
+    ActiveCoursesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, Logger],
+  providers: [
+    AppService,
+    Logger,
+    {
+      provide: APP_FILTER,
+      useClass: DatabaseExceptionFilter, // Apply globally
+    },
+  ],
   exports: [Logger],
 })
 export class AppModule {}

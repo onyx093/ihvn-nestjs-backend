@@ -3,6 +3,7 @@ import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Column, DeleteDateColumn, Entity, OneToMany } from 'typeorm';
 import { Lesson } from '../../lesson/entities/lesson.entity';
 import { CourseSchedule } from '../../course-schedules/entities/course-schedule.entity';
+import { ActiveCourse } from '../../active-courses/entities/active-course.entity';
 
 @Entity({ name: 'courses' })
 export class Course extends AbstractEntity<Course> {
@@ -45,4 +46,7 @@ export class Course extends AbstractEntity<Course> {
 
   @OneToMany(() => Lesson, (lesson) => lesson.course)
   lessons: Lesson[];
+
+  @OneToMany(() => ActiveCourse, (activeCourse) => activeCourse.course)
+  activeCourses: ActiveCourse[];
 }

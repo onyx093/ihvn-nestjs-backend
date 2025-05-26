@@ -81,6 +81,27 @@ export class CoursesService {
     };
   }
 
+  async findAllWithDrafts(
+    paginationDto: PaginationDto
+  ): Promise<PaginationResult<Course>> {
+    const { page, limit } = paginationDto;
+    const [data, total] = await this.courseRepository.findAndCount({
+      where: {
+        status: Not(IsNull()),
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   async findOne(id: string): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id },
@@ -167,10 +188,31 @@ export class CoursesService {
   }
 
   async restore(id: string): Promise<void> {
-    const course = await this.courseRepository.findOneBy({ id });
+    const course = await this.courseRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!course) {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
     await this.courseRepository.restore(id);
+  }
+
+  async publish(id: string): Promise<Course> {
+    const course = await this.courseRepository.findOneBy({ id });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
+    course.status = CourseStatus.PUBLISHED;
+    return this.courseRepository.save(course);
+  }
+
+  async unpublish(id: string): Promise<Course> {
+    const course = await this.courseRepository.findOneBy({ id });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
+    course.status = CourseStatus.DRAFT;
+    return this.courseRepository.save(course);
   }
 }

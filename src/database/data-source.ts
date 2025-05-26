@@ -14,6 +14,7 @@ import { CourseSchedule } from '../course-schedules/entities/course-schedule.ent
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
+import { ActiveCourse } from '../active-courses/entities/active-course.entity';
 
 config();
 
@@ -36,6 +37,7 @@ const options: DataSourceOptions & SeederOptions = {
     Role,
     Permission,
     Course,
+    ActiveCourse,
     Attendance,
     Account,
     Cohort,

@@ -1,7 +1,8 @@
 import { Lesson } from '../../lesson/entities/lesson.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, OneToMany } from 'typeorm';
 import { Enrollment } from '../../enrollments/entities/enrollment.entity';
+import { ActiveCourse } from '../../active-courses/entities/active-course.entity';
 
 @Entity({ name: 'cohorts' })
 export class Cohort extends AbstractEntity<Cohort> {
@@ -26,6 +27,18 @@ export class Cohort extends AbstractEntity<Cohort> {
   @OneToMany(() => Enrollment, (enrollment) => enrollment.cohort)
   enrollments: Enrollment[];
 
+  @OneToMany(() => ActiveCourse, (activeCourse) => activeCourse.cohort)
+  activeCourses: ActiveCourse[];
+
   @OneToMany(() => Lesson, (lesson) => lesson.cohort)
   lessons: Lesson[];
+
+  @Column({ default: new Date() })
+  createdAt: Date;
+
+  @Column({ default: new Date() })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ nullable: true, default: null })
+  deletedAt: Date;
 }

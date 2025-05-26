@@ -6,7 +6,7 @@ import {
 import { CreateCohortDto } from './dto/create-cohort.dto';
 import { UpdateCohortDto } from './dto/update-cohort.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Cohort } from './entities/cohort.entity';
 import { slugify } from '@/lib/helpers';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -51,6 +51,7 @@ export class CohortsService {
   async findOne(id: string): Promise<Cohort | null> {
     return this.cohortRepository.findOne({
       where: { id },
+      relations: ['enrollments', 'lessons', 'activeCourses.course'],
     });
   }
 
@@ -101,7 +102,10 @@ export class CohortsService {
   }
 
   async restore(id: string): Promise<void> {
-    const cohort = await this.cohortRepository.findOneBy({ id });
+    const cohort = await this.cohortRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!cohort) {
       throw new NotFoundException(errors.notFound('Cohort not found'));
     }
@@ -137,7 +141,11 @@ export class CohortsService {
 
   async findActive(): Promise<Cohort | null> {
     return this.cohortRepository.findOne({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        deletedAt: null, // Optional: Include if you want to exclude soft-deleted rows
+      },
+      order: { createdAt: 'DESC' },
     });
   }
 }
