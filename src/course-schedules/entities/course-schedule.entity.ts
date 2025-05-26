@@ -1,4 +1,4 @@
-import { WeekDay } from '@/enums/week-day.enum';
+import { WeekDay } from '../../enums/week-day.enum';
 import { Course } from '../../courses/entities/course.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';

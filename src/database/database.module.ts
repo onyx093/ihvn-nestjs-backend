@@ -15,6 +15,7 @@ import { CourseSchedule } from '../course-schedules/entities/course-schedule.ent
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
 import { Cohort } from '../cohorts/entities/cohort.entity';
+import { ActiveCourse } from '../active-courses/entities/active-course.entity';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { Cohort } from '../cohorts/entities/cohort.entity';
           UserSetting,
           Role,
           Permission,
+          ActiveCourse,
           Course,
           Event,
           Attendance,

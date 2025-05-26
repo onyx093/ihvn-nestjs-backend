@@ -51,6 +51,7 @@ export class CohortsService {
   async findOne(id: string): Promise<Cohort | null> {
     return this.cohortRepository.findOne({
       where: { id },
+      relations: ['enrollments', 'lessons', 'activeCourses.course'],
     });
   }
 

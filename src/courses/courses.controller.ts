@@ -50,6 +50,13 @@ export class CoursesController {
     return await this.coursesService.findAll(paginationDto);
   }
 
+  @Permission(CourseActions.READ_COURSES_WITH_DRAFTS)
+  @Get('with-drafts')
+  @HttpCode(HttpStatus.OK)
+  async findAllWithDrafts(@Query() paginationDto: PaginationDto) {
+    return await this.coursesService.findAllWithDrafts(paginationDto);
+  }
+
   @Permission(CourseActions.READ_ONE_COURSES)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -92,5 +99,19 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   async restore(@Param('id') id: string) {
     return this.coursesService.restore(id);
+  }
+
+  @Permission(CourseActions.PUBLISH_COURSES)
+  @Patch(':id/publish')
+  @HttpCode(HttpStatus.OK)
+  async publish(@Param('id') id: string) {
+    return this.coursesService.publish(id);
+  }
+
+  @Permission(CourseActions.UNPUBLISH_COURSES)
+  @Patch(':id/unpublish')
+  @HttpCode(HttpStatus.OK)
+  async unpublish(@Param('id') id: string) {
+    return this.coursesService.unpublish(id);
   }
 }

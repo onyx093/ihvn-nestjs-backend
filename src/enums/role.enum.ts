@@ -17,11 +17,18 @@ import {
   AttendanceActions,
   AttendanceSubject,
 } from '../attendance/actions/attendance.action';
-import { CohortActions, CohortSubject } from '@/cohorts/actions/cohort.actions';
+import {
+  CohortActions,
+  CohortSubject,
+} from '../cohorts/actions/cohort.actions';
 import {
   CourseScheduleActions,
   CourseScheduleSubject,
-} from '@/course-schedules/actions/course-schedules.actions';
+} from '../course-schedules/actions/course-schedules.actions';
+import {
+  ActiveCourseActions,
+  ActiveCourseSubject,
+} from '@/active-courses/actions/active-courses.actions';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -50,6 +57,7 @@ export const SuperAdmin = {
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
+    ...mapEnumToObjects(ActiveCourseActions, ActiveCourseSubject),
   ],
 };
 
@@ -64,6 +72,7 @@ export const Admin = {
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
+    ...mapEnumToObjects(ActiveCourseActions, ActiveCourseSubject),
   ],
 };
 
@@ -101,6 +110,11 @@ export const Editor = {
         'UPDATE_COURSE_SCHEDULES',
       ]
     ),
+    ...mapSpecifiedEnumMembersToObjects(
+      ActiveCourseActions,
+      ActiveCourseSubject,
+      ['READ_ACTIVE_COURSES_FOR_COHORT']
+    ),
   ],
 };
 
@@ -128,6 +142,11 @@ export const Instructor = {
       CourseScheduleActions,
       CourseScheduleSubject,
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
+    ),
+    ...mapSpecifiedEnumMembersToObjects(
+      ActiveCourseActions,
+      ActiveCourseSubject,
+      ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
   ],
 };
@@ -190,6 +209,11 @@ export const Student = {
       CourseScheduleSubject,
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
+    ...mapSpecifiedEnumMembersToObjects(
+      ActiveCourseActions,
+      ActiveCourseSubject,
+      ['READ_ACTIVE_COURSES_FOR_COHORT']
+    ),
   ],
 };
 
@@ -217,6 +241,11 @@ export const Guest = {
       CourseScheduleActions,
       CourseScheduleSubject,
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
+    ),
+    ...mapSpecifiedEnumMembersToObjects(
+      ActiveCourseActions,
+      ActiveCourseSubject,
+      ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
   ],
 };
