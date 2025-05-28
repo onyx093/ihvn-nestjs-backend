@@ -3,12 +3,12 @@ import { Cohort } from '../../cohorts/entities/cohort.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-@Entity({ name: 'active_courses' })
-export class ActiveCourse extends AbstractEntity<ActiveCourse> {
-  @ManyToOne(() => Cohort, (cohort) => cohort.activeCourses)
+@Entity({ name: 'cohort_courses' })
+export class CohortCourse extends AbstractEntity<CohortCourse> {
+  @ManyToOne(() => Cohort, (cohort) => cohort.cohortCourses)
   cohort: Cohort;
 
-  @ManyToOne(() => Course, (course) => course.activeCourses)
+  @ManyToOne(() => Course, (course) => course.cohortCourses)
   @JoinColumn() // Optional: Only if your column name differs
   course: Course;
 

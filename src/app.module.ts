@@ -22,7 +22,8 @@ import { StudentsModule } from './students/students.module';
 import { CourseSchedulesModule } from './course-schedules/course-schedules.module';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseExceptionFilter } from './exception-filters/database-exception.filter';
-import { ActiveCoursesModule } from './active-courses/active-courses.module';
+import { CohortCoursesModule } from './cohort-courses/cohort-courses.module';
+import { InstructorsModule } from './instructors/instructors.module';
 
 const configService = new ConfigService();
 
@@ -83,7 +84,8 @@ const configService = new ConfigService();
     EnrollmentsModule,
     StudentsModule,
     CourseSchedulesModule,
-    ActiveCoursesModule,
+    CohortCoursesModule,
+    InstructorsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -13,21 +13,55 @@ import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
 import errors from '@/config/errors.config';
 import { LessonService } from '@/lesson/lesson.service';
+import { Course } from '../courses/entities/course.entity';
+import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
 
 @Injectable()
 export class CohortsService {
   constructor(
     @InjectRepository(Cohort) private cohortRepository: Repository<Cohort>,
+    @InjectRepository(Course) private courseRepository: Repository<Course>,
     private lessonService: LessonService
   ) {}
 
   async create(createCohortDto: CreateCohortDto): Promise<Cohort> {
-    const slug = slugify(createCohortDto.name);
-    const cohort = this.cohortRepository.create({
-      ...createCohortDto,
-      slug,
-    });
-    return this.cohortRepository.save(cohort);
+    const { name, startDate, endDate, courseIds } = createCohortDto;
+    const slug = slugify(name);
+    const cohort = this.cohortRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const cohort = this.cohortRepository.create({
+          name,
+          startDate,
+          endDate,
+          slug,
+        });
+        await transactionalEntityManager.save(cohort);
+
+        if (createCohortDto.courseIds?.length) {
+          const courses = await this.courseRepository.findByIds(
+            createCohortDto.courseIds
+          );
+
+          if (courses.length !== createCohortDto.courseIds.length) {
+            throw new NotFoundException(
+              errors.notFound('One or more courses not found')
+            );
+          }
+
+          cohort.cohortCourses = courses.map((course) => {
+            const cohortCourse = new CohortCourse({});
+            cohortCourse.course = course;
+            cohortCourse.cohort = cohort;
+            return cohortCourse;
+          });
+          await transactionalEntityManager.save(cohort.cohortCourses);
+          await transactionalEntityManager.save(cohort);
+        }
+
+        return cohort;
+      }
+    );
+    return cohort;
   }
 
   async findAll(

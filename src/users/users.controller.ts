@@ -20,6 +20,8 @@ import { Permission } from '@/decorators/permission.decorator';
 import { PermissionsGuard } from '@/casl/guard/permissions.guard';
 import { UserActions, UserSubject } from './actions/users.action';
 import errors from '@/config/errors.config';
+import { CreateStudentUserDto } from './dto/create-student-user.dto';
+import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
 
 @Subject(UserSubject.NAME)
 @Controller('users')
@@ -30,8 +32,32 @@ export class UsersController {
   @Permission(UserActions.CREATE_USERS)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Request() req, @Body() createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+  async createNonStudentUser(
+    @Request() req,
+    @Body() createNonStudentUserDto: CreateNonStudentUserDto
+  ) {
+    return await this.usersService.createNonStudentUser(
+      createNonStudentUserDto
+    );
+  }
+  @Permission(UserActions.CREATE_NON_STUDENT_USERS)
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Request() req,
+    @Body() createNonStudentUserDto: CreateNonStudentUserDto
+  ) {
+    return await this.usersService.create(createNonStudentUserDto);
+  }
+
+  @Permission(UserActions.CREATE_STUDENT_USERS)
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async createStudentUser(
+    @Request() req,
+    @Body() createStudentUserDto: CreateStudentUserDto
+  ) {
+    return await this.usersService.createStudentUser(createStudentUserDto);
   }
 
   @Permission(UserActions.READ_USERS)

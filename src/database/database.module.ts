@@ -15,7 +15,8 @@ import { CourseSchedule } from '../course-schedules/entities/course-schedule.ent
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
 import { Cohort } from '../cohorts/entities/cohort.entity';
-import { ActiveCourse } from '../active-courses/entities/active-course.entity';
+import { CohortCourse } from '../cohort-courses/entities/cohort-course.entity';
+import { Instructor } from '../instructors/entities/instructor.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { ActiveCourse } from '../active-courses/entities/active-course.entity';
           UserSetting,
           Role,
           Permission,
-          ActiveCourse,
+          CohortCourse,
           Course,
           Event,
           Attendance,
@@ -39,6 +40,7 @@ import { ActiveCourse } from '../active-courses/entities/active-course.entity';
           Enrollment,
           Student,
           Cohort,
+          Instructor,
         ],
         synchronize: configService.getOrThrow('SYNCHRONIZE'),
         migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),

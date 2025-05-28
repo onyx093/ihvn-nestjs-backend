@@ -8,7 +8,6 @@ export const UserFactory = setSeederFactory(
     const user = new User({});
     // Use custom data if provided; otherwise, use faker defaults.
     user.name = context.name || faker.person.firstName();
-    user.username = context.username || faker.person.firstName();
     user.email =
       context.email || `${user.username}@${faker.internet.domainName()}`;
     user.password = await hash('password');

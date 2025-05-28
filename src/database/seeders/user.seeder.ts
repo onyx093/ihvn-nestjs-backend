@@ -4,6 +4,8 @@ import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
+import { Instructor } from '../../instructors/entities/instructor.entity';
+import { Student } from '../../students/entities/student.entity';
 
 export default class UserSeeder implements Seeder {
   public async run(
@@ -90,6 +92,8 @@ export default class UserSeeder implements Seeder {
     };
 
     const userRepository = dataSource.getRepository(User);
+    const instructorRepository = dataSource.getRepository(Instructor);
+    const studentRepository = dataSource.getRepository(Student);
 
     const superAdminFactory = await factoryManager
       .get(User)
@@ -98,21 +102,18 @@ export default class UserSeeder implements Seeder {
       firstTimeLogin: true,
       isAccountGenerated: true,
     });
-    await userRepository.save(superAdminFactory);
 
     const adminFactory = await factoryManager.get(User).make(adminUser);
     adminFactory.account = await factoryManager.get(Account).make({
       firstTimeLogin: false,
       isAccountGenerated: false,
     });
-    await userRepository.save(adminFactory);
 
     const editorFactory = await factoryManager.get(User).make(editorUser);
     editorFactory.account = await factoryManager.get(Account).make({
       firstTimeLogin: false,
       isAccountGenerated: false,
     });
-    await userRepository.save(editorFactory);
 
     const instructorFactory = await factoryManager
       .get(User)
@@ -121,7 +122,10 @@ export default class UserSeeder implements Seeder {
       firstTimeLogin: false,
       isAccountGenerated: false,
     });
-    await userRepository.save(instructorFactory);
+
+    const instructorEntityFactory = await factoryManager.get(Instructor).make({
+      user: instructorFactory,
+    });
 
     const receptionistFactory = await factoryManager
       .get(User)
@@ -130,20 +134,36 @@ export default class UserSeeder implements Seeder {
       firstTimeLogin: true,
       isAccountGenerated: true,
     });
-    await userRepository.save(receptionistFactory);
 
     const studentFactory = await factoryManager.get(User).make(studentUser);
     studentFactory.account = await factoryManager.get(Account).make({
       firstTimeLogin: true,
       isAccountGenerated: false,
     });
-    await userRepository.save(studentFactory);
+
+    const studentEntityFactory = await factoryManager.get(Student).make({
+      user: studentFactory,
+    });
 
     const guestFactory = await factoryManager.get(User).make(guestUser);
     guestFactory.account = await factoryManager.get(Account).make({
       firstTimeLogin: true,
       isAccountGenerated: true,
     });
-    await userRepository.save(guestFactory);
+
+    await Promise.all([
+      userRepository.save(superAdminFactory),
+      userRepository.save(adminFactory),
+      userRepository.save(editorFactory),
+      userRepository.save(instructorFactory),
+      userRepository.save(receptionistFactory),
+      userRepository.save(studentFactory),
+      userRepository.save(guestFactory),
+    ]);
+
+    await Promise.all([
+      instructorRepository.save(instructorEntityFactory),
+      studentRepository.save(studentEntityFactory),
+    ]);
   }
 }

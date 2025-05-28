@@ -14,12 +14,14 @@ import errors from '@/config/errors.config';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
 import { CourseStatus } from '../enums/course-status.enum';
+import { InstructorsService } from '@/instructors/instructors.service';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
-    private readonly courseRepository: Repository<Course>
+    private readonly courseRepository: Repository<Course>,
+    private readonly instructorService: InstructorsService
   ) {}
 
   async create(
@@ -32,23 +34,28 @@ export class CoursesService {
       );
     } */
 
-    console.log('Uploaded File:', {
-      originalname: file?.originalname,
-      filename: file?.filename,
-      path: file?.path,
-      size: file?.size,
-    });
+    const { name, description, instructorId, estimatedDurationForCompletion } =
+      createCourseDto;
 
-    const slug = slugify(createCourseDto.name);
+    const instructor = await this.instructorService.findOne(instructorId);
+
+    if (!instructor) {
+      throw new NotFoundException(errors.notFound('Instructor not found'));
+    }
+
+    const slug = slugify(name);
     let thumbnailPath = null;
     if (file) {
       thumbnailPath = `/thumbnails/${file.filename}`;
     }
     const course = this.courseRepository.create({
-      ...createCourseDto,
+      name,
+      description,
+      estimatedDurationForCompletion,
       slug,
       thumbnail: thumbnailPath,
     });
+    course.instructor = instructor;
     try {
       return this.courseRepository.save(course);
     } catch (error) {
@@ -118,28 +125,34 @@ export class CoursesService {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
 
+    const { name, description, instructorId, estimatedDurationForCompletion } =
+      updateCourseDto;
+
+    const instructor = await this.instructorService.findOne(instructorId);
+
+    if (!instructor) {
+      throw new NotFoundException(errors.notFound('Instructor not found'));
+    }
+
     /* if (!course.thumbnail && !thumbnail?.filename) {
       throw new BadRequestException(
         errors.validationFailed('A valid thumbnail is required')
       );
     } */
 
-    if (file) {
-      console.log('Uploaded File:', {
-        originalname: file?.originalname,
-        filename: file?.filename,
-        path: file?.path,
-        size: file?.size,
-      });
-    }
     let thumbnailPath = null;
     if (file) {
       thumbnailPath = `/thumbnails/${file.filename}`;
     }
     const updatedCourse = {
       ...course,
-      ...updateCourseDto,
-      slug: updateCourseDto.name ? slugify(updateCourseDto.name) : course.slug,
+      name: updateCourseDto.name ?? course.name,
+      description: updateCourseDto.description ?? course.description,
+      estimatedDurationForCompletion:
+        updateCourseDto.estimatedDurationForCompletion ??
+        course.estimatedDurationForCompletion,
+      instructor: instructor ?? course.instructor,
+      slug: updateCourseDto.name ? slugify(name) : course.slug,
       thumbnail: thumbnailPath ?? null,
       updatedAt: new Date(),
     };
