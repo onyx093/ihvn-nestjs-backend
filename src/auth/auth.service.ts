@@ -15,6 +15,7 @@ import { ConfigType } from '@nestjs/config';
 import { AuthCredentialsSchema } from '@/schemas/auth.schema';
 import { ZodError } from 'zod';
 import errors from '@/config/errors.config';
+import { CreateStudentUserDto } from '@/users/dto/create-student-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,9 +26,9 @@ export class AuthService {
     private refreshTokenConfig: ConfigType<typeof refreshConfig>
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createStudentUserDto: CreateStudentUserDto) {
     const existingUser = await this.userService.findByEmail(
-      createUserDto.email
+      createStudentUserDto.email
     );
     if (existingUser) {
       throw new ConflictException(
@@ -35,7 +36,7 @@ export class AuthService {
       );
     }
 
-    return await this.userService.create(createUserDto);
+    return await this.userService.createStudentUser(createStudentUserDto);
   }
 
   async login(userId: number, name?: string) {

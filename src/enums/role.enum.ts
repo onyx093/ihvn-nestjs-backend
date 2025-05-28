@@ -26,9 +26,9 @@ import {
   CourseScheduleSubject,
 } from '../course-schedules/actions/course-schedules.actions';
 import {
-  ActiveCourseActions,
-  ActiveCourseSubject,
-} from '@/active-courses/actions/active-courses.actions';
+  CohortCourseActions,
+  CohortCourseSubject,
+} from '../cohort-courses/actions/cohort-courses.actions';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -57,7 +57,7 @@ export const SuperAdmin = {
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
-    ...mapEnumToObjects(ActiveCourseActions, ActiveCourseSubject),
+    ...mapEnumToObjects(CohortCourseActions, CohortCourseSubject),
   ],
 };
 
@@ -72,7 +72,7 @@ export const Admin = {
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
-    ...mapEnumToObjects(ActiveCourseActions, ActiveCourseSubject),
+    ...mapEnumToObjects(CohortCourseActions, CohortCourseSubject),
   ],
 };
 
@@ -111,8 +111,8 @@ export const Editor = {
       ]
     ),
     ...mapSpecifiedEnumMembersToObjects(
-      ActiveCourseActions,
-      ActiveCourseSubject,
+      CohortCourseActions,
+      CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
   ],
@@ -144,8 +144,8 @@ export const Instructor = {
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
     ...mapSpecifiedEnumMembersToObjects(
-      ActiveCourseActions,
-      ActiveCourseSubject,
+      CohortCourseActions,
+      CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
   ],
@@ -210,8 +210,8 @@ export const Student = {
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
     ...mapSpecifiedEnumMembersToObjects(
-      ActiveCourseActions,
-      ActiveCourseSubject,
+      CohortCourseActions,
+      CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
   ],
@@ -243,8 +243,8 @@ export const Guest = {
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
     ...mapSpecifiedEnumMembersToObjects(
-      ActiveCourseActions,
-      ActiveCourseSubject,
+      CohortCourseActions,
+      CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
   ],

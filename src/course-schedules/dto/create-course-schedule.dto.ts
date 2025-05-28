@@ -48,6 +48,8 @@ export function IsAfterTime(
 export class IsTimeBetweenConstraint implements ValidatorConstraintInterface {
   validate(value: string, args: ValidationArguments) {
     const [minTime, maxTime] = args.constraints;
+    console.log(`Validating time: ${value} between ${minTime} and ${maxTime}`);
+
     return compareTime(value, minTime) >= 0 && compareTime(value, maxTime) <= 0;
   }
 
@@ -120,20 +122,20 @@ export function IsInWeekDays(
 
 export class CreateCourseScheduleDto {
   @IsEnum(WeekDay, {
-    message: 'Invalid day of week. Use 0 (Sunday) to 6 (Saturday)',
+    message: 'Invalid day of week. Use 1 (Monday) to 6 (Saturday)',
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Day of week is required' })
   @Validate(IsInWeekDays, [1, 2, 3, 4, 5, 6], {
     message: 'Course schedules can only be created for Monday-Saturday',
   })
   dayOfWeek: WeekDay;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Start time is required' })
   @IsTimeString()
   @IsTimeBetween('09:00', '16:00')
   startTime: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'End time is required' })
   @IsTimeString()
   @IsTimeBetween('09:00', '16:00')
   @IsAfterTime('startTime')

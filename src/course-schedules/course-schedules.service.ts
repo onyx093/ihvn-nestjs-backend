@@ -27,7 +27,10 @@ export class CourseSchedulesService {
     courseId: string,
     createCourseScheduleDto: CreateCourseScheduleDto
   ): Promise<CourseSchedule> {
-    const course = await this.validateCourseExists(courseId);
+    const course = await this.courseRepository.findOneBy({ id: courseId });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
     await this.validateNoOverlap(courseId, createCourseScheduleDto);
 
     const schedule = this.scheduleRepository.create({
@@ -42,7 +45,10 @@ export class CourseSchedulesService {
     courseId: string,
     paginationDto: PaginationDto
   ): Promise<PaginationResult<CourseSchedule>> {
-    await this.validateCourseExists(courseId);
+    const course = await this.courseRepository.findOneBy({ id: courseId });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
 
     const { page, limit } = paginationDto;
     const [data, total] = await this.scheduleRepository.findAndCount({
@@ -123,19 +129,14 @@ export class CourseSchedulesService {
   }
 
   async restore(id: string): Promise<void> {
-    const courseSchedule = await this.scheduleRepository.findOneBy({ id });
+    const courseSchedule = await this.scheduleRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!courseSchedule) {
       throw new NotFoundException(errors.notFound('Course schedule not found'));
     }
     await this.scheduleRepository.restore(id);
-  }
-
-  private async validateCourseExists(courseId: string): Promise<Course> {
-    const course = await this.courseRepository.findOneBy({ id: courseId });
-    if (!course) {
-      throw new NotFoundException(errors.notFound('Course not found'));
-    }
-    return course;
   }
 
   private async validateNoOverlap(

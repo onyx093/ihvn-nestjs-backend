@@ -1,71 +1,66 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateActiveCourseDto } from './dto/create-active-course.dto';
-import { UpdateActiveCourseDto } from './dto/update-active-course.dto';
+import { CreateCohortCourseDto } from './dto/create-cohort-course.dto';
+import { UpdateCohortCourseDto } from './dto/update-cohort-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ActiveCourse } from './entities/active-course.entity';
+import { CohortCourse } from './entities/cohort-course.entity';
 import errors from '@/config/errors.config';
 import { CohortsService } from '@/cohorts/cohorts.service';
 import { CoursesService } from '@/courses/courses.service';
 
 @Injectable()
-export class ActiveCoursesService {
+export class CohortCoursesService {
   constructor(
-    @InjectRepository(ActiveCourse)
-    private activeCourseRepository: Repository<ActiveCourse>,
+    @InjectRepository(CohortCourse)
+    private cohortCourseRepository: Repository<CohortCourse>,
     private readonly cohortService: CohortsService,
     private readonly courseService: CoursesService
   ) {}
   async create(
-    createActiveCourseDto: CreateActiveCourseDto,
+    createCohortCourseDto: CreateCohortCourseDto,
     cohortId: string
-  ): Promise<ActiveCourse> {
+  ): Promise<CohortCourse> {
     const cohort = await this.cohortService.findOne(cohortId);
     if (!cohort) {
       throw new NotFoundException(errors.notFound('Cohort not found'));
     }
 
     const course = await this.courseService.findOne(
-      createActiveCourseDto.courseId
+      createCohortCourseDto.courseId
     );
     if (!course) {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
 
-    const activeCourse = this.activeCourseRepository.create({
+    const activeCourse = this.cohortCourseRepository.create({
       course,
       cohort,
     });
-    return await this.activeCourseRepository.save(activeCourse);
+    return await this.cohortCourseRepository.save(activeCourse);
   }
 
-  async findAll(cohortId: string): Promise<ActiveCourse[]> {
-    return await this.activeCourseRepository.find({
+  async findAll(cohortId: string): Promise<CohortCourse[]> {
+    return await this.cohortCourseRepository.find({
       where: { cohort: { id: cohortId } },
       relations: ['course'],
     });
-    /* const cohort = await this.cohortService.findOne(cohortId);
-    if (!cohort) {
-      throw new NotFoundException(errors.notFound('Cohort not found'));
-    }
-    return cohort.activeCourses; */
   }
 
   findOne(id: number) {
     return `This action returns a #${id} activeCourse`;
   }
 
-  update(id: number, updateActiveCourseDto: UpdateActiveCourseDto) {
+  update(id: number, updateCohortCourseDto: UpdateCohortCourseDto) {
     return `This action updates a #${id} activeCourse`;
   }
 
   async remove(id: string): Promise<void> {
-    const activeCourse = await this.activeCourseRepository.findOneBy({ id });
+    const activeCourse = await this.cohortCourseRepository.findOneBy({ id });
     if (!activeCourse) {
       throw new NotFoundException(
         errors.notFound('Course has not been made active for this cohort')
       );
     }
-    await this.activeCourseRepository.delete(id);
+    await this.cohortCourseRepository.delete(id);
   }
 }

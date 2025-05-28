@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
 export class CreateCourseDto {
   @IsString()
@@ -9,6 +9,11 @@ export class CreateCourseDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  instructorId: string;
 
   @Type(() => Number)
   @IsNumber()

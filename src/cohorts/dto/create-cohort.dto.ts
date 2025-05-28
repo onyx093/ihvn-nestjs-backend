@@ -1,10 +1,12 @@
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   Min,
   registerDecorator,
@@ -63,6 +65,11 @@ export class CreateCohortDto {
   @IsDateString()
   @IsAfterDate('startDate')
   endDate: Date;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true, message: 'Each courseId must be a valid UUID' })
+  courseIds?: string[];
 
   @IsBoolean()
   @IsOptional()

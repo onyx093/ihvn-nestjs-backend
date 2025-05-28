@@ -1,5 +1,7 @@
 export enum UserActions {
   CREATE_USERS = 'create_users',
+  CREATE_NON_STUDENT_USERS = 'create_non_student_users',
+  CREATE_STUDENT_USERS = 'create_student_users',
   READ_USERS = 'read_users',
   READ_ONE_USERS = 'read_one_users',
   READ_SELF_USERS = 'read_self_users',

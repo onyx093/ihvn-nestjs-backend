@@ -16,6 +16,11 @@ import { PredefinedRoles } from '../enums/role.enum';
 import errors from '@/config/errors.config';
 import { Account } from './entities/account.entity';
 import { generate } from 'generate-password';
+import { Student } from '../students/entities/student.entity';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { CreateStudentUserDto } from './dto/create-student-user.dto';
+import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
+import { Instructor } from '@/instructors/entities/instructor.entity';
 
 @Injectable()
 export class UsersService {
@@ -39,7 +44,6 @@ export class UsersService {
       symbols: false,
       strict: true,
     });
-    console.log(generatedPassword);
 
     const hashedPassword = await hash(generatedPassword);
 
@@ -48,35 +52,207 @@ export class UsersService {
       ...createUserDto,
     });
 
-    const studentRole = await this.roleRepository.findOneBy({
-      name: PredefinedRoles.STUDENT,
-    });
-    user.roles = [studentRole];
-    const registeredUser = await this.userRepository.save(user);
+    const newUser = await this.userRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const user = await transactionalEntityManager.create(User, {
+          password: hashedPassword,
+          ...createUserDto,
+        });
 
-    if (!registeredUser) {
-      throw new NotFoundException(errors.notFound('User not found'));
-    }
+        await transactionalEntityManager.save(user);
 
-    const account = await this.accountRepository.create({
-      firstTimeLogin: true,
-      isAccountGenerated: isGenerated ? true : false,
-      user: registeredUser,
-    });
-    await this.accountRepository.save(account);
+        const studentRole = await this.roleRepository.findOneBy({
+          name: PredefinedRoles.STUDENT,
+        });
+        user.roles = [studentRole];
+
+        const account = await transactionalEntityManager.create(Account, {
+          firstTimeLogin: true,
+          isAccountGenerated: isGenerated ? true : false,
+          user,
+        });
+
+        const student = await transactionalEntityManager.create(Student, {
+          user,
+        });
+
+        const enrollment = await transactionalEntityManager.create(Enrollment, {
+          student: user,
+        });
+
+        await Promise.all([
+          transactionalEntityManager.save(account),
+          transactionalEntityManager.save(enrollment),
+          transactionalEntityManager.save(student),
+        ]);
+
+        return user;
+      }
+    );
 
     await this.emailQueue.add(
       'sendWelcomeEmail',
       {
-        email: registeredUser.email,
-        name: registeredUser.name,
+        email: newUser.email,
+        name: newUser.name,
         password: generatedPassword,
       },
       {
         attempts: 3,
       }
     );
-    return registeredUser;
+    return newUser;
+  }
+
+  async createStudentUser(
+    createStudentUserDto: CreateStudentUserDto,
+    isGenerated?: boolean
+  ): Promise<User> {
+    const generatedPassword = generate({
+      length: 12,
+      numbers: true,
+      lowercase: true,
+      uppercase: true,
+      symbols: false,
+      strict: true,
+    });
+
+    const hashedPassword = await hash(generatedPassword);
+
+    const user = this.userRepository.create({
+      password: hashedPassword,
+      ...createStudentUserDto,
+    });
+
+    const newUser = await this.userRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const user = await transactionalEntityManager.create(User, {
+          password: hashedPassword,
+          ...createStudentUserDto,
+        });
+
+        await transactionalEntityManager.save(user);
+
+        const studentRole = await this.roleRepository.findOneBy({
+          name: PredefinedRoles.STUDENT,
+        });
+        user.roles = [studentRole];
+
+        const account = await transactionalEntityManager.create(Account, {
+          firstTimeLogin: true,
+          isAccountGenerated: isGenerated ? true : false,
+          user,
+        });
+
+        const student = await transactionalEntityManager.create(Student, {
+          user,
+        });
+
+        const enrollment = await transactionalEntityManager.create(Enrollment, {
+          student: user,
+        });
+
+        await Promise.all([
+          transactionalEntityManager.save(user),
+          transactionalEntityManager.save(account),
+          transactionalEntityManager.save(enrollment),
+          transactionalEntityManager.save(student),
+        ]);
+
+        return user;
+      }
+    );
+
+    await this.emailQueue.add(
+      'sendWelcomeEmail',
+      {
+        email: newUser.email,
+        name: newUser.name,
+        password: generatedPassword,
+      },
+      {
+        attempts: 3,
+      }
+    );
+    return newUser;
+  }
+
+  async createNonStudentUser(
+    createNonStudentUserDto: CreateNonStudentUserDto,
+    isGenerated?: boolean
+  ): Promise<User> {
+    const generatedPassword = generate({
+      length: 12,
+      numbers: true,
+      lowercase: true,
+      uppercase: true,
+      symbols: false,
+      strict: true,
+    });
+
+    const hashedPassword = await hash(generatedPassword);
+
+    const user = this.userRepository.create({
+      password: hashedPassword,
+      ...createNonStudentUserDto,
+    });
+
+    const newUser = await this.userRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const user = await transactionalEntityManager.create(User, {
+          password: hashedPassword,
+          ...createNonStudentUserDto,
+        });
+
+        await transactionalEntityManager.save(user);
+
+        const userRole = await this.roleRepository.findOneBy({
+          id: createNonStudentUserDto.roleId,
+        });
+
+        if (!userRole) {
+          throw new NotFoundException(errors.notFound('Role not found'));
+        }
+        user.roles = [userRole];
+
+        const account = await transactionalEntityManager.create(Account, {
+          firstTimeLogin: true,
+          isAccountGenerated: isGenerated ? true : false,
+          user,
+        });
+
+        if (userRole.name === PredefinedRoles.INSTRUCTOR) {
+          const instructor = await transactionalEntityManager.create(
+            Instructor,
+            {
+              user,
+            }
+          );
+
+          await transactionalEntityManager.save(instructor);
+        }
+
+        await Promise.all([
+          transactionalEntityManager.save(user),
+          transactionalEntityManager.save(account),
+        ]);
+
+        return user;
+      }
+    );
+
+    await this.emailQueue.add(
+      'sendWelcomeEmail',
+      {
+        email: newUser.email,
+        name: newUser.name,
+        password: generatedPassword,
+      },
+      {
+        attempts: 3,
+      }
+    );
+    return newUser;
   }
 
   async findAll(): Promise<User[]> {

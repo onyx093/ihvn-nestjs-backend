@@ -11,12 +11,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response } from 'express';
 import { Public } from './decorators/public.decorator';
+import { CreateStudentUserDto } from '@/users/dto/create-student-user.dto';
 // import { Role } from '../enums/role.enum';
 
 @Controller('auth')
@@ -26,8 +26,8 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  register(@Body() createStudentUserDto: CreateStudentUserDto) {
+    return this.authService.register(createStudentUserDto);
   }
 
   @Public()

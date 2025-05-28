@@ -1,7 +1,7 @@
 import { WeekDay } from '../../enums/week-day.enum';
 import { Course } from '../../courses/entities/course.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, ManyToOne } from 'typeorm';
 
 @Entity({ name: 'course_schedules' })
 export class CourseSchedule extends AbstractEntity<CourseSchedule> {
@@ -16,4 +16,13 @@ export class CourseSchedule extends AbstractEntity<CourseSchedule> {
 
   @ManyToOne(() => Course, (course) => course.schedules)
   course: Course;
+
+  @Column({ default: new Date() })
+  createdAt: Date;
+
+  @Column({ default: new Date() })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ nullable: true, default: null })
+  deletedAt: Date;
 }
