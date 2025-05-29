@@ -19,12 +19,13 @@ export class Enrollment extends AbstractEntity<Enrollment> {
   student: Student;
 
   @ManyToOne(() => Cohort, (cohort) => cohort.enrollments)
+  @JoinColumn()
   cohort: Cohort;
 
   @ManyToOne(() => Course)
   course: Course;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ default: new Date() })
   enrolledAt: Date;
 
   @Column({ default: new Date() })

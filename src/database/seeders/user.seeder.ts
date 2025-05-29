@@ -26,10 +26,6 @@ export default class UserSeeder implements Seeder {
       name: PredefinedRoles.EDITOR,
     });
 
-    const instructorRole = await dataSource.getRepository(Role).findOneBy({
-      name: PredefinedRoles.INSTRUCTOR,
-    });
-
     const receptionistRole = await dataSource.getRepository(Role).findOneBy({
       name: PredefinedRoles.RECEPTIONIST,
     });
@@ -60,13 +56,6 @@ export default class UserSeeder implements Seeder {
       name: 'Joseph Doe',
       username: 'joseph',
       email: 'joseph@example.com',
-      roles: [instructorRole],
-    };
-
-    const instructorUser = {
-      name: 'Kenneth Doe',
-      username: 'kenneth',
-      email: 'kenneth@example.com',
       roles: [editorRole],
     };
 
@@ -92,7 +81,6 @@ export default class UserSeeder implements Seeder {
     };
 
     const userRepository = dataSource.getRepository(User);
-    const instructorRepository = dataSource.getRepository(Instructor);
     const studentRepository = dataSource.getRepository(Student);
 
     const superAdminFactory = await factoryManager
@@ -113,18 +101,6 @@ export default class UserSeeder implements Seeder {
     editorFactory.account = await factoryManager.get(Account).make({
       firstTimeLogin: false,
       isAccountGenerated: false,
-    });
-
-    const instructorFactory = await factoryManager
-      .get(User)
-      .make(instructorUser);
-    instructorFactory.account = await factoryManager.get(Account).make({
-      firstTimeLogin: false,
-      isAccountGenerated: false,
-    });
-
-    const instructorEntityFactory = await factoryManager.get(Instructor).make({
-      user: instructorFactory,
     });
 
     const receptionistFactory = await factoryManager
@@ -155,15 +131,11 @@ export default class UserSeeder implements Seeder {
       userRepository.save(superAdminFactory),
       userRepository.save(adminFactory),
       userRepository.save(editorFactory),
-      userRepository.save(instructorFactory),
       userRepository.save(receptionistFactory),
       userRepository.save(studentFactory),
       userRepository.save(guestFactory),
     ]);
 
-    await Promise.all([
-      instructorRepository.save(instructorEntityFactory),
-      studentRepository.save(studentEntityFactory),
-    ]);
+    await Promise.all([studentRepository.save(studentEntityFactory)]);
   }
 }

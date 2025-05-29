@@ -32,11 +32,11 @@ export class CohortCoursesService {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
 
-    const activeCourse = this.cohortCourseRepository.create({
+    const cohortCourse = this.cohortCourseRepository.create({
       course,
       cohort,
     });
-    return await this.cohortCourseRepository.save(activeCourse);
+    return await this.cohortCourseRepository.save(cohortCourse);
   }
 
   async findAll(cohortId: string): Promise<CohortCourse[]> {
@@ -47,16 +47,16 @@ export class CohortCoursesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} activeCourse`;
+    return `This action returns a #${id} cohortCourse`;
   }
 
   update(id: number, updateCohortCourseDto: UpdateCohortCourseDto) {
-    return `This action updates a #${id} activeCourse`;
+    return `This action updates a #${id} cohortCourse`;
   }
 
   async remove(id: string): Promise<void> {
-    const activeCourse = await this.cohortCourseRepository.findOneBy({ id });
-    if (!activeCourse) {
+    const cohortCourse = await this.cohortCourseRepository.findOneBy({ id });
+    if (!cohortCourse) {
       throw new NotFoundException(
         errors.notFound('Course has not been made active for this cohort')
       );

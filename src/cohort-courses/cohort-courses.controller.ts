@@ -32,9 +32,9 @@ export class CohortCoursesController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Param('cohortId') cohortId: string,
-    @Body() createActiveCourseDto: CreateCohortCourseDto
+    @Body() createCohortCourseDto: CreateCohortCourseDto
   ) {
-    return this.cohortCoursesService.create(createActiveCourseDto, cohortId);
+    return this.cohortCoursesService.create(createCohortCourseDto, cohortId);
   }
 
   @Permission(CohortCourseActions.READ_COHORT_COURSES_FOR_COHORT)
@@ -52,9 +52,9 @@ export class CohortCoursesController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateActiveCourseDto: UpdateCohortCourseDto
+    @Body() updateCohortCourseDto: UpdateCohortCourseDto
   ) {
-    return this.cohortCoursesService.update(+id, updateActiveCourseDto);
+    return this.cohortCoursesService.update(+id, updateCohortCourseDto);
   }
 
   @Permission(CohortCourseActions.REMOVE_COHORT_COURSES_FROM_COHORT)
