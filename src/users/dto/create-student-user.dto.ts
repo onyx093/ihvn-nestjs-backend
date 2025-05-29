@@ -6,7 +6,6 @@ import {
   IsUUID,
 } from 'class-validator';
 import { CreateUserSettingDto } from './create-user-setting.dto';
-import { CreateAccountDto } from './create-account.dto';
 
 export class CreateStudentUserDto {
   @IsNotEmpty()
@@ -22,6 +21,11 @@ export class CreateStudentUserDto {
   @IsString()
   @IsUUID()
   cohortId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsUUID()
+  courseId: string;
 
   @IsString()
   @IsOptional()

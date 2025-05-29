@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'argon2';
@@ -20,7 +20,10 @@ import { Student } from '../students/entities/student.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { CreateStudentUserDto } from './dto/create-student-user.dto';
 import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
-import { Instructor } from '@/instructors/entities/instructor.entity';
+import { Instructor } from '../instructors/entities/instructor.entity';
+import { Cohort } from '../cohorts/entities/cohort.entity';
+import { Course } from '@/courses/entities/course.entity';
+import { CourseStatus } from '@/enums/course-status.enum';
 
 @Injectable()
 export class UsersService {
@@ -131,35 +134,98 @@ export class UsersService {
           ...createStudentUserDto,
         });
 
-        await transactionalEntityManager.save(user);
+        const savedUser = await transactionalEntityManager.save(user);
 
-        const studentRole = await this.roleRepository.findOneBy({
+        const studentRole = await transactionalEntityManager.findOneBy(Role, {
           name: PredefinedRoles.STUDENT,
         });
-        user.roles = [studentRole];
+
+        if (!studentRole) {
+          throw new NotFoundException(
+            errors.notFound('Student role not found')
+          );
+        }
+        savedUser.roles = [studentRole];
+        await transactionalEntityManager.save(savedUser);
 
         const account = await transactionalEntityManager.create(Account, {
           firstTimeLogin: true,
           isAccountGenerated: isGenerated ? true : false,
-          user,
+          user: savedUser,
         });
+        await transactionalEntityManager.save(account);
 
         const student = await transactionalEntityManager.create(Student, {
-          user,
+          user: savedUser,
         });
+        const savedStudent = await transactionalEntityManager.save(student);
+        console.log('Saved Student ID:', savedStudent.id);
+        await transactionalEntityManager.query('SELECT 1');
+
+        // CRITICAL: Verify the student was actually saved
+        const verifyStudent = await transactionalEntityManager.findOne(
+          Student,
+          {
+            where: { id: savedStudent.id },
+          }
+        );
+        console.log(
+          'Student verification:',
+          verifyStudent ? 'Found' : 'Not found'
+        );
+
+        const cohort = await transactionalEntityManager.findOne(Cohort, {
+          where: { id: createStudentUserDto.cohortId },
+          relations: ['cohortCourses.course'],
+        });
+
+        if (!cohort) {
+          throw new NotFoundException(errors.notFound('Cohort not found'));
+        }
+        if (!cohort.isActive) {
+          if (cohort.endDate < new Date()) {
+            throw new BadRequestException(
+              errors.validationFailed('Cohort has already ended')
+            );
+          }
+        }
+
+        const course = await transactionalEntityManager.findOne(Course, {
+          where: { id: createStudentUserDto.courseId },
+        });
+        if (!course) {
+          throw new NotFoundException(errors.notFound('Course not found'));
+        }
+        if (course.status !== CourseStatus.PUBLISHED) {
+          throw new BadRequestException(
+            errors.validationFailed('Course is not published')
+          );
+        }
+        if (createStudentUserDto.courseId !== course.id) {
+          throw new BadRequestException(
+            errors.validationFailed(
+              'Cohort does not belong to the specified course'
+            )
+          );
+        }
+        const isCourseInCohort = cohort.cohortCourses.some(
+          (cohortCourse) => cohortCourse.course.id === course.id
+        );
+        if (!isCourseInCohort) {
+          throw new BadRequestException(
+            errors.validationFailed(
+              'Course does not belong to the specified cohort'
+            )
+          );
+        }
 
         const enrollment = await transactionalEntityManager.create(Enrollment, {
-          student: user,
+          student: savedStudent,
+          cohort,
         });
+        await transactionalEntityManager.save(enrollment);
 
-        await Promise.all([
-          transactionalEntityManager.save(user),
-          transactionalEntityManager.save(account),
-          transactionalEntityManager.save(enrollment),
-          transactionalEntityManager.save(student),
-        ]);
-
-        return user;
+        return savedUser;
       }
     );
 
@@ -204,22 +270,24 @@ export class UsersService {
           ...createNonStudentUserDto,
         });
 
-        await transactionalEntityManager.save(user);
+        const savedUser = await transactionalEntityManager.save(user);
 
-        const userRole = await this.roleRepository.findOneBy({
+        const userRole = await transactionalEntityManager.findOneBy(Role, {
           id: createNonStudentUserDto.roleId,
         });
 
         if (!userRole) {
           throw new NotFoundException(errors.notFound('Role not found'));
         }
-        user.roles = [userRole];
+        savedUser.roles = [userRole];
+        await transactionalEntityManager.save(savedUser);
 
         const account = await transactionalEntityManager.create(Account, {
           firstTimeLogin: true,
           isAccountGenerated: isGenerated ? true : false,
-          user,
+          user: savedUser,
         });
+        await transactionalEntityManager.save(account);
 
         if (userRole.name === PredefinedRoles.INSTRUCTOR) {
           const instructor = await transactionalEntityManager.create(
@@ -237,7 +305,7 @@ export class UsersService {
           transactionalEntityManager.save(account),
         ]);
 
-        return user;
+        return savedUser;
       }
     );
 

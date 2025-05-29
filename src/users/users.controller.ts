@@ -29,8 +29,8 @@ import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Permission(UserActions.CREATE_USERS)
-  @Post()
+  @Permission(UserActions.CREATE_NON_STUDENT_USERS)
+  @Post('/elevated-users')
   @HttpCode(HttpStatus.CREATED)
   async createNonStudentUser(
     @Request() req,
@@ -40,18 +40,15 @@ export class UsersController {
       createNonStudentUserDto
     );
   }
-  @Permission(UserActions.CREATE_NON_STUDENT_USERS)
+  @Permission(UserActions.CREATE_USERS)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(
-    @Request() req,
-    @Body() createNonStudentUserDto: CreateNonStudentUserDto
-  ) {
-    return await this.usersService.create(createNonStudentUserDto);
+  async create(@Request() req, @Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Permission(UserActions.CREATE_STUDENT_USERS)
-  @Post()
+  @Post('/students')
   @HttpCode(HttpStatus.CREATED)
   async createStudentUser(
     @Request() req,
@@ -67,6 +64,13 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  @Permission(UserActions.READ_SELF_USERS)
+  @Get('/me/profile')
+  @HttpCode(HttpStatus.OK)
+  async getMe(@Request() req) {
+    return this.usersService.findOne(req.user.id);
+  }
+
   @Permission(UserActions.READ_ONE_USERS)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -76,13 +80,6 @@ export class UsersController {
       throw new NotFoundException(errors.notFound('User not found'));
     }
     return await this.usersService.findOne(id);
-  }
-
-  @Permission(UserActions.READ_SELF_USERS)
-  @Get('/me/profile')
-  @HttpCode(HttpStatus.OK)
-  async getMe(@Request() req) {
-    return this.usersService.findOne(req.user.id);
   }
 
   @Permission(UserActions.UPDATE_USERS)
