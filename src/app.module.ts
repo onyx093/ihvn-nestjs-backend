@@ -15,7 +15,7 @@ import { EventsModule } from './events/events.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { CohortModule } from './cohorts/cohorts.module';
+import { CohortsModule } from './cohorts/cohorts.module';
 import { LessonModule } from './lesson/lesson.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { StudentsModule } from './students/students.module';
@@ -79,7 +79,7 @@ const configService = new ConfigService();
     EventsModule,
     AttendanceModule,
     FileUploadModule,
-    CohortModule,
+    CohortsModule,
     LessonModule,
     EnrollmentsModule,
     StudentsModule,

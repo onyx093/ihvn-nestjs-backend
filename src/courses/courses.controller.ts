@@ -25,6 +25,8 @@ import errors from '@/config/errors.config';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileCleanupInterceptor } from '@/interceptors/file-cleanup.interceptor';
+import { CurrentUser } from '@/auth/decorators/current-user.decorator';
+import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
 
 @Subject(CourseSubject.NAME)
 @Controller('courses')
@@ -38,16 +40,20 @@ export class CoursesController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @UploadedFile() file: Express.Multer.File,
-    @Body() createCourseDto: CreateCourseDto
+    @Body() createCourseDto: CreateCourseDto,
+    @CurrentUser() user: CurrentUserInfo
   ) {
-    return await this.coursesService.create(createCourseDto, file);
+    return await this.coursesService.create(createCourseDto, file, user);
   }
 
   @Permission(CourseActions.READ_COURSES)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() paginationDto: PaginationDto) {
-    return await this.coursesService.findAll(paginationDto);
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+    @CurrentUser() user: CurrentUserInfo
+  ) {
+    return await this.coursesService.findAll(paginationDto, user);
   }
 
   @Permission(CourseActions.READ_COURSES_WITH_DRAFTS)
@@ -75,9 +81,10 @@ export class CoursesController {
   async update(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updateCourseDto: UpdateCourseDto
+    @Body() updateCourseDto: UpdateCourseDto,
+    @CurrentUser() user: CurrentUserInfo
   ) {
-    return await this.coursesService.update(id, updateCourseDto, file);
+    return await this.coursesService.update(id, updateCourseDto, file, user);
   }
 
   @Permission(CourseActions.DELETE_COURSES)
@@ -113,5 +120,25 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   async unpublish(@Param('id') id: string) {
     return this.coursesService.unpublish(id);
+  }
+
+  @Permission(CourseActions.ENROLL_COURSES)
+  @Post(':id/enroll')
+  @HttpCode(HttpStatus.CREATED)
+  async enroll(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserInfo
+  ): Promise<void> {
+    return this.coursesService.enroll(id, user);
+  }
+
+  @Permission(CourseActions.UNENROLL_COURSES)
+  @Delete(':id/unenroll')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unenroll(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserInfo
+  ): Promise<void> {
+    return this.coursesService.unenroll(id, user);
   }
 }

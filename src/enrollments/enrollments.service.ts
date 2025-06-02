@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -20,10 +22,11 @@ import { PaginationResult } from '@/common/interfaces/pagination-result.interfac
 export class EnrollmentsService {
   constructor(
     @InjectRepository(Enrollment)
-    private enrollmentRepository: Repository<Enrollment>,
-    private cohortService: CohortsService,
-    private studentService: StudentsService,
-    private courseService: CoursesService
+    private readonly enrollmentRepository: Repository<Enrollment>,
+    private readonly cohortService: CohortsService,
+    private readonly studentService: StudentsService,
+    @Inject(forwardRef(() => CoursesService))
+    private readonly courseService: CoursesService
   ) {}
 
   async create(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
@@ -147,5 +150,26 @@ export class EnrollmentsService {
       throw new NotFoundException(errors.notFound('Enrollment not found'));
     }
     await this.enrollmentRepository.restore(id);
+  }
+
+  async isUserEnrolledInCourse(
+    studentId: string,
+    cohortId: string,
+    courseId: string
+  ): Promise<boolean> {
+    const enrollment = await this.enrollmentRepository.findOne({
+      where: {
+        student: { id: studentId },
+        cohort: { id: cohortId },
+        course: { id: courseId },
+      },
+    });
+
+    if (!enrollment) {
+      return false;
+    }
+
+    const activeCohort = await this.cohortService.findActive();
+    return enrollment.cohort.id === activeCohort.id;
   }
 }

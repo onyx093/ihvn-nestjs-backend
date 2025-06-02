@@ -1,5 +1,8 @@
 import fs from 'fs';
 import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -8,25 +11,39 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { IsNull, Not, Repository } from 'typeorm';
+import { ILike, IsNull, Not, Repository } from 'typeorm';
 import { slugify } from '@/lib/helpers';
 import errors from '@/config/errors.config';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
 import { CourseStatus } from '../enums/course-status.enum';
 import { InstructorsService } from '@/instructors/instructors.service';
+import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { UsersService } from '@/users/users.service';
+import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
+import { CourseActions, CourseSubject } from './actions/courses.actions';
+import { CohortsService } from '@/cohorts/cohorts.service';
+import { CohortCoursesService } from '@/cohort-courses/cohort-courses.service';
+import { EnrollmentsService } from '@/enrollments/enrollments.service';
+import { SearchCourseDto } from './dto/search-course.dto';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
-    private readonly instructorService: InstructorsService
+    private readonly instructorService: InstructorsService,
+    private readonly userService: UsersService,
+    private readonly cohortService: CohortsService,
+    private readonly cohortCoursesService: CohortCoursesService,
+    private readonly enrollmentsService: EnrollmentsService,
+    private readonly caslAbilityFactory: CaslAbilityFactory
   ) {}
 
   async create(
     createCourseDto: CreateCourseDto,
-    file: Express.Multer.File
+    file: Express.Multer.File,
+    user: CurrentUserInfo
   ): Promise<Course> {
     /* if (!file) {
       throw new BadRequestException(
@@ -43,6 +60,16 @@ export class CoursesService {
       throw new NotFoundException(errors.notFound('Instructor not found'));
     }
 
+    const dbUser = await this.userService.findOne(user.id);
+    if (!dbUser) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+
+    const ability = this.caslAbilityFactory.createForUser(dbUser);
+    if (!ability.can(CourseActions.CREATE_COURSES, CourseSubject.NAME)) {
+      throw new NotFoundException(errors.notFound('Permission denied'));
+    }
+
     const slug = slugify(name);
     let thumbnailPath = null;
     if (file) {
@@ -56,6 +83,7 @@ export class CoursesService {
       thumbnail: thumbnailPath,
     });
     course.instructor = instructor;
+    course.createdBy = dbUser;
     try {
       return this.courseRepository.save(course);
     } catch (error) {
@@ -67,8 +95,32 @@ export class CoursesService {
     }
   }
 
+  async searchCourses(
+    searchCourseDto: SearchCourseDto
+  ): Promise<PaginationResult<Course>> {
+    const { name, page = 1, limit = 10 } = searchCourseDto;
+
+    const whereCondition = name ? { name: ILike(`%${name}%`) } : {};
+
+    const [data, total] = await this.courseRepository.findAndCount({
+      where: whereCondition,
+      order: { name: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   async findAll(
-    paginationDto: PaginationDto
+    paginationDto: PaginationDto,
+    user: CurrentUserInfo
   ): Promise<PaginationResult<Course>> {
     const { page, limit } = paginationDto;
     const [data, total] = await this.courseRepository.findAndCount({
@@ -118,7 +170,8 @@ export class CoursesService {
   async update(
     id: string,
     updateCourseDto: UpdateCourseDto,
-    file: Express.Multer.File
+    file: Express.Multer.File,
+    user: CurrentUserInfo
   ): Promise<Course> {
     const course = await this.courseRepository.findOneBy({ id });
     if (!course) {
@@ -227,5 +280,106 @@ export class CoursesService {
     }
     course.status = CourseStatus.DRAFT;
     return this.courseRepository.save(course);
+  }
+
+  async enroll(id: string, user: CurrentUserInfo): Promise<void> {
+    const course = await this.courseRepository.findOneBy({ id });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
+
+    const dbUser = await this.userService.findOne(user.id);
+    if (!dbUser) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+
+    const ability = this.caslAbilityFactory.createForUser(dbUser);
+    if (!ability.can(CourseActions.ENROLL_COURSES, CourseSubject.NAME)) {
+      throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
+    }
+
+    const cohort = await this.cohortService.findActive();
+    if (!cohort) {
+      throw new BadRequestException(
+        errors.validationFailed('No cohort is active a the moment')
+      );
+    }
+
+    const cohortCourse = await this.cohortCoursesService.findByCohortAndCourse(
+      cohort.id,
+      course.id
+    );
+    if (!cohortCourse) {
+      throw new NotFoundException(errors.notFound('Cohort course not found'));
+    }
+
+    // Check if user is already enrolled in the course
+    const isAlreadyEnrolled = this.enrollmentsService.isUserEnrolledInCourse(
+      dbUser.id,
+      cohort.id,
+      course.id
+    );
+    if (isAlreadyEnrolled) {
+      throw new ConflictException(
+        errors.notFound('User already enrolled in course')
+      );
+    }
+
+    // Create enrollment for the user
+    const enrollment = await this.enrollmentsService.create({
+      studentId: dbUser.id,
+      cohortId: cohort.id,
+      courseId: course.id,
+    });
+    if (!enrollment) {
+      throw new InternalServerErrorException(
+        errors.serverError('Failed to enroll user in course')
+      );
+    }
+  }
+
+  async unenroll(id: string, user: CurrentUserInfo): Promise<void> {
+    const course = await this.courseRepository.findOneBy({ id });
+    if (!course) {
+      throw new NotFoundException(errors.notFound('Course not found'));
+    }
+
+    const dbUser = await this.userService.findOne(user.id);
+    if (!dbUser) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+
+    const ability = this.caslAbilityFactory.createForUser(dbUser);
+    if (!ability.can(CourseActions.UNENROLL_COURSES, CourseSubject.NAME)) {
+      throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
+    }
+
+    const cohort = await this.cohortService.findActive();
+    if (!cohort) {
+      throw new BadRequestException(
+        errors.validationFailed('No cohort is active a the moment')
+      );
+    }
+
+    const cohortCourse = await this.cohortCoursesService.findByCohortAndCourse(
+      cohort.id,
+      course.id
+    );
+    if (!cohortCourse) {
+      throw new NotFoundException(errors.notFound('Cohort course not found'));
+    }
+
+    const isAlreadyEnrolled = this.enrollmentsService.isUserEnrolledInCourse(
+      dbUser.id,
+      cohort.id,
+      course.id
+    );
+    if (isAlreadyEnrolled) {
+      await this.enrollmentsService.softDelete(id);
+    } else {
+      throw new NotFoundException(
+        errors.notFound('User not enrolled in course')
+      );
+    }
   }
 }

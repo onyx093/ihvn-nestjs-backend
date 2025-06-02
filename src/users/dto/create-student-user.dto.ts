@@ -17,7 +17,7 @@ export class CreateStudentUserDto {
   @IsEmail()
   email: string;
 
-  @IsNotEmpty()
+  /*   @IsNotEmpty()
   @IsString()
   @IsUUID()
   cohortId: string;
@@ -25,7 +25,7 @@ export class CreateStudentUserDto {
   @IsNotEmpty()
   @IsString()
   @IsUUID()
-  courseId: string;
+  courseId: string; */
 
   @IsString()
   @IsOptional()

@@ -9,6 +9,8 @@ export enum CourseActions {
   RESTORE_COURSES = 'restore_courses',
   PUBLISH_COURSES = 'publish_courses',
   UNPUBLISH_COURSES = 'unpublish_courses',
+  ENROLL_COURSES = 'enroll_courses',
+  UNENROLL_COURSES = 'unenroll_courses',
 }
 
 export enum CourseSubject {
