@@ -4,7 +4,6 @@ import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { Instructor } from '../../instructors/entities/instructor.entity';
 import { Student } from '../../students/entities/student.entity';
 
 export default class UserSeeder implements Seeder {

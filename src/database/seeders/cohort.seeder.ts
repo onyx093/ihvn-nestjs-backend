@@ -2,6 +2,8 @@ import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { Cohort } from '../../cohorts/entities/cohort.entity';
 import { slugify } from '../../lib/helpers';
+import { CohortCourse } from '../../cohort-courses/entities/cohort-course.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 export default class CohortSeeder implements Seeder {
   public async run(
@@ -20,8 +22,23 @@ export default class CohortSeeder implements Seeder {
       updatedAt: new Date(),
       deletedAt: null,
     });
-    const courseRepository = dataSource.getRepository(Cohort);
+    const cohortRepository = dataSource.getRepository(Cohort);
+    const cohortCourseRepository = dataSource.getRepository(CohortCourse);
 
-    await courseRepository.save(cohortEntity);
+    const courses = await dataSource.getRepository(Course).find({
+      take: 3,
+    });
+
+    const savedCohort = await cohortRepository.save(cohortEntity);
+
+    const cohortCoursePromises = courses.map(async (course) => {
+      const cohortCourse = new CohortCourse({
+        cohort: savedCohort,
+        course,
+      });
+      return await cohortCourseRepository.save(cohortCourse);
+    });
+
+    await Promise.all(cohortCoursePromises);
   }
 }

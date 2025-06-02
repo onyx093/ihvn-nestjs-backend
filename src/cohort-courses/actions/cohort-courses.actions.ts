@@ -5,5 +5,5 @@ export enum CohortCourseActions {
 }
 
 export enum CohortCourseSubject {
-  NAME = 'Active Course',
+  NAME = 'Cohort Course',
 }
