@@ -4,6 +4,7 @@ import {
   Column,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import { Lesson } from '../../lesson/entities/lesson.entity';
 import { CourseSchedule } from '../../course-schedules/entities/course-schedule.entity';
 import { CohortCourse } from '../../cohort-courses/entities/cohort-course.entity';
 import { Instructor } from '../../instructors/entities/instructor.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity({ name: 'courses' })
 export class Course extends AbstractEntity<Course> {
@@ -59,4 +61,8 @@ export class Course extends AbstractEntity<Course> {
 
   @ManyToOne(() => Instructor, (instructor) => instructor.courses)
   instructor: Instructor;
+
+  @ManyToOne(() => User, (user) => user.createdCourses)
+  @JoinColumn({ name: 'createdBy' })
+  createdBy: User;
 }

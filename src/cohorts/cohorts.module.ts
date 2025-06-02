@@ -17,4 +17,4 @@ import { Course } from '../courses/entities/course.entity';
   providers: [CohortsService],
   exports: [CohortsService],
 })
-export class CohortModule {}
+export class CohortsModule {}

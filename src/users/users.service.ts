@@ -21,9 +21,6 @@ import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { CreateStudentUserDto } from './dto/create-student-user.dto';
 import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
 import { Instructor } from '../instructors/entities/instructor.entity';
-import { Cohort } from '../cohorts/entities/cohort.entity';
-import { Course } from '@/courses/entities/course.entity';
-import { CourseStatus } from '@/enums/course-status.enum';
 
 @Injectable()
 export class UsersService {
@@ -174,7 +171,7 @@ export class UsersService {
           verifyStudent ? 'Found' : 'Not found'
         );
 
-        const cohort = await transactionalEntityManager.findOne(Cohort, {
+        /* const cohort = await transactionalEntityManager.findOne(Cohort, {
           where: { id: createStudentUserDto.cohortId },
           relations: ['cohortCourses.course'],
         });
@@ -223,7 +220,7 @@ export class UsersService {
           student: savedStudent,
           cohort,
         });
-        await transactionalEntityManager.save(enrollment);
+        await transactionalEntityManager.save(enrollment); */
 
         return savedUser;
       }
@@ -293,7 +290,7 @@ export class UsersService {
           const instructor = await transactionalEntityManager.create(
             Instructor,
             {
-              user,
+              user: savedUser,
             }
           );
 

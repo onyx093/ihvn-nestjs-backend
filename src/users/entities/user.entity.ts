@@ -12,6 +12,7 @@ import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { Attendance } from '../../attendance/entities/attendance.entity';
 import { Account } from './account.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {
@@ -54,6 +55,9 @@ export class User extends AbstractEntity<User> {
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendances: Attendance[];
+
+  @OneToMany(() => Course, (course) => course.createdBy)
+  createdCourses: Course[];
 
   @ManyToMany(() => Role, (role) => role.users, { cascade: true, eager: true })
   @JoinTable({

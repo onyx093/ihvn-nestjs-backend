@@ -3,6 +3,7 @@ import { AbstractEntity } from '../../database/entities/abstract.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -27,6 +28,9 @@ export class Enrollment extends AbstractEntity<Enrollment> {
 
   @CreateDateColumn({ default: new Date() })
   enrolledAt: Date;
+
+  @DeleteDateColumn({ nullable: true, default: null })
+  unenrolledAt: Date;
 
   @Column({ default: new Date() })
   createdAt: Date;

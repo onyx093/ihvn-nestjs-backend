@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCohortCourseDto } from './dto/create-cohort-course.dto';
 import { UpdateCohortCourseDto } from './dto/update-cohort-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +19,8 @@ export class CohortCoursesService {
     @InjectRepository(CohortCourse)
     private cohortCourseRepository: Repository<CohortCourse>,
     private readonly cohortService: CohortsService,
-    private readonly courseService: CoursesService
+    @Inject(forwardRef(() => CoursesService))
+    private courseService: CoursesService
   ) {}
   async create(
     createCohortCourseDto: CreateCohortCourseDto,
@@ -48,6 +54,25 @@ export class CohortCoursesService {
 
   findOne(id: number) {
     return `This action returns a #${id} cohortCourse`;
+  }
+
+  async findByCohortAndCourse(
+    cohortId: string,
+    courseId: string
+  ): Promise<CohortCourse> {
+    const cohortCourse = await this.cohortCourseRepository.findOne({
+      where: {
+        cohort: { id: cohortId },
+        course: { id: courseId },
+      },
+      relations: ['course'],
+    });
+    if (!cohortCourse) {
+      throw new NotFoundException(
+        errors.notFound('Course has not been made active for this cohort')
+      );
+    }
+    return cohortCourse;
   }
 
   update(id: number, updateCohortCourseDto: UpdateCohortCourseDto) {

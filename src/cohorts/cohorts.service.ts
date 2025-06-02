@@ -15,6 +15,7 @@ import errors from '@/config/errors.config';
 import { LessonService } from '@/lesson/lesson.service';
 import { Course } from '../courses/entities/course.entity';
 import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
+import { CohortStatus } from '@/enums/cohort-status.enum';
 
 @Injectable()
 export class CohortsService {
@@ -71,6 +72,13 @@ export class CohortsService {
     const [data, total] = await this.cohortRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
+      relations: ['lessons', 'cohortCourses.course'],
+      where: {
+        deletedAt: IsNull(),
+      },
+      order: {
+        createdAt: 'DESC',
+      },
     });
 
     return {
