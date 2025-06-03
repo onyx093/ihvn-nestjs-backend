@@ -48,12 +48,13 @@ export class CohortsService {
             );
           }
 
-          cohort.cohortCourses = courses.map((course) => {
+          const cohortCourses = courses.map((course) => {
             const cohortCourse = new CohortCourse({});
             cohortCourse.course = course;
             cohortCourse.cohort = cohort;
             return cohortCourse;
           });
+          await transactionalEntityManager.save(cohortCourses);
           await transactionalEntityManager.save(cohort);
         }
 
