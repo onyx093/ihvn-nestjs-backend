@@ -15,7 +15,6 @@ export const CohortFactory = setSeederFactory(
 
     cohort.name = context.name || cohortName;
     cohort.slug = context.slug || slugify(cohortName);
-    cohort.year = context.year || cohortYear;
     cohort.startDate = context.startDate || new Date('2025-06-01');
     cohort.endDate = context.endDate || new Date('2026-06-01');
     cohort.isActive = context.isActive || false;

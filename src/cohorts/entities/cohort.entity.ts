@@ -12,9 +12,6 @@ export class Cohort extends AbstractEntity<Cohort> {
   @Column()
   slug: string;
 
-  @Column()
-  year: number;
-
   @Column({ type: 'date' })
   startDate: Date;
 

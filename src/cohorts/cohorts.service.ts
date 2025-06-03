@@ -6,7 +6,7 @@ import {
 import { CreateCohortDto } from './dto/create-cohort.dto';
 import { UpdateCohortDto } from './dto/update-cohort.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { Cohort } from './entities/cohort.entity';
 import { slugify } from '@/lib/helpers';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -15,7 +15,6 @@ import errors from '@/config/errors.config';
 import { LessonService } from '@/lesson/lesson.service';
 import { Course } from '../courses/entities/course.entity';
 import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
-import { CohortStatus } from '@/enums/cohort-status.enum';
 
 @Injectable()
 export class CohortsService {
@@ -39,11 +38,11 @@ export class CohortsService {
         await transactionalEntityManager.save(cohort);
 
         if (createCohortDto.courseIds?.length) {
-          const courses = await this.courseRepository.findByIds(
-            createCohortDto.courseIds
-          );
+          const courses = await this.courseRepository.findBy({
+            id: In(courseIds),
+          });
 
-          if (courses.length !== createCohortDto.courseIds.length) {
+          if (courses.length !== courseIds.length) {
             throw new NotFoundException(
               errors.notFound('One or more courses not found')
             );
@@ -55,7 +54,6 @@ export class CohortsService {
             cohortCourse.cohort = cohort;
             return cohortCourse;
           });
-          await transactionalEntityManager.save(cohort.cohortCourses);
           await transactionalEntityManager.save(cohort);
         }
 
