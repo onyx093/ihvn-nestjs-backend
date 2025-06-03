@@ -54,9 +54,9 @@ export class CreateCohortDto {
   @MaxLength(100)
   name: string;
 
-  @IsInt()
+  /*   @IsInt()
   @Min(new Date().getFullYear())
-  year: number;
+  year: number; */
 
   @IsDateString()
   @IsAfterDate('today')

@@ -14,7 +14,6 @@ export default class CohortSeeder implements Seeder {
     const cohortEntity = new Cohort({
       name: cohortName,
       slug: slugify(cohortName),
-      year: 2025,
       startDate: new Date('2025-06-01'),
       endDate: new Date('2026-06-01'),
       isActive: false,
