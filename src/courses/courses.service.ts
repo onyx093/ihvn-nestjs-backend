@@ -72,7 +72,7 @@ export class CoursesService {
 
     const slug = slugify(name);
     let thumbnailPath = null;
-    console.log('File:', file);
+    /* console.log('File:', file);
     console.log('File.path:', file.path);
     console.log('File.filename:', file.filename);
     console.log('File.originalname:', file.originalname);
@@ -82,7 +82,7 @@ export class CoursesService {
     console.log('File.buffer:', file.buffer);
     console.log('File.encoding:', file.encoding);
     console.log('File.fieldname:', file.fieldname);
-    console.log('File.stream:', file.stream);
+    console.log('File.stream:', file.stream); */
 
     if (file) {
       thumbnailPath = `/thumbnails/${file.filename}`;
