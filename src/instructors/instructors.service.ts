@@ -24,6 +24,7 @@ export class InstructorsService {
     const [data, total] = await this.instructorRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
+      relations: ['user'],
     });
 
     return {

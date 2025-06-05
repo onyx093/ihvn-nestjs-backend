@@ -67,11 +67,23 @@ export class CoursesService {
 
     const ability = this.caslAbilityFactory.createForUser(dbUser);
     if (!ability.can(CourseActions.CREATE_COURSES, CourseSubject.NAME)) {
-      throw new NotFoundException(errors.notFound('Permission denied'));
+      throw new ForbiddenException(errors.notFound('Permission denied'));
     }
 
     const slug = slugify(name);
     let thumbnailPath = null;
+    console.log('File:', file);
+    console.log('File.path:', file.path);
+    console.log('File.filename:', file.filename);
+    console.log('File.originalname:', file.originalname);
+    console.log('File.mimetype:', file.mimetype);
+    console.log('File.size:', file.size);
+    console.log('File.destination:', file.destination);
+    console.log('File.buffer:', file.buffer);
+    console.log('File.encoding:', file.encoding);
+    console.log('File.fieldname:', file.fieldname);
+    console.log('File.stream:', file.stream);
+
     if (file) {
       thumbnailPath = `/thumbnails/${file.filename}`;
     }
