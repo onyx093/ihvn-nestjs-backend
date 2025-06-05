@@ -29,6 +29,10 @@ import {
   CohortCourseActions,
   CohortCourseSubject,
 } from '../cohort-courses/actions/cohort-courses.actions';
+import {
+  InstructorActions,
+  InstructorSubject,
+} from '../instructors/actions/instructors.actions';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -58,6 +62,7 @@ export const SuperAdmin = {
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
     ...mapEnumToObjects(CohortCourseActions, CohortCourseSubject),
+    ...mapEnumToObjects(InstructorActions, InstructorSubject),
   ],
 };
 
@@ -73,6 +78,7 @@ export const Admin = {
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
     ...mapEnumToObjects(CohortCourseActions, CohortCourseSubject),
+    ...mapEnumToObjects(InstructorActions, InstructorSubject),
   ],
 };
 
@@ -115,6 +121,10 @@ export const Editor = {
       CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
+    ...mapSpecifiedEnumMembersToObjects(InstructorActions, InstructorSubject, [
+      'READ_INSTRUCTORS',
+      'READ_ONE_INSTRUCTORS',
+    ]),
   ],
 };
 
@@ -148,6 +158,10 @@ export const Instructor = {
       CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
+    ...mapSpecifiedEnumMembersToObjects(InstructorActions, InstructorSubject, [
+      'READ_INSTRUCTORS',
+      'READ_ONE_INSTRUCTORS',
+    ]),
   ],
 };
 
@@ -181,6 +195,10 @@ export const Receptionist = {
       CourseScheduleSubject,
       ['READ_COURSE_SCHEDULES', 'READ_ONE_COURSE_SCHEDULES']
     ),
+    ...mapSpecifiedEnumMembersToObjects(InstructorActions, InstructorSubject, [
+      'READ_INSTRUCTORS',
+      'READ_ONE_INSTRUCTORS',
+    ]),
   ],
 };
 
@@ -214,6 +232,10 @@ export const Student = {
       CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
+    ...mapSpecifiedEnumMembersToObjects(InstructorActions, InstructorSubject, [
+      'READ_INSTRUCTORS',
+      'READ_ONE_INSTRUCTORS',
+    ]),
   ],
 };
 
@@ -247,5 +269,9 @@ export const Guest = {
       CohortCourseSubject,
       ['READ_ACTIVE_COURSES_FOR_COHORT']
     ),
+    ...mapSpecifiedEnumMembersToObjects(InstructorActions, InstructorSubject, [
+      'READ_INSTRUCTORS',
+      'READ_ONE_INSTRUCTORS',
+    ]),
   ],
 };

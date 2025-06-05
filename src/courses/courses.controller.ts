@@ -39,7 +39,7 @@ export class CoursesController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile('thumbnail') file: Express.Multer.File,
     @Body() createCourseDto: CreateCourseDto,
     @CurrentUser() user: CurrentUserInfo
   ) {
