@@ -1,3 +1,4 @@
+import { CourseStatus } from '@/enums/course-status.enum';
 import { Transform, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
@@ -8,9 +9,8 @@ export class SearchCourseDto {
   name?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  cohortId?: number;
+  @IsString()
+  cohortId?: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -25,3 +25,38 @@ export class SearchCourseDto {
   @Max(100)
   limit?: number = 10;
 }
+
+export class CourseResponseDto {
+  id: string;
+  title: string;
+  description: string;
+  status: CourseStatus;
+  estimatedDurationForCompletion: number;
+  instructor?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class StudentCourseSearchResponseDto {
+  enrolledCourses: CourseResponseDto[];
+  availableCourses: CourseResponseDto[];
+}
+
+export class InstructorCourseSearchResponseDto {
+  assignedCourses: CourseResponseDto[];
+  otherCourses?: CourseResponseDto[];
+}
+
+export class AdminCourseSearchResponseDto {
+  draftCourses: CourseResponseDto[];
+  publishedCourses: CourseResponseDto[];
+}
+
+export type CourseSearchResponseDto =
+  | StudentCourseSearchResponseDto
+  | InstructorCourseSearchResponseDto
+  | AdminCourseSearchResponseDto;

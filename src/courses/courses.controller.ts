@@ -27,6 +27,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileCleanupInterceptor } from '@/interceptors/file-cleanup.interceptor';
 import { CurrentUser } from '@/auth/decorators/current-user.decorator';
 import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { SearchCourseDto } from './dto/search-course.dto';
 
 @Subject(CourseSubject.NAME)
 @Controller('courses')
@@ -56,11 +57,14 @@ export class CoursesController {
     return await this.coursesService.findAll(paginationDto, user);
   }
 
-  @Permission(CourseActions.READ_COURSES_WITH_DRAFTS)
-  @Get('with-drafts')
+  @Permission(CourseActions.SEARCH_COURSES)
+  @Get('/search')
   @HttpCode(HttpStatus.OK)
-  async findAllWithDrafts(@Query() paginationDto: PaginationDto) {
-    return await this.coursesService.findAllWithDrafts(paginationDto);
+  async search(
+    @Query() searchCourseDto: SearchCourseDto,
+    @CurrentUser() user: CurrentUserInfo
+  ) {
+    return await this.coursesService.searchCoursesByRole(searchCourseDto, user);
   }
 
   @Permission(CourseActions.READ_ONE_COURSES)

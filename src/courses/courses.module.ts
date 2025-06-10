@@ -9,10 +9,13 @@ import { UsersModule } from '@/users/users.module';
 import { CohortsModule } from '@/cohorts/cohorts.module';
 import { CohortCoursesModule } from '@/cohort-courses/cohort-courses.module';
 import { EnrollmentsModule } from '@/enrollments/enrollments.module';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { Student } from '../students/entities/student.entity';
+import { Instructor } from '../instructors/entities/instructor.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Course]),
+    TypeOrmModule.forFeature([Course, Enrollment, Student, Instructor]),
     InstructorsModule,
     UsersModule,
     CohortsModule,

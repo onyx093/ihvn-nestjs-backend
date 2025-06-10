@@ -22,7 +22,7 @@ import { PermissionsGuard } from '@/casl/guard/permissions.guard';
 import { Permission } from '@/decorators/permission.decorator';
 
 @Subject(CohortCourseSubject.NAME)
-@Controller('cohorts/:cohortId/active-courses')
+@Controller('cohorts/:cohortId/cohort-courses')
 @UseGuards(PermissionsGuard)
 export class CohortCoursesController {
   constructor(private readonly cohortCoursesService: CohortCoursesService) {}

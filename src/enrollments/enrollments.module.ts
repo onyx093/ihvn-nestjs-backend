@@ -5,15 +5,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CASLModule } from '@/casl/casl.module';
 import { Enrollment } from './entities/enrollment.entity';
 import { StudentsModule } from '@/students/students.module';
-import { CoursesModule } from '@/courses/courses.module';
 import { CohortsModule } from '@/cohorts/cohorts.module';
+import { CohortCoursesModule } from '@/cohort-courses/cohort-courses.module';
+import { CohortCourse } from '../cohort-courses/entities/cohort-course.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Enrollment]),
+    TypeOrmModule.forFeature([Enrollment, CohortCourse]),
     CohortsModule,
     StudentsModule,
-    forwardRef(() => CoursesModule),
+    CohortCoursesModule,
     CASLModule,
   ],
   controllers: [EnrollmentsController],

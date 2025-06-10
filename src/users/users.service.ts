@@ -117,6 +117,8 @@ export class UsersService {
       strict: true,
     });
 
+    console.log('Password: ', generatedPassword);
+
     const hashedPassword = await hash(generatedPassword);
 
     const user = this.userRepository.create({
