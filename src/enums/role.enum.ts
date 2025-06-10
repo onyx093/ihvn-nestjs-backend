@@ -139,6 +139,7 @@ export const Instructor = {
     ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
       'READ_COURSES',
       'READ_ONE_COURSES',
+      'SEARCH_COURSES',
     ]),
     ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
       'READ_EVENTS',
@@ -213,6 +214,9 @@ export const Student = {
     ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
       'READ_COURSES',
       'READ_ONE_COURSES',
+      'ENROLL_COURSES',
+      'UNENROLL_COURSES',
+      'SEARCH_COURSES',
     ]),
     ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
       'READ_EVENTS',

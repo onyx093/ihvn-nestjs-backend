@@ -25,13 +25,30 @@ import { CourseActions, CourseSubject } from './actions/courses.actions';
 import { CohortsService } from '@/cohorts/cohorts.service';
 import { CohortCoursesService } from '@/cohort-courses/cohort-courses.service';
 import { EnrollmentsService } from '@/enrollments/enrollments.service';
-import { SearchCourseDto } from './dto/search-course.dto';
+import {
+  AdminCourseSearchResponseDto,
+  CourseResponseDto,
+  CourseSearchResponseDto,
+  InstructorCourseSearchResponseDto,
+  SearchCourseDto,
+  StudentCourseSearchResponseDto,
+} from './dto/search-course.dto';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { Student } from '../students/entities/student.entity';
+import { PredefinedRoles } from '@/enums/role.enum';
+import { Instructor } from '../instructors/entities/instructor.entity';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
+    @InjectRepository(Enrollment)
+    private readonly enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(Student)
+    private readonly studentRepository: Repository<Student>,
+    @InjectRepository(Instructor)
+    private readonly instructorRepository: Repository<Instructor>,
     private readonly instructorService: InstructorsService,
     private readonly userService: UsersService,
     private readonly cohortService: CohortsService,
@@ -127,6 +144,284 @@ export class CoursesService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async searchCoursesByRole(
+    searchCourseDto: SearchCourseDto,
+    user: CurrentUserInfo
+  ): Promise<CourseSearchResponseDto> {
+    const {
+      name: searchTerm = '',
+      cohortId,
+      page = 1,
+      limit = 10,
+    } = searchCourseDto;
+    // Get user with role
+    const dbUser = await this.userService.findOne(user.id);
+    if (!dbUser) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+
+    const ability = this.caslAbilityFactory.createForUser(dbUser);
+    if (!ability.can(CourseActions.SEARCH_COURSES, CourseSubject.NAME)) {
+      throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
+    }
+
+    const cohort =
+      (await this.cohortService.findOne(cohortId)) ??
+      (await this.cohortService.findActive());
+    if (!cohort) {
+      throw new NotFoundException(errors.notFound('Cohort not found'));
+    }
+
+    const userRoles = dbUser.roles.map((role) => role.name);
+    if (userRoles.includes(PredefinedRoles.ADMIN)) {
+      return this.getAdminCourseSearch(searchTerm, cohort.id);
+    }
+    if (userRoles.includes(PredefinedRoles.SUPER_ADMIN)) {
+      return this.getAdminCourseSearch(searchTerm, cohort.id);
+    }
+
+    if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
+      const instructor = await this.instructorRepository.findOneBy({
+        user: { id: dbUser.id },
+      });
+
+      if (!instructor) {
+        throw new NotFoundException(errors.notFound('Instructor not found'));
+      }
+      return this.getInstructorCourseSearch(
+        instructor.id,
+        searchTerm,
+        cohort.id
+      );
+    }
+
+    if (userRoles.includes(PredefinedRoles.STUDENT)) {
+      const student = await this.studentRepository.findOneBy({
+        user: { id: dbUser.id },
+      });
+
+      if (!student) {
+        throw new NotFoundException(errors.notFound('Student not found'));
+      }
+      return this.getStudentCourseSearch(student.id, searchTerm, cohort.id);
+    }
+  }
+
+  private async getStudentCourseSearch(
+    studentId: string,
+    searchTerm?: string,
+    cohortId?: string
+  ): Promise<StudentCourseSearchResponseDto> {
+    // Get enrolled courses for the student
+    const enrolledCoursesQuery = this.enrollmentRepository
+      .createQueryBuilder('enrollment')
+      .leftJoinAndSelect('enrollment.cohortCourse', 'cohortCourse')
+      .leftJoinAndSelect('cohortCourse.course', 'course')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('instructor.user', 'user')
+      .where('enrollment.studentId = :studentId', { studentId })
+      .andWhere('course.deletedAt IS NULL');
+
+    if (cohortId) {
+      enrolledCoursesQuery
+        .andWhere('enrollment.cohortId = :cohortId', {
+          cohortId,
+        })
+        .andWhere('cohortCourse.cohortId = :cohortId', {
+          cohortId,
+        });
+    }
+
+    if (searchTerm && searchTerm !== '') {
+      enrolledCoursesQuery
+        .andWhere('course.name ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        })
+        .orWhere('course.slug ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        });
+    }
+
+    const enrolledCoursesData = await enrolledCoursesQuery.getMany();
+
+    const enrolledCourses = enrolledCoursesData
+      .map((enrollment) => enrollment.cohortCourse.course)
+      .filter(Boolean)
+      .map((course) => this.mapCourseToDto(course));
+
+    // Get enrolled course IDs to exclude from available courses
+    const enrolledCourseIds = enrolledCourses.map((course) => course.id);
+
+    // Get available courses (published courses not enrolled in)
+    const availableCoursesQuery = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.cohortCourses', 'cohortCourse')
+      .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('instructor.user', 'user')
+      .where('course.status = :status', { status: CourseStatus.PUBLISHED })
+      .andWhere('course.deletedAt IS NULL');
+
+    if (enrolledCourseIds.length > 0) {
+      availableCoursesQuery.andWhere(
+        'course.id NOT IN (:...enrolledCourseIds)',
+        {
+          enrolledCourseIds,
+        }
+      );
+    }
+
+    if (cohortId) {
+      availableCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
+        cohortId,
+      });
+    }
+
+    if (searchTerm && searchTerm !== '') {
+      availableCoursesQuery
+        .andWhere('course.name ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        })
+        .orWhere('course.slug ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        });
+    }
+
+    const availableCoursesData = await availableCoursesQuery.getMany();
+    const availableCourses = availableCoursesData.map((course) =>
+      this.mapCourseToDto(course)
+    );
+
+    return {
+      enrolledCourses,
+      availableCourses,
+    };
+  }
+
+  private async getInstructorCourseSearch(
+    instructorId: string,
+    searchTerm?: string,
+    cohortId?: string
+  ): Promise<InstructorCourseSearchResponseDto> {
+    // Get courses assigned to the instructor
+    const assignedCoursesQuery = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.cohortCourses', 'cohortCourse')
+      .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('instructor.user', 'user')
+      .where('course.instructorId = :instructorId', { instructorId })
+      .andWhere('course.deletedAt IS NULL');
+
+    if (cohortId) {
+      assignedCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
+        cohortId,
+      });
+    }
+    if (searchTerm && searchTerm !== '') {
+      assignedCoursesQuery
+        .andWhere('course.name ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        })
+        .orWhere('course.slug ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        });
+    }
+
+    const assignedCoursesData = await assignedCoursesQuery.getMany();
+
+    const assignedCourses = assignedCoursesData.map((course) =>
+      this.mapCourseToDto(course)
+    );
+
+    return {
+      assignedCourses,
+    };
+  }
+
+  private async getAdminCourseSearch(
+    searchTerm?: string,
+    cohortId?: string
+  ): Promise<AdminCourseSearchResponseDto> {
+    // Get draft courses
+    const draftCoursesQuery = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.cohortCourses', 'cohortCourse')
+      .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
+      .where('course.status = :status', { status: CourseStatus.DRAFT })
+      .andWhere('course.deletedAt IS NULL');
+
+    if (cohortId) {
+      draftCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
+        cohortId,
+      });
+    }
+
+    if (searchTerm && searchTerm !== '') {
+      draftCoursesQuery
+        .andWhere('course.name ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        })
+        .orWhere('course.slug ILIKE :searchTerm', {
+          searchTerm: `%${searchTerm}%`,
+        });
+    }
+
+    const draftCoursesData = await draftCoursesQuery.getMany();
+    const draftCourses = draftCoursesData.map((course) =>
+      this.mapCourseToDto(course)
+    );
+
+    // Get published courses
+    const publishedCoursesQuery = this.courseRepository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.cohortCourses', 'cohortCourse')
+      .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
+      .where('course.status = :status', { status: CourseStatus.PUBLISHED })
+      .andWhere('course.deletedAt IS NULL');
+
+    if (cohortId) {
+      publishedCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
+        cohortId,
+      });
+    }
+
+    if (searchTerm && searchTerm !== '') {
+      publishedCoursesQuery.andWhere('course.name ILIKE :searchTerm', {
+        searchTerm: `%${searchTerm}%`,
+      });
+    }
+
+    const publishedCoursesData = await publishedCoursesQuery.getMany();
+    const publishedCourses = publishedCoursesData.map((course) =>
+      this.mapCourseToDto(course)
+    );
+
+    return {
+      draftCourses,
+      publishedCourses,
+    };
+  }
+
+  private mapCourseToDto(course: Course): CourseResponseDto {
+    return {
+      id: course.id,
+      title: course.name,
+      description: course.description,
+      status: course.status,
+      estimatedDurationForCompletion: course.estimatedDurationForCompletion,
+      instructor: course.instructor
+        ? {
+            id: course.instructor.id,
+            name: course.instructor.user.name,
+            email: course.instructor.user.email,
+          }
+        : undefined,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
     };
   }
 
@@ -310,6 +605,13 @@ export class CoursesService {
       throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
     }
 
+    const student = await this.studentRepository.findOneBy({
+      user: { id: user.id },
+    });
+    if (!student) {
+      throw new NotFoundException(errors.notFound('Student not found'));
+    }
+
     const cohort = await this.cohortService.findActive();
     if (!cohort) {
       throw new BadRequestException(
@@ -326,20 +628,21 @@ export class CoursesService {
     }
 
     // Check if user is already enrolled in the course
-    const isAlreadyEnrolled = this.enrollmentsService.isUserEnrolledInCourse(
-      dbUser.id,
-      cohort.id,
-      course.id
-    );
+    const isAlreadyEnrolled =
+      await this.enrollmentsService.isUserEnrolledInCourse(
+        dbUser.id,
+        cohort.id,
+        course.id
+      );
     if (isAlreadyEnrolled) {
       throw new ConflictException(
-        errors.notFound('User already enrolled in course')
+        errors.conflictError('User already enrolled in course')
       );
     }
 
     // Create enrollment for the user
     const enrollment = await this.enrollmentsService.create({
-      studentId: dbUser.id,
+      studentId: student.id,
       cohortId: cohort.id,
       courseId: course.id,
     });

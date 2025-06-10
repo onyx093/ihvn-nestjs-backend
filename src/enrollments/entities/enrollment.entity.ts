@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Cohort } from '../../cohorts/entities/cohort.entity';
 import { Student } from '../../students/entities/student.entity';
+import { CohortCourse } from '../../cohort-courses/entities/cohort-course.entity';
 
 @Entity({ name: 'enrollments' })
 @Unique(['student', 'cohort'])
@@ -23,8 +24,9 @@ export class Enrollment extends AbstractEntity<Enrollment> {
   @JoinColumn()
   cohort: Cohort;
 
-  @ManyToOne(() => Course)
-  course: Course;
+  @ManyToOne(() => CohortCourse, (cohortCourse) => cohortCourse.enrollments)
+  @JoinColumn({ name: 'cohortCourseId' })
+  cohortCourse: CohortCourse;
 
   @CreateDateColumn({ default: new Date() })
   enrolledAt: Date;

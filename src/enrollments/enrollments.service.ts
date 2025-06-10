@@ -13,10 +13,10 @@ import { Enrollment } from './entities/enrollment.entity';
 import { Repository } from 'typeorm';
 import { CohortsService } from '@/cohorts/cohorts.service';
 import { StudentsService } from '@/students/students.service';
-import { CoursesService } from '@/courses/courses.service';
 import errors from '@/config/errors.config';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { CohortCourse } from '../cohort-courses/entities/cohort-course.entity';
 
 @Injectable()
 export class EnrollmentsService {
@@ -25,8 +25,8 @@ export class EnrollmentsService {
     private readonly enrollmentRepository: Repository<Enrollment>,
     private readonly cohortService: CohortsService,
     private readonly studentService: StudentsService,
-    @Inject(forwardRef(() => CoursesService))
-    private readonly courseService: CoursesService
+    @InjectRepository(CohortCourse)
+    private readonly cohortCourseRepository: Repository<CohortCourse>
   ) {}
 
   async create(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
@@ -52,15 +52,17 @@ export class EnrollmentsService {
       );
     }
 
-    const [student, course] = await Promise.all([
+    const [student, cohortCourse] = await Promise.all([
       this.studentService.findOne(createEnrollmentDto.studentId),
-      this.courseService.findOne(createEnrollmentDto.courseId),
+      this.cohortCourseRepository.findOneBy({
+        course: { id: createEnrollmentDto.courseId },
+      }),
     ]);
 
     const enrollment = this.enrollmentRepository.create({
       student,
       cohort: activeCohort,
-      course,
+      cohortCourse,
     });
 
     return this.enrollmentRepository.save(enrollment);
@@ -113,16 +115,18 @@ export class EnrollmentsService {
       );
     }
 
-    const [student, course] = await Promise.all([
+    const [student, cohortCourse] = await Promise.all([
       this.studentService.findOne(updateEnrollmentDto.studentId),
-      this.courseService.findOne(updateEnrollmentDto.courseId),
+      this.cohortCourseRepository.findOneBy({
+        course: { id: updateEnrollmentDto.courseId },
+      }),
     ]);
 
     const updatedEnrollment = {
       ...enrollment,
       student: student ? student : enrollment.student,
       cohort: activeCohort,
-      course: course ? course : enrollment.course,
+      cohortCourse: cohortCourse ? cohortCourse : enrollment.cohortCourse,
     };
 
     return this.enrollmentRepository.save(updatedEnrollment);
@@ -161,7 +165,7 @@ export class EnrollmentsService {
       where: {
         student: { id: studentId },
         cohort: { id: cohortId },
-        course: { id: courseId },
+        cohortCourse: { course: { id: courseId } },
       },
     });
 
@@ -169,7 +173,6 @@ export class EnrollmentsService {
       return false;
     }
 
-    const activeCohort = await this.cohortService.findActive();
-    return enrollment.cohort.id === activeCohort.id;
+    return true;
   }
 }
