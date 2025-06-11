@@ -421,6 +421,14 @@ export class CoursesService {
       where: {
         status: CourseStatus.PUBLISHED,
       },
+      relations: {
+        instructor: {
+          user: true,
+        },
+      },
+      order: {
+        name: 'ASC',
+      },
       skip: (page - 1) * limit,
       take: limit,
     });
