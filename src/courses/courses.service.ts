@@ -350,6 +350,8 @@ export class CoursesService {
       .createQueryBuilder('course')
       .leftJoinAndSelect('course.cohortCourses', 'cohortCourse')
       .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('instructor.user', 'user')
       .where('course.status = :status', { status: CourseStatus.DRAFT })
       .andWhere('course.deletedAt IS NULL');
 
