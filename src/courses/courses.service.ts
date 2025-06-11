@@ -177,10 +177,10 @@ export class CoursesService {
 
     const userRoles = dbUser.roles.map((role) => role.name);
     if (userRoles.includes(PredefinedRoles.ADMIN)) {
-      return this.getAdminCourseSearch(searchTerm, cohort.id);
+      return this.getAdminCourseSearch(searchTerm);
     }
     if (userRoles.includes(PredefinedRoles.SUPER_ADMIN)) {
-      return this.getAdminCourseSearch(searchTerm, cohort.id);
+      return this.getAdminCourseSearch(searchTerm);
     }
 
     if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
@@ -343,8 +343,7 @@ export class CoursesService {
   }
 
   private async getAdminCourseSearch(
-    searchTerm?: string,
-    cohortId?: string
+    searchTerm?: string
   ): Promise<AdminCourseSearchResponseDto> {
     // Get draft courses
     const draftCoursesQuery = this.courseRepository
@@ -353,12 +352,6 @@ export class CoursesService {
       .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
       .where('course.status = :status', { status: CourseStatus.DRAFT })
       .andWhere('course.deletedAt IS NULL');
-
-    if (cohortId) {
-      draftCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
-        cohortId,
-      });
-    }
 
     if (searchTerm && searchTerm !== '') {
       draftCoursesQuery
@@ -382,12 +375,6 @@ export class CoursesService {
       .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
       .where('course.status = :status', { status: CourseStatus.PUBLISHED })
       .andWhere('course.deletedAt IS NULL');
-
-    if (cohortId) {
-      publishedCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
-        cohortId,
-      });
-    }
 
     if (searchTerm && searchTerm !== '') {
       publishedCoursesQuery.andWhere('course.name ILIKE :searchTerm', {
@@ -532,12 +519,18 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
-    if (course.schedules.length > 0) {
+
+    if (course.cohortCourses?.length > 0) {
+      throw new InternalServerErrorException(
+        errors.serverError('Course cannot be deleted because it has cohorts')
+      );
+    }
+    if (course.schedules?.length > 0) {
       throw new InternalServerErrorException(
         errors.serverError('Course cannot be deleted because it has schedules')
       );
     }
-    if (course.lessons.length > 0) {
+    if (course.lessons?.length > 0) {
       throw new InternalServerErrorException(
         errors.serverError('Course cannot be deleted because it has lessons')
       );
