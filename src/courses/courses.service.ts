@@ -409,7 +409,7 @@ export class CoursesService {
   private mapCourseToDto(course: Course): CourseResponseDto {
     return {
       id: course.id,
-      title: course.name,
+      name: course.name,
       description: course.description,
       status: course.status,
       estimatedDurationForCompletion: course.estimatedDurationForCompletion,

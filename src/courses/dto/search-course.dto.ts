@@ -28,7 +28,7 @@ export class SearchCourseDto {
 
 export class CourseResponseDto {
   id: string;
-  title: string;
+  name: string;
   description: string;
   status: CourseStatus;
   estimatedDurationForCompletion: number;
