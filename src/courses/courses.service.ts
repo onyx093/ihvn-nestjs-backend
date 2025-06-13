@@ -485,7 +485,11 @@ export class CoursesService {
     const { name, description, instructorId, estimatedDurationForCompletion } =
       updateCourseDto;
 
-    const instructor = await this.instructorService.findOne(instructorId);
+    const instructor = await this.instructorRepository.findOneBy({
+      user: {
+        id: user.id,
+      },
+    });
 
     if (!instructor) {
       throw new NotFoundException(errors.notFound('Instructor not found'));
