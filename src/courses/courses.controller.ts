@@ -70,8 +70,8 @@ export class CoursesController {
   @Permission(CourseActions.READ_ONE_COURSES)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async findOne(@Param('id') id: string) {
-    const course = await this.coursesService.findOne(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserInfo) {
+    const course = await this.coursesService.findOneByUser(id, user);
     if (!course) {
       throw new NotFoundException(errors.notFound('Course not found'));
     }

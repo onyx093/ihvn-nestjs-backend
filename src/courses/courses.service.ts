@@ -465,6 +465,71 @@ export class CoursesService {
     };
   }
 
+  async findOneByUser(
+    id: string,
+    user: CurrentUserInfo
+  ): Promise<Course | null> {
+    const dbUser = await this.userService.findOne(user.id);
+    if (!dbUser) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+
+    const ability = this.caslAbilityFactory.createForUser(dbUser);
+    if (!ability.can(CourseActions.SEARCH_COURSES, CourseSubject.NAME)) {
+      throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
+    }
+
+    const userRoles = dbUser.roles.map((role) => role.name);
+    if (userRoles.includes(PredefinedRoles.ADMIN)) {
+      return this.courseRepository.findOne({
+        where: { id },
+        relations: {
+          instructor: {
+            user: true,
+          },
+          schedules: true,
+          lessons: true,
+        },
+      });
+    }
+    if (userRoles.includes(PredefinedRoles.SUPER_ADMIN)) {
+      return this.courseRepository.findOne({
+        where: { id },
+        relations: {
+          instructor: {
+            user: true,
+          },
+          schedules: true,
+          lessons: true,
+        },
+      });
+    }
+
+    if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
+      return this.courseRepository.findOne({
+        where: { id },
+        relations: {
+          instructor: {
+            user: true,
+          },
+          lessons: true,
+        },
+      });
+    }
+    if (userRoles.includes(PredefinedRoles.STUDENT)) {
+      return this.courseRepository.findOne({
+        where: { id },
+        relations: {
+          instructor: {
+            user: true,
+          },
+          lessons: true,
+        },
+      });
+    }
+    return null;
+  }
+
   async findOne(id: string): Promise<Course | null> {
     return this.courseRepository.findOne({
       where: { id },
