@@ -2,6 +2,7 @@ import { WeekDay } from '@/enums/week-day.enum';
 import {
   IsEnum,
   IsNotEmpty,
+  Matches,
   registerDecorator,
   Validate,
   ValidationArguments,
@@ -133,11 +134,17 @@ export class CreateCourseScheduleDto {
   @IsNotEmpty({ message: 'Start time is required' })
   @IsTimeString()
   @IsTimeBetween('09:00', '16:00')
+  @Matches(/^([01]\d|2[0-3]):00$/, {
+    message: 'Time must be on the hour (HH:00)',
+  })
   startTime: string;
 
   @IsNotEmpty({ message: 'End time is required' })
   @IsTimeString()
   @IsTimeBetween('09:00', '16:00')
+  @Matches(/^([01]\d|2[0-3]):00$/, {
+    message: 'Time must be on the hour (HH:00)',
+  })
   @IsAfterTime('startTime')
   endTime: string;
 }

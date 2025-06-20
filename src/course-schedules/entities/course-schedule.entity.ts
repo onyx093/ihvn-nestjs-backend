@@ -1,9 +1,10 @@
 import { WeekDay } from '../../enums/week-day.enum';
 import { Course } from '../../courses/entities/course.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Column, DeleteDateColumn, Entity, ManyToOne } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, ManyToOne, Unique } from 'typeorm';
 
 @Entity({ name: 'course_schedules' })
+@Unique(['dayOfWeek', 'course'])
 export class CourseSchedule extends AbstractEntity<CourseSchedule> {
   @Column({ type: 'enum', enum: WeekDay })
   dayOfWeek: WeekDay;

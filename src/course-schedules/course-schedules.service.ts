@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCourseScheduleDto } from './dto/create-course-schedule.dto';
@@ -67,9 +69,9 @@ export class CourseSchedulesService {
     };
   }
 
-  async findOne(id: string): Promise<CourseSchedule | null> {
+  async findOne(id: string, courseId?: string): Promise<CourseSchedule | null> {
     return this.scheduleRepository.findOne({
-      where: { id },
+      where: { id, course: { id: courseId } },
     });
   }
 
@@ -112,9 +114,19 @@ export class CourseSchedulesService {
   }
 
   async remove(id: string): Promise<void> {
-    const courseSchedule = await this.scheduleRepository.findOneBy({ id });
+    const courseSchedule = await this.scheduleRepository.findOne({
+      where: { id },
+      relations: ['course.lessons'],
+    });
     if (!courseSchedule) {
       throw new NotFoundException(errors.notFound('Course schedule not found'));
+    }
+    if (courseSchedule.course.lessons?.length > 0) {
+      throw new InternalServerErrorException(
+        errors.serverError(
+          'Course schedule cannot be deleted because some lessons are tied to it'
+        )
+      );
     }
 
     await this.scheduleRepository.delete(id);
@@ -152,6 +164,12 @@ export class CourseSchedulesService {
       })
       .andWhere(excludeId ? 'schedule.id != :excludeId' : '1=1', { excludeId })
       .getMany();
+
+    if (existingSchedules.length > 0) {
+      throw new BadRequestException(
+        `Only one schedule allowed per day. Duplicate found for day ${dto.dayOfWeek}`
+      );
+    }
 
     const newStart = this.timeToMinutes(dto.startTime);
     const newEnd = this.timeToMinutes(dto.endTime);

@@ -57,8 +57,8 @@ export class CourseSchedulesController {
   @Permission(CourseScheduleActions.READ_ONE_COURSE_SCHEDULES)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async findOne(@Param('id') id: string) {
-    return this.courseSchedulesService.findOne(id);
+  async findOne(@Param('id') id: string, @Param('courseId') courseId?: string) {
+    return this.courseSchedulesService.findOne(id, courseId);
   }
 
   @Permission(CourseScheduleActions.UPDATE_COURSE_SCHEDULES)
