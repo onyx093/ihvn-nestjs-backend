@@ -4,6 +4,7 @@ import { Cohort } from '../../cohorts/entities/cohort.entity';
 import { slugify } from '../../lib/helpers';
 import { CohortCourse } from '../../cohort-courses/entities/cohort-course.entity';
 import { Course } from '../../courses/entities/course.entity';
+import { CourseStatus } from '../../enums/course-status.enum';
 
 export default class CohortSeeder implements Seeder {
   public async run(
@@ -25,6 +26,7 @@ export default class CohortSeeder implements Seeder {
     const cohortCourseRepository = dataSource.getRepository(CohortCourse);
 
     const courses = await dataSource.getRepository(Course).find({
+      where: { status: CourseStatus.PUBLISHED },
       take: 3,
     });
 

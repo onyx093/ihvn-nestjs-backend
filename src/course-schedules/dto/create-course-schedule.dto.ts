@@ -49,7 +49,6 @@ export function IsAfterTime(
 export class IsTimeBetweenConstraint implements ValidatorConstraintInterface {
   validate(value: string, args: ValidationArguments) {
     const [minTime, maxTime] = args.constraints;
-    console.log(`Validating time: ${value} between ${minTime} and ${maxTime}`);
 
     return compareTime(value, minTime) >= 0 && compareTime(value, maxTime) <= 0;
   }
@@ -133,7 +132,7 @@ export class CreateCourseScheduleDto {
 
   @IsNotEmpty({ message: 'Start time is required' })
   @IsTimeString()
-  @IsTimeBetween('09:00', '16:00')
+  // @IsTimeBetween('09:00', '16:00')
   @Matches(/^([01]\d|2[0-3]):00$/, {
     message: 'Time must be on the hour (HH:00)',
   })
@@ -141,7 +140,7 @@ export class CreateCourseScheduleDto {
 
   @IsNotEmpty({ message: 'End time is required' })
   @IsTimeString()
-  @IsTimeBetween('09:00', '16:00')
+  // @IsTimeBetween('09:00', '16:00')
   @Matches(/^([01]\d|2[0-3]):00$/, {
     message: 'Time must be on the hour (HH:00)',
   })
