@@ -12,7 +12,6 @@ import { slugify } from '@/lib/helpers';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
 import errors from '@/config/errors.config';
-import { LessonService } from '@/lesson/lesson.service';
 import { Course } from '../courses/entities/course.entity';
 import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
 
@@ -20,8 +19,7 @@ import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
 export class CohortsService {
   constructor(
     @InjectRepository(Cohort) private cohortRepository: Repository<Cohort>,
-    @InjectRepository(Course) private courseRepository: Repository<Course>,
-    private lessonService: LessonService
+    @InjectRepository(Course) private courseRepository: Repository<Course>
   ) {}
 
   async create(createCohortDto: CreateCohortDto): Promise<Cohort> {
@@ -171,10 +169,6 @@ export class CohortsService {
 
         cohort.isActive = true;
         await transactionalEntityManager.save(cohort);
-        /* await this.lessonService.generateLessonsForCohort(
-          cohort,
-          transactionalEntityManager
-        ); */
         return cohort;
       }
     );

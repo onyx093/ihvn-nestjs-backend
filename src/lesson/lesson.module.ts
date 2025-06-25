@@ -4,10 +4,11 @@ import { LessonController } from './lesson.controller';
 import { Lesson } from './entities/lesson.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CASLModule } from '@/casl/casl.module';
+import { Cohort } from '../cohorts/entities/cohort.entity';
 import { Course } from '../courses/entities/course.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lesson, Course]), CASLModule],
+  imports: [TypeOrmModule.forFeature([Lesson, Course, Cohort]), CASLModule],
   controllers: [LessonController],
   providers: [LessonService],
   exports: [LessonService],

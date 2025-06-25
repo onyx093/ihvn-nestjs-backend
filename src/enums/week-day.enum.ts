@@ -6,11 +6,23 @@ export enum WeekDay {
   FRIDAY = 5,
   SATURDAY = 6,
 }
+
+export enum Days {
+  Monday = 'Monday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday',
+  Thursday = 'Thursday',
+  Friday = 'Friday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday',
+}
+
 export const WeekDaysList = [
-  { id: WeekDay.MONDAY, name: 'Monday' },
-  { id: WeekDay.TUESDAY, name: 'Tuesday' },
-  { id: WeekDay.WEDNESDAY, name: 'Wednesday' },
-  { id: WeekDay.THURSDAY, name: 'Thursday' },
-  { id: WeekDay.FRIDAY, name: 'Friday' },
-  { id: WeekDay.SATURDAY, name: 'Saturday' },
+  Days.Sunday,
+  Days.Monday,
+  Days.Tuesday,
+  Days.Wednesday,
+  Days.Thursday,
+  Days.Friday,
+  Days.Saturday,
 ];
