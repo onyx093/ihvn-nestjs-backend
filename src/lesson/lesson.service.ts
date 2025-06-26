@@ -68,13 +68,6 @@ export class LessonService {
       const end = new Date(activeCohort.endDate);
 
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        console.log(
-          'd',
-          d.toLocaleDateString('en-US', {
-            weekday: 'long',
-          })
-        );
-
         const dayName = d.toLocaleDateString('en-US', {
           weekday: 'long',
         });
@@ -101,17 +94,13 @@ export class LessonService {
               startTime: schedule.startTime,
               endTime: schedule.endTime,
             });
-
-            console.log('lesson', lesson);
             preparedLessons.push(lesson);
-
-            // await this.lessonRepository.save(lesson);
           }
         }
       }
     }
 
-    await this.lessonRepository.save(preparedLessons);
+    this.lessonRepository.save(preparedLessons);
   }
 
   async generateLessonsForCourseInCohort(courseId: string, cohortId: string) {
