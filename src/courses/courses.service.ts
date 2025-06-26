@@ -220,6 +220,7 @@ export class CoursesService {
       .createQueryBuilder('enrollment')
       .leftJoinAndSelect('enrollment.cohortCourse', 'cohortCourse')
       .leftJoinAndSelect('cohortCourse.course', 'course')
+      .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
       .leftJoinAndSelect('course.instructor', 'instructor')
       .leftJoinAndSelect('instructor.user', 'user')
       .where('enrollment.studentId = :studentId', { studentId })

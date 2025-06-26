@@ -180,6 +180,7 @@ export class CohortsService {
         isActive: true,
         deletedAt: null, // Optional: Include if you want to exclude soft-deleted rows
       },
+      relations: ['lessons'],
       order: { createdAt: 'DESC' },
     });
   }

@@ -69,13 +69,31 @@ export class EnrollmentsService {
   }
 
   async findAll(
-    cohortId: string,
+    courseId: string,
     paginationDto: PaginationDto
   ): Promise<PaginationResult<Enrollment>> {
     const { page, limit } = paginationDto;
+    const activeCohort = await this.cohortService.findActive();
+    if (!activeCohort) {
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: Math.ceil(0 / limit),
+      };
+    }
     const [data, total] = await this.enrollmentRepository.findAndCount({
       where: {
-        cohort: { id: cohortId },
+        cohortCourse: {
+          cohort: { id: activeCohort.id },
+          course: { id: courseId },
+        },
+      },
+      relations: {
+        student: {
+          user: true,
+        },
       },
       skip: (page - 1) * limit,
       take: limit,

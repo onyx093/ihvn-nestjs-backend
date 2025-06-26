@@ -12,8 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { LessonService } from './lesson.service';
-import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { Subject } from '@/decorators/subject.decorator';
 import { LessonActions, LessonSubject } from './actions/lesson.actions';
 import { PermissionsGuard } from '@/casl/guard/permissions.guard';
@@ -27,9 +25,9 @@ export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @Permission(LessonActions.GENERATE_LESSONS_FOR_ACTIVE_COHORT)
-  @Post('generate')
+  @Post('/generate')
   @HttpCode(HttpStatus.CREATED)
-  generateLessonsForActiveCohort(@Param('cohortId') cohortId: string) {
+  async generateLessonsForActiveCohort(@Param('cohortId') cohortId: string) {
     return this.lessonService.generateLessonsForActiveCohort(cohortId);
   }
 

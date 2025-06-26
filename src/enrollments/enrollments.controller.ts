@@ -24,7 +24,7 @@ import { PermissionsGuard } from '@/casl/guard/permissions.guard';
 import { Permission } from '@/decorators/permission.decorator';
 
 @Subject(EnrollmentSubject.NAME)
-@Controller('cohorts/:cohortId/enrollments')
+@Controller('enrollments')
 @UseGuards(PermissionsGuard)
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
@@ -37,13 +37,13 @@ export class EnrollmentsController {
   }
 
   @Permission(EnrollmentActions.READ_ENROLLMENTS)
-  @Get()
+  @Get('/courses/:courseId')
   @HttpCode(HttpStatus.OK)
   async findAll(
-    @Param('cohortId') cohortId: string,
+    @Param('courseId') courseId: string,
     @Query() paginationDto: PaginationDto
   ) {
-    return this.enrollmentsService.findAll(cohortId, paginationDto);
+    return this.enrollmentsService.findAll(courseId, paginationDto);
   }
 
   @Permission(EnrollmentActions.READ_ONE_ENROLLMENTS)
