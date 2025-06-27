@@ -26,7 +26,7 @@ export class LessonService {
     private cohortRepository: Repository<Cohort>
   ) {}
 
-  async generateLessonsForActiveCohort(cohortId: string): Promise<void> {
+  async generateLessonsForActiveCohort(cohortId: string) {
     const activeCohort = await this.cohortRepository.findOne({
       where: { id: cohortId, isActive: true },
       relations: [
