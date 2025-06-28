@@ -37,7 +37,11 @@ export class LessonService {
     });
 
     if (!activeCohort) {
-      throw new NotFoundException(errors.notFound('No active cohort found'));
+      throw new NotFoundException(
+        errors.notFound(
+          'Cohort should be made active before generating lessons'
+        )
+      );
     }
 
     if (
@@ -100,7 +104,12 @@ export class LessonService {
       }
     }
 
-    this.lessonRepository.save(preparedLessons);
+    const savedLessons = await this.lessonRepository.save(preparedLessons);
+    if (savedLessons) {
+      return {
+        message: 'Lessons generated successfully',
+      };
+    }
   }
 
   async generateLessonsForCourseInCohort(courseId: string, cohortId: string) {

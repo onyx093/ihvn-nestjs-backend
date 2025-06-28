@@ -14,6 +14,7 @@ import { PaginationResult } from '@/common/interfaces/pagination-result.interfac
 import errors from '@/config/errors.config';
 import { Course } from '../courses/entities/course.entity';
 import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
+import { CohortStatus } from '@/enums/cohort-status.enum';
 
 @Injectable()
 export class CohortsService {
@@ -151,7 +152,7 @@ export class CohortsService {
     await this.cohortRepository.restore(id);
   }
 
-  async activateCohort(id: string): Promise<Cohort> {
+  async activateCohort(cohortId: string): Promise<Cohort> {
     return this.cohortRepository.manager.transaction(
       async (transactionalEntityManager) => {
         await transactionalEntityManager.update(
@@ -160,14 +161,34 @@ export class CohortsService {
           { isActive: false }
         );
 
-        const cohort = await transactionalEntityManager.findOne(Cohort, {
-          where: { id },
-          lock: { mode: 'pessimistic_write' },
+        const cohort = await this.cohortRepository.findOne({
+          where: { id: cohortId, deletedAt: IsNull() },
+          // lock: { mode: 'pessimistic_write' },
         });
-
-        if (!cohort) throw new NotFoundException('Cohort not found');
+        if (!cohort) {
+          throw new NotFoundException(errors.notFound('Cohort not found'));
+        }
+        if (
+          new Date(cohort.startDate) > new Date() ||
+          new Date(cohort.endDate) < new Date()
+        ) {
+          throw new InternalServerErrorException(
+            errors.serverError(
+              'Cohort cannot be activated outside its date range'
+            )
+          );
+        }
+        if (cohort.status === CohortStatus.COMPLETED) {
+          throw new InternalServerErrorException(
+            errors.serverError(
+              'Cohort cannot be activated as it is already completed'
+            )
+          );
+        }
 
         cohort.isActive = true;
+        cohort.status = CohortStatus.ACTIVE;
+        cohort.updatedAt = new Date();
         await transactionalEntityManager.save(cohort);
         return cohort;
       }

@@ -23,10 +23,7 @@ export class CohortCoursesService {
     @Inject(forwardRef(() => CoursesService))
     private courseService: CoursesService
   ) {}
-  async create(
-    createCohortCourseDto: CreateCohortCourseDto,
-    cohortId: string
-  ): Promise<CohortCourse> {
+  async create(createCohortCourseDto: CreateCohortCourseDto, cohortId: string) {
     const cohort = await this.cohortService.findOne(cohortId);
     if (!cohort) {
       throw new NotFoundException(errors.notFound('Cohort not found'));
@@ -43,7 +40,13 @@ export class CohortCoursesService {
       course,
       cohort,
     });
-    return await this.cohortCourseRepository.save(cohortCourse);
+    const savedCohortCourse =
+      await this.cohortCourseRepository.save(cohortCourse);
+    if (savedCohortCourse) {
+      return {
+        message: 'Course added successfully',
+      };
+    }
   }
 
   async findAll(cohortId: string): Promise<CohortCourse[]> {
@@ -80,10 +83,14 @@ export class CohortCoursesService {
     return `This action updates a #${id} cohortCourse`;
   }
 
-  async remove(cohortId: string, courseId: string): Promise<void> {
+  async remove(cohortId: string, courseId: string) {
     const cohortCourse = await this.cohortCourseRepository.findOne({
       where: { cohort: { id: cohortId }, course: { id: courseId } },
-      relations: { course: true, cohort: { lessons: true }, enrollments: true },
+      relations: {
+        course: { lessons: true },
+        cohort: { lessons: true },
+        enrollments: true,
+      },
     });
     if (!cohortCourse) {
       throw new NotFoundException(
@@ -97,13 +104,20 @@ export class CohortCoursesService {
         )
       );
     }
-    if (cohortCourse.cohort.lessons.length > 0) {
+    if (cohortCourse.course.lessons.length > 0) {
       throw new BadRequestException(
         errors.badRequest(
           'Cannot remove course from cohort, lessons have been created for this course'
         )
       );
     }
-    await this.cohortCourseRepository.remove(cohortCourse);
+    const removedCohortCourse = await this.cohortCourseRepository.delete(
+      cohortCourse.id
+    );
+    if (removedCohortCourse) {
+      return {
+        message: 'Course removed successfully',
+      };
+    }
   }
 }
