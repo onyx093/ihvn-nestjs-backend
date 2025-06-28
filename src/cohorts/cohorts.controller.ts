@@ -86,9 +86,9 @@ export class CohortsController {
   }
 
   @Permission(CohortActions.ACTIVATE_COHORTS)
-  @Patch(':id/activate')
+  @Patch(':cohortId/activate')
   @HttpCode(HttpStatus.OK)
-  async activate(@Param('id') id: string) {
-    return this.cohortsService.activateCohort(id);
+  async activate(@Param('cohortId') cohortId: string) {
+    return this.cohortsService.activateCohort(cohortId);
   }
 }
