@@ -22,6 +22,10 @@ const errors = {
     statusCode: HttpStatus.BAD_REQUEST,
     message: message ?? 'Validation Failed',
   }),
+  badRequest: (message?: string) => ({
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: message ?? 'Could not complete this request',
+  }),
   unauthorizedAccess: (message?: string) => ({
     statusCode: HttpStatus.UNAUTHORIZED,
     message: message ?? 'Try logging in, to access this resource',

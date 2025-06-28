@@ -21,6 +21,8 @@ import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { CreateStudentUserDto } from './dto/create-student-user.dto';
 import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
 import { Instructor } from '../instructors/entities/instructor.entity';
+import { PaginationDto } from '@/common/dto/pagination.dto';
+import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class UsersService {
@@ -322,10 +324,21 @@ export class UsersService {
     return newUser;
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find({
+  async findAll(paginationDto: PaginationDto): Promise<PaginationResult<User>> {
+    const { page, limit } = paginationDto;
+    const [users, total] = await this.userRepository.findAndCount({
       relations: { account: true, userSetting: true, roles: true },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      data: users,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<User | undefined> {
@@ -378,8 +391,6 @@ export class UsersService {
         errors.validationFailed('Password must contain at least one number')
       );
     }
-
-    console.log('user id: ', userId);
 
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {

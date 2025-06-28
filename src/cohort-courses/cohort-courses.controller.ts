@@ -58,9 +58,12 @@ export class CohortCoursesController {
   }
 
   @Permission(CohortCourseActions.REMOVE_COHORT_COURSES_FROM_COHORT)
-  @Delete(':id')
+  @Delete(':courseId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
-    return this.cohortCoursesService.remove(id);
+  async remove(
+    @Param('cohortId') cohortId: string,
+    @Param('courseId') courseId: string
+  ) {
+    return this.cohortCoursesService.remove(cohortId, courseId);
   }
 }
