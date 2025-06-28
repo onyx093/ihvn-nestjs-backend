@@ -3,6 +3,7 @@ import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Column, DeleteDateColumn, Entity, OneToMany } from 'typeorm';
 import { Enrollment } from '../../enrollments/entities/enrollment.entity';
 import { CohortCourse } from '../../cohort-courses/entities/cohort-course.entity';
+import { CohortStatus } from '../../enums/cohort-status.enum';
 
 @Entity({ name: 'cohorts' })
 export class Cohort extends AbstractEntity<Cohort> {
@@ -20,6 +21,13 @@ export class Cohort extends AbstractEntity<Cohort> {
 
   @Column({ default: false })
   isActive: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: CohortStatus,
+    default: CohortStatus.DRAFT,
+  })
+  status: CohortStatus;
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.cohort)
   enrollments: Enrollment[];

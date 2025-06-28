@@ -220,6 +220,7 @@ export class CoursesService {
       .createQueryBuilder('enrollment')
       .leftJoinAndSelect('enrollment.cohortCourse', 'cohortCourse')
       .leftJoinAndSelect('cohortCourse.course', 'course')
+      .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
       .leftJoinAndSelect('course.instructor', 'instructor')
       .leftJoinAndSelect('instructor.user', 'user')
       .where('enrollment.studentId = :studentId', { studentId })
@@ -375,6 +376,8 @@ export class CoursesService {
       .createQueryBuilder('course')
       .leftJoinAndSelect('course.cohortCourses', 'cohortCourse')
       .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
+      .leftJoinAndSelect('course.instructor', 'instructor')
+      .leftJoinAndSelect('instructor.user', 'user')
       .where('course.status = :status', { status: CourseStatus.PUBLISHED })
       .andWhere('course.deletedAt IS NULL');
 
@@ -501,6 +504,9 @@ export class CoursesService {
           },
           schedules: true,
           lessons: true,
+          cohortCourses: {
+            cohort: { enrollments: { student: { user: true } } },
+          },
         },
       });
     }
@@ -513,6 +519,9 @@ export class CoursesService {
             user: true,
           },
           lessons: true,
+          cohortCourses: {
+            cohort: { enrollments: { student: { user: true } } },
+          },
         },
       });
     }
@@ -647,9 +656,20 @@ export class CoursesService {
   }
 
   async publish(id: string): Promise<Course> {
-    const course = await this.courseRepository.findOneBy({ id });
+    const course = await this.courseRepository.findOne({
+      where: { id },
+      relations: { schedules: true },
+    });
     if (!course) {
       throw new NotFoundException(errors.notFound('Course not found'));
+    }
+
+    if (course.schedules?.length <= 0) {
+      throw new BadRequestException(
+        errors.validationFailed(
+          "Course cannot be published because it doesn't have schedules"
+        )
+      );
     }
     course.status = CourseStatus.PUBLISHED;
     return this.courseRepository.save(course);

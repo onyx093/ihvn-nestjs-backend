@@ -1,11 +1,9 @@
 export enum LessonActions {
-  CREATE_ENROLLMENTS = 'create_enrollments',
-  READ_ENROLLMENTS = 'read_enrollments',
-  READ_ONE_ENROLLMENTS = 'read_one_enrollments',
-  UPDATE_ENROLLMENTS = 'update_enrollments',
-  DELETE_ENROLLMENTS = 'delete_enrollments',
-  SOFT_DELETE_ENROLLMENTS = 'soft_delete_enrollments',
-  RESTORE_ENROLLMENTS = 'restore_enrollments',
+  GENERATE_LESSONS_FOR_ACTIVE_COHORT = 'generate_lessons_for_active_cohort',
+  GENERATE_LESSONS_FOR_COURSE_IN_COHORT = 'generate_lessons_for_course_in_cohort',
+  READ_LESSONS = 'read_lessons',
+  READ_ONE_LESSONS = 'read_one_lessons',
+  MARK_LESSON_AS_COMPLETED = 'mark_lesson_as_completed',
 }
 
 export enum LessonSubject {
