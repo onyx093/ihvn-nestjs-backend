@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -79,13 +80,30 @@ export class CohortCoursesService {
     return `This action updates a #${id} cohortCourse`;
   }
 
-  async remove(id: string): Promise<void> {
-    const cohortCourse = await this.cohortCourseRepository.findOneBy({ id });
+  async remove(cohortId: string, courseId: string): Promise<void> {
+    const cohortCourse = await this.cohortCourseRepository.findOne({
+      where: { cohort: { id: cohortId }, course: { id: courseId } },
+      relations: { course: true, cohort: { lessons: true }, enrollments: true },
+    });
     if (!cohortCourse) {
       throw new NotFoundException(
         errors.notFound('Course has not been made active for this cohort')
       );
     }
-    await this.cohortCourseRepository.delete(id);
+    if (cohortCourse.enrollments.length > 0) {
+      throw new BadRequestException(
+        errors.badRequest(
+          'Cannot remove course from cohort, students are enrolled in this course'
+        )
+      );
+    }
+    if (cohortCourse.cohort.lessons.length > 0) {
+      throw new BadRequestException(
+        errors.badRequest(
+          'Cannot remove course from cohort, lessons have been created for this course'
+        )
+      );
+    }
+    await this.cohortCourseRepository.remove(cohortCourse);
   }
 }
