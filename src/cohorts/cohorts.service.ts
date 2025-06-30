@@ -7,7 +7,7 @@ import {
 import { CreateCohortDto } from './dto/create-cohort.dto';
 import { UpdateCohortDto } from './dto/update-cohort.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { Cohort } from './entities/cohort.entity';
 import { slugify } from '@/lib/helpers';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -16,7 +16,6 @@ import errors from '@/config/errors.config';
 import { Course } from '../courses/entities/course.entity';
 import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
 import { CohortStatus } from '@/enums/cohort-status.enum';
-import { stat } from 'fs';
 
 @Injectable()
 export class CohortsService {
@@ -235,9 +234,9 @@ export class CohortsService {
     return this.cohortRepository.findOne({
       where: {
         isActive: true,
+        status: CohortStatus.ACTIVE,
         deletedAt: null, // Optional: Include if you want to exclude soft-deleted rows
       },
-      relations: ['lessons'],
       order: { createdAt: 'DESC' },
     });
   }

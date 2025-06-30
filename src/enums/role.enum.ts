@@ -156,6 +156,7 @@ export const Instructor = {
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',
       'READ_ONE_COHORTS',
+      'READ_ACTIVE_COHORTS',
     ]),
     ...mapSpecifiedEnumMembersToObjects(
       CourseScheduleActions,
@@ -244,6 +245,7 @@ export const Student = {
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',
       'READ_ONE_COHORTS',
+      'READ_ACTIVE_COHORTS',
     ]),
     ...mapSpecifiedEnumMembersToObjects(
       CourseScheduleActions,

@@ -220,7 +220,7 @@ export class LessonService {
     const { page, limit } = paginationDto;
     const [data, total] = await this.lessonRepository.findAndCount({
       where: { cohort: { id: cohortId } },
-      relations: { course: true, cohort: true },
+      relations: { course: { instructor: { user: true } } },
       order: { date: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,
