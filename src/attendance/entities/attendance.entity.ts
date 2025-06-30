@@ -1,36 +1,54 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { WeekType } from '../../enums/attendance.enum';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { User } from '../../users/entities/user.entity';
+import { Lesson } from '../../lesson/entities/lesson.entity';
+import { Student } from '../../students/entities/student.entity';
+import { Instructor } from '../../instructors/entities/instructor.entity';
+import { AttendanceStatus } from '../../enums/attendance.enum';
 
 @Entity({ name: 'attendances' })
+@Unique(['lesson', 'student'])
 export class Attendance extends AbstractEntity<Attendance> {
-  @Column({ name: 'userId' })
-  @Index({ unique: true })
-  userId: string;
+  @ManyToOne(() => Lesson, (lesson) => lesson.attendances, { eager: true })
+  lesson: Lesson;
 
-  // The date for the attendance record.
-  @Column({ type: 'date' })
-  date: string;
+  @ManyToOne(() => Student, { eager: true })
+  student: Student;
 
-  // Clock in timestamp.
-  @Column({ type: 'timestamp', nullable: true })
-  clockIn: Date;
-
-  // Clock out timestamp.
-  @Column({ type: 'timestamp', nullable: true })
-  clockOut: Date;
-
-  // Many-to-One relationship with User
-  @ManyToOne(() => User, (user) => user.attendances, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  // Week type (MON_FRI or MON_SAT).
   @Column({
     type: 'enum',
-    enum: WeekType,
-    default: WeekType.MON_FRI,
+    enum: AttendanceStatus,
+    default: AttendanceStatus.ABSENT,
   })
-  weekType: WeekType;
+  status: AttendanceStatus;
+
+  @Column({ default: false })
+  instructorConfirmed: boolean;
+
+  @ManyToOne(() => Instructor, { nullable: true })
+  @JoinColumn()
+  confirmedBy: Instructor;
+
+  @Column({ nullable: true })
+  confirmedAt: Date;
+
+  @Column({ nullable: true })
+  studentMarkedAt: Date;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

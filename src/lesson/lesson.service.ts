@@ -14,6 +14,8 @@ import { WeekDay, WeekDaysList } from '@/enums/week-day.enum';
 import errors from '@/config/errors.config';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
 import { PaginationDto } from '@/common/dto/pagination.dto';
+import { CohortStatus } from '@/enums/cohort-status.enum';
+import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
 
 @Injectable()
 export class LessonService {
@@ -39,8 +41,14 @@ export class LessonService {
     if (!activeCohort) {
       throw new NotFoundException(
         errors.notFound(
-          'Cohort should be made active before generating lessons'
+          'Cohort not found or is not active for generating lessons right now'
         )
+      );
+    }
+
+    if (activeCohort.status === CohortStatus.COMPLETED) {
+      throw new BadRequestException(
+        errors.validationFailed('Cohort is already completed')
       );
     }
 
@@ -71,6 +79,8 @@ export class LessonService {
       const start = new Date(activeCohort.startDate);
       const end = new Date(activeCohort.endDate);
 
+      let lessonNumber = 1;
+
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
         const dayName = d.toLocaleDateString('en-US', {
           weekday: 'long',
@@ -92,6 +102,7 @@ export class LessonService {
 
           if (!exists) {
             const lesson = this.lessonRepository.create({
+              name: `Lesson ${lessonNumber++}`,
               course,
               cohort: activeCohort,
               date: new Date(dateStr),
@@ -209,7 +220,7 @@ export class LessonService {
     const { page, limit } = paginationDto;
     const [data, total] = await this.lessonRepository.findAndCount({
       where: { cohort: { id: cohortId } },
-      relations: ['course', 'cohort'],
+      relations: { course: true, cohort: true },
       order: { date: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -234,10 +245,13 @@ export class LessonService {
     return this.lessonRepository.save(lesson);
   }
 
-  async findOne(id: string): Promise<Lesson | null> {
+  async findOne(id: string, user: CurrentUserInfo): Promise<Lesson | null> {
     return this.lessonRepository.findOne({
       where: { id },
-      relations: ['course', 'cohort'],
+      relations: {
+        course: true,
+        cohort: true,
+      },
     });
   }
 

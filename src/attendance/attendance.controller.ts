@@ -20,6 +20,10 @@ import {
 import { Subject } from '@/decorators/subject.decorator';
 import { PermissionsGuard } from '@/casl/guard/permissions.guard';
 import { Permission } from '@/decorators/permission.decorator';
+import { MarkAttendanceDto } from './dto/mark-attendance.dto';
+import { CurrentUser } from '@/auth/decorators/current-user.decorator';
+import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { ConfirmAttendanceDto } from './dto/confirm-attendance.dto';
 
 @Subject(AttendanceSubject.NAME)
 @Controller('attendance')
@@ -27,41 +31,71 @@ import { Permission } from '@/decorators/permission.decorator';
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
-  // Endpoint to record clock in.
-  @Permission(AttendanceActions.CLOCK_IN)
-  @Post('clock-in')
+  // Endpoint to mark attendance as a student.
+  @Permission(AttendanceActions.MARK_ATTENDANCE)
+  @Post('mark-attendance')
   @HttpCode(HttpStatus.CREATED)
-  async clockIn(
-    @Body() createAttendanceDto: CreateAttendanceDto
+  async markAttendance(
+    @Body() markAttendanceDto: MarkAttendanceDto,
+    @CurrentUser() user: CurrentUserInfo
   ): Promise<Attendance> {
-    return await this.attendanceService.clockIn(createAttendanceDto);
+    return await this.attendanceService.markAttendance(
+      user.id,
+      markAttendanceDto
+    );
   }
 
-  // Endpoint to record clock out.
-  @Permission(AttendanceActions.CLOCK_OUT)
-  @Patch('clock-out')
-  @HttpCode(HttpStatus.OK)
-  async clockOut(
-    @Body() updateAttendanceDto: UpdateAttendanceDto
+  // Endpoint to mark attendance as a student.
+  @Permission(AttendanceActions.CONFIRM_ATTENDANCE)
+  @Post('confirm-attendance')
+  @HttpCode(HttpStatus.CREATED)
+  async confirmAttendance(
+    @Body() confirmAttendanceDto: ConfirmAttendanceDto,
+    @CurrentUser() user: CurrentUserInfo
   ): Promise<Attendance> {
-    return await this.attendanceService.clockOut(updateAttendanceDto);
+    return await this.attendanceService.confirmAttendance(
+      user.id,
+      confirmAttendanceDto
+    );
+  }
+
+  // Endpoint to create attendance as an admin or instructor.
+  @Permission(AttendanceActions.CREATE_ATTENDANCE)
+  @Post('create-attendance')
+  @HttpCode(HttpStatus.CREATED)
+  async createAttendance(
+    @Body() createAttendanceDto: CreateAttendanceDto
+  ): Promise<Attendance> {
+    return await this.attendanceService.createAttendance(createAttendanceDto);
   }
 
   // Get attendance records for a specific user.
   @Permission(AttendanceActions.GET_USER_ATTENDANCE)
-  @Get('user/:userId')
+  @Get('cohort/:cohortId/course/:courseId/student/:studentId')
   @HttpCode(HttpStatus.OK)
-  async getUserAttendance(
-    @Param('userId') userId: string
+  async getStudentAttendance(
+    @Param('cohortId') cohortId: string,
+    @Param('courseId') courseId: string,
+    @CurrentUser() user: CurrentUserInfo,
+    @Param('studentId') studentId: string
   ): Promise<Attendance[]> {
-    return await this.attendanceService.getAttendanceByUser(userId);
+    return await this.attendanceService.getStudentAttendance(
+      user,
+      cohortId,
+      courseId,
+      studentId
+    );
   }
 
-  // Get attendance records for all users.
-  @Permission(AttendanceActions.GET_ALL_ATTENDANCE)
-  @Get()
+  // Get student attendance records for a lesson.
+  @Permission(AttendanceActions.GET_ATTENDANCE_LIST_FOR_LESSON)
+  @Get('get-attendance/lessons/:lessonId')
   @HttpCode(HttpStatus.OK)
-  async getAllAttendance(): Promise<Attendance[]> {
-    return await this.attendanceService.getAllAttendance();
+  async getAttendanceListForLesson(
+    @Param('lessonId') lessonId: string
+  ): Promise<Attendance[]> {
+    return await this.attendanceService.getStudentAttendanceListForLesson(
+      lessonId
+    );
   }
 }

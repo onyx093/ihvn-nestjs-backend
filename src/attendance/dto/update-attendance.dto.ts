@@ -1,6 +1,12 @@
-import { IsNotEmpty } from 'class-validator';
+import { AttendanceStatus } from '@/enums/attendance.enum';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateAttendanceDto {
-  @IsNotEmpty()
-  attendanceId: string;
+  @IsEnum(AttendanceStatus)
+  @IsOptional()
+  status?: AttendanceStatus;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }
