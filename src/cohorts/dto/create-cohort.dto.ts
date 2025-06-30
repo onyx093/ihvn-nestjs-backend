@@ -2,13 +2,11 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
-  Min,
   registerDecorator,
   ValidationArguments,
   ValidationOptions,
@@ -53,10 +51,6 @@ export class CreateCohortDto {
   @IsNotEmpty()
   @MaxLength(100)
   name: string;
-
-  /*   @IsInt()
-  @Min(new Date().getFullYear())
-  year: number; */
 
   @IsDateString()
   @IsAfterDate('today')

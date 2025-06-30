@@ -1,16 +1,12 @@
 import { AttendanceStatus } from '@/enums/attendance.enum';
 import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 
-export class CreateAttendanceDto {
+export class ConfirmAttendanceDto {
   @IsUUID()
-  studentId: string;
-
-  @IsUUID()
-  lessonId: string;
+  attendanceId: string;
 
   @IsEnum(AttendanceStatus)
-  @IsOptional()
-  status?: AttendanceStatus;
+  status: AttendanceStatus;
 
   @IsString()
   @IsOptional()

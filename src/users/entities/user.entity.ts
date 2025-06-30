@@ -53,9 +53,6 @@ export class User extends AbstractEntity<User> {
   @OneToOne(() => Account, (account) => account.user, { cascade: true })
   account: Account;
 
-  @OneToMany(() => Attendance, (attendance) => attendance.user)
-  attendances: Attendance[];
-
   @OneToMany(() => Course, (course) => course.createdBy)
   createdCourses: Course[];
 

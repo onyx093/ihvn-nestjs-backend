@@ -60,7 +60,6 @@ export const SuperAdmin = {
   permissions: [
     ...mapEnumToObjects(UserActions, UserSubject),
     ...mapEnumToObjects(RoleActions, RoleSubject),
-    ...mapEnumToObjects(PermissionActions, PermissionSubject),
     ...mapEnumToObjects(CourseActions, CourseSubject),
     ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
@@ -172,6 +171,17 @@ export const Instructor = {
       'READ_INSTRUCTORS',
       'READ_ONE_INSTRUCTORS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(LessonActions, LessonSubject, [
+      'READ_LESSONS',
+      'READ_ONE_LESSONS',
+      'MARK_LESSON_AS_COMPLETED',
+    ]),
+
+    ...mapSpecifiedEnumMembersToObjects(AttendanceActions, AttendanceSubject, [
+      'CONFIRM_ATTENDANCE',
+      'CREATE_ATTENDANCE',
+      'GET_ATTENDANCE_LIST_FOR_LESSON',
+    ]),
   ],
 };
 
@@ -248,6 +258,13 @@ export const Student = {
     ...mapSpecifiedEnumMembersToObjects(InstructorActions, InstructorSubject, [
       'READ_INSTRUCTORS',
       'READ_ONE_INSTRUCTORS',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(LessonActions, LessonSubject, [
+      'READ_LESSONS',
+      'READ_ONE_LESSONS',
+    ]),
+    ...mapSpecifiedEnumMembersToObjects(AttendanceActions, AttendanceSubject, [
+      'MARK_ATTENDANCE',
     ]),
   ],
 };

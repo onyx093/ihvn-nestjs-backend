@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -15,6 +16,7 @@ import errors from '@/config/errors.config';
 import { Course } from '../courses/entities/course.entity';
 import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
 import { CohortStatus } from '@/enums/cohort-status.enum';
+import { stat } from 'fs';
 
 @Injectable()
 export class CohortsService {
@@ -152,7 +154,41 @@ export class CohortsService {
     await this.cohortRepository.restore(id);
   }
 
+  async deactivateCohort(
+    cohortId: string,
+    newStatus: CohortStatus
+  ): Promise<Cohort> {
+    const cohort = await this.cohortRepository.findOne({
+      where: { id: cohortId, deletedAt: IsNull() },
+    });
+
+    if (!cohort) {
+      throw new NotFoundException(errors.notFound('Cohort not found'));
+    }
+
+    cohort.isActive = false;
+    cohort.status = newStatus;
+    cohort.updatedAt = new Date();
+    await this.cohortRepository.save(cohort);
+
+    return cohort;
+  }
+
   async activateCohort(cohortId: string): Promise<Cohort> {
+    const cohort = await this.cohortRepository.findOne({
+      where: { id: cohortId, deletedAt: IsNull() },
+    });
+    if (cohort.status === CohortStatus.COMPLETED) {
+      throw new BadRequestException(
+        errors.validationFailed('Cohort is already completed')
+      );
+    }
+    if (cohort.isActive === true) {
+      throw new BadRequestException(
+        errors.validationFailed('Cohort is already active')
+      );
+    }
+
     return this.cohortRepository.manager.transaction(
       async (transactionalEntityManager) => {
         await transactionalEntityManager.update(

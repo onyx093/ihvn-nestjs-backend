@@ -1,11 +1,15 @@
+import { Attendance } from '../../attendance/entities/attendance.entity';
 import { Cohort } from '../../cohorts/entities/cohort.entity';
 import { Course } from '../../courses/entities/course.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
-import { Column, Entity, ManyToOne, Unique } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
 
 @Unique(['date', 'cohort', 'course'])
 @Entity({ name: 'lessons' })
 export class Lesson extends AbstractEntity<Lesson> {
+  @Column()
+  name: string;
+
   @Column({ type: 'date' })
   date: Date;
 
@@ -23,4 +27,7 @@ export class Lesson extends AbstractEntity<Lesson> {
 
   @Column({ default: false })
   isCompleted: boolean;
+
+  @OneToMany(() => Attendance, (attendance) => attendance.lesson)
+  attendances: Attendance[];
 }
