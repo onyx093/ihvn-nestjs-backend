@@ -168,13 +168,6 @@ export class CoursesService {
       throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
     }
 
-    const cohort =
-      (await this.cohortService.findOne(cohortId)) ??
-      (await this.cohortService.findActive());
-    if (!cohort) {
-      throw new NotFoundException(errors.notFound('Cohort not found'));
-    }
-
     const userRoles = dbUser.roles.map((role) => role.name);
     if (userRoles.includes(PredefinedRoles.ADMIN)) {
       return this.getAdminCourseSearch(searchTerm);
@@ -191,6 +184,14 @@ export class CoursesService {
       if (!instructor) {
         throw new NotFoundException(errors.notFound('Instructor not found'));
       }
+
+      const cohort =
+        (await this.cohortService.findOne(cohortId)) ??
+        (await this.cohortService.findActive());
+      if (!cohort) {
+        throw new NotFoundException(errors.notFound('Cohort not found'));
+      }
+
       return this.getInstructorCourseSearch(
         instructor.id,
         searchTerm,
@@ -206,6 +207,14 @@ export class CoursesService {
       if (!student) {
         throw new NotFoundException(errors.notFound('Student not found'));
       }
+
+      const cohort =
+        (await this.cohortService.findOne(cohortId)) ??
+        (await this.cohortService.findActive());
+      if (!cohort) {
+        throw new NotFoundException(errors.notFound('Cohort not found'));
+      }
+
       return this.getStudentCourseSearch(student.id, searchTerm, cohort.id);
     }
   }
