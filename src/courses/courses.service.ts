@@ -176,6 +176,13 @@ export class CoursesService {
       return this.getAdminCourseSearch(searchTerm);
     }
 
+    const cohort =
+      (await this.cohortService.findOne(cohortId)) ??
+      (await this.cohortService.findActive());
+    if (!cohort) {
+      throw new NotFoundException(errors.notFound('Cohort not found'));
+    }
+
     if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
       const instructor = await this.instructorRepository.findOneBy({
         user: { id: dbUser.id },
@@ -183,13 +190,6 @@ export class CoursesService {
 
       if (!instructor) {
         throw new NotFoundException(errors.notFound('Instructor not found'));
-      }
-
-      const cohort =
-        (await this.cohortService.findOne(cohortId)) ??
-        (await this.cohortService.findActive());
-      if (!cohort) {
-        throw new NotFoundException(errors.notFound('Cohort not found'));
       }
 
       return this.getInstructorCourseSearch(
@@ -206,13 +206,6 @@ export class CoursesService {
 
       if (!student) {
         throw new NotFoundException(errors.notFound('Student not found'));
-      }
-
-      const cohort =
-        (await this.cohortService.findOne(cohortId)) ??
-        (await this.cohortService.findActive());
-      if (!cohort) {
-        throw new NotFoundException(errors.notFound('Cohort not found'));
       }
 
       return this.getStudentCourseSearch(student.id, searchTerm, cohort.id);
