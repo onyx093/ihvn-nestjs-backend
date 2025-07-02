@@ -38,6 +38,7 @@ import {
   EnrollmentActions,
   EnrollmentSubject,
 } from '../enrollments/actions/enrollments.actions';
+import { map } from 'rxjs';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -177,7 +178,10 @@ export const Instructor = {
       'READ_ONE_LESSONS',
       'MARK_LESSON_AS_COMPLETED',
     ]),
-
+    ...mapSpecifiedEnumMembersToObjects(EnrollmentActions, EnrollmentSubject, [
+      'READ_ENROLLMENTS',
+      'READ_ONE_ENROLLMENTS',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(AttendanceActions, AttendanceSubject, [
       'CONFIRM_ATTENDANCE',
       'CREATE_ATTENDANCE',
