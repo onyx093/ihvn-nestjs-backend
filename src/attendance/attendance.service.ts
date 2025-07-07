@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { Attendance } from './entities/attendance.entity';
 import errors from '@/config/errors.config';
 import { Student } from '../students/entities/student.entity';
@@ -22,6 +22,9 @@ import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { endOfDay, startOfDay } from 'date-fns';
+import { GetAttendanceListDto } from './dto/get-attendance-list.dto';
+import { LessonWithAttendanceCounts } from '@/types/lesson.type';
 
 @Injectable()
 export class AttendanceService {
@@ -41,7 +44,7 @@ export class AttendanceService {
   ) {}
 
   async markAttendance(
-    studentId: string,
+    userId: string,
     markAttendanceDto: MarkAttendanceDto
   ): Promise<Attendance> {
     const {
@@ -63,10 +66,18 @@ export class AttendanceService {
       throw new NotFoundException(errors.notFound('Lesson not found'));
     }
 
+    const student = await this.studentRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!student) {
+      throw new NotFoundException(errors.notFound('Student not found'));
+    }
+
     // Verify student is enrolled in the course
     const enrollment = await this.enrollmentRepository.findOne({
       where: {
-        student: { id: studentId },
+        student: { id: student.id },
         cohortCourse: {
           course: { id: lesson.course.id },
           cohort: { id: lesson.cohort.id },
@@ -83,7 +94,7 @@ export class AttendanceService {
     // Check if attendance already exists
     let attendance = await this.attendanceRepository.findOne({
       where: {
-        student: { id: studentId },
+        student: { id: student.id },
         lesson: { id: lessonId },
       },
     });
@@ -98,9 +109,6 @@ export class AttendanceService {
       attendance.confirmedAt = null;
     } else {
       // Create new attendance record
-      const student = await this.studentRepository.findOne({
-        where: { id: studentId },
-      });
 
       attendance = this.attendanceRepository.create({
         student,
@@ -161,14 +169,14 @@ export class AttendanceService {
   }
 
   // Get attendance list for a lesson
-  async getStudentAttendanceListForLesson(lessonId: string): Promise<any[]> {
+  async getLessonAttendanceDetails(lessonId: string): Promise<any[]> {
     const lesson = await this.lessonRepository.findOne({
       where: { id: lessonId },
-      relations: {
-        course: true,
-        cohort: true,
-      },
     });
+
+    if (!lesson) {
+      throw new NotFoundException(errors.notFound('Lesson not found'));
+    }
     // Get all enrolled students for the course
     const enrollments = await this.enrollmentRepository.find({
       where: {
@@ -222,6 +230,71 @@ export class AttendanceService {
         hasMarkedAttendance: !!attendance,
       };
     });
+  }
+
+  async getAttendanceListByLessons(
+    getAttendanceListDto: GetAttendanceListDto,
+    paginationDto: PaginationDto
+  ): Promise<PaginationResult<LessonWithAttendanceCounts>> {
+    const { courseId, dateRange } = getAttendanceListDto;
+
+    const start = dateRange?.startDate
+      ? startOfDay(new Date(dateRange.startDate))
+      : startOfDay(new Date());
+    const end = dateRange?.endDate
+      ? endOfDay(new Date(dateRange.endDate))
+      : endOfDay(new Date());
+
+    const where: FindOptionsWhere<Lesson> = {
+      ...(courseId && { course: { id: courseId } }),
+      attendances: {
+        createdAt: Between(start, end),
+      },
+    };
+
+    const { page, limit } = paginationDto;
+    const [data, total] = await this.lessonRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: {
+        attendances: { student: { user: true } },
+        course: true,
+        cohort: true,
+      },
+      where,
+      order: {
+        attendances: {
+          createdAt: 'DESC',
+        },
+      },
+    });
+
+    const lessonsWithCounts = data.map((lesson) => {
+      let presentCount = 0;
+      let absentCount = 0;
+
+      for (const attendance of lesson.attendances || []) {
+        if (attendance.status === AttendanceStatus.PRESENT) {
+          presentCount++;
+        } else if (attendance.status === AttendanceStatus.ABSENT) {
+          absentCount++;
+        }
+      }
+
+      return {
+        ...lesson,
+        presentCount,
+        absentCount,
+      };
+    });
+
+    return {
+      data: lessonsWithCounts,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   // Get student's own attendance history

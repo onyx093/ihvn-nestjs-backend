@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
@@ -24,6 +25,9 @@ import { MarkAttendanceDto } from './dto/mark-attendance.dto';
 import { CurrentUser } from '@/auth/decorators/current-user.decorator';
 import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
 import { ConfirmAttendanceDto } from './dto/confirm-attendance.dto';
+import { get } from 'http';
+import { GetAttendanceListDto } from './dto/get-attendance-list.dto';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @Subject(AttendanceSubject.NAME)
 @Controller('attendance')
@@ -88,14 +92,24 @@ export class AttendanceController {
   }
 
   // Get student attendance records for a lesson.
-  @Permission(AttendanceActions.GET_ATTENDANCE_LIST_FOR_LESSON)
-  @Get('get-attendance/lessons/:lessonId')
+  @Permission(AttendanceActions.GET_ATTENDANCE_LIST_BY_LESSONS)
+  @Get('get-attendance-by-lessons')
   @HttpCode(HttpStatus.OK)
-  async getAttendanceListForLesson(
-    @Param('lessonId') lessonId: string
-  ): Promise<Attendance[]> {
-    return await this.attendanceService.getStudentAttendanceListForLesson(
-      lessonId
+  async getAttendanceListByLessons(
+    @Query() getAttendanceListDto: GetAttendanceListDto,
+    @Query() paginationDto: PaginationDto
+  ) {
+    return await this.attendanceService.getAttendanceListByLessons(
+      getAttendanceListDto,
+      paginationDto
     );
+  }
+
+  // Get student attendance records for a lesson.
+  @Permission(AttendanceActions.GET_LESSON_ATTENDANCE_DETAILS)
+  @Get('get-lesson-attendance-details/:lessonId')
+  @HttpCode(HttpStatus.OK)
+  async getLessonAttendanceListDetails(@Param('lessonId') lessonId: string) {
+    return await this.attendanceService.getLessonAttendanceDetails(lessonId);
   }
 }

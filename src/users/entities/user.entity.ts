@@ -13,6 +13,7 @@ import { Role } from '../../roles/entities/role.entity';
 import { Attendance } from '../../attendance/entities/attendance.entity';
 import { Account } from './account.entity';
 import { Course } from '../../courses/entities/course.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'users' })
 export class User extends AbstractEntity<User> {
@@ -25,19 +26,23 @@ export class User extends AbstractEntity<User> {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Exclude()
+  @Column({ select: false })
   password: string;
 
   @Column({ nullable: true })
   phoneNumber: string;
 
-  @Column({ default: null })
+  @Exclude()
+  @Column({ select: false, default: null })
   hashedRefreshToken?: string;
 
-  @Column({ nullable: true })
+  @Exclude()
+  @Column({ select: false, nullable: true })
   otp: string;
 
-  @Column({ nullable: true })
+  @Exclude()
+  @Column({ select: false, nullable: true })
   otpExpiry: Date;
 
   @Column({ default: new Date() })

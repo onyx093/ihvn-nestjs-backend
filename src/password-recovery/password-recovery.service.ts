@@ -41,6 +41,7 @@ export class PasswordRecoveryService {
 
     const user = await this.userRepository.findOne({
       where: { email },
+      select: ['email', 'otp', 'otpExpiry'],
     });
     if (!user) throw new NotFoundException(errors.notFound('User not found'));
 
@@ -58,7 +59,10 @@ export class PasswordRecoveryService {
         }
       );
 
-      return { message: 'OTP sent to your email address', otp: user.otp };
+      return {
+        message: 'OTP has been sent to your email address',
+        otp: user.otp,
+      };
     }
 
     const { otp, expiry } = await this.generateOTP(10);
@@ -79,12 +83,15 @@ export class PasswordRecoveryService {
       }
     );
 
-    return { message: 'OTP sent to your email address', otp };
+    return { message: 'OTP has been sent to your email address', otp };
   }
 
   async verifyOtp(verifyOtp: VerifyOtpDto) {
     const { email, otp } = verifyOtp;
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: ['otp', 'otpExpiry'],
+    });
     if (!user || user.otp !== otp)
       throw new BadRequestException(errors.validationFailed('Invalid OTP'));
 
@@ -103,7 +110,10 @@ export class PasswordRecoveryService {
     }
 
     const hashedPassword = await hash(newPassword);
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: ['password', 'otp', 'otpExpiry'],
+    });
     if (!user) throw new NotFoundException(errors.notFound('User not found'));
 
     user.password = hashedPassword;
@@ -111,7 +121,7 @@ export class PasswordRecoveryService {
     user.otpExpiry = null;
     await this.userRepository.save(user);
 
-    return { message: 'Password updated successfully' };
+    return { message: 'Your password has been updated successfully' };
   }
 
   async generateOTP(time: number) {
