@@ -10,10 +10,6 @@ import {
 import { RoleActions, RoleSubject } from '../roles/actions/roles.action';
 import { UserActions, UserSubject } from '../users/actions/users.action';
 import {
-  PermissionActions,
-  PermissionSubject,
-} from '../permissions/actions/permissions.action';
-import {
   AttendanceActions,
   AttendanceSubject,
 } from '../attendance/actions/attendance.action';
@@ -38,7 +34,6 @@ import {
   EnrollmentActions,
   EnrollmentSubject,
 } from '../enrollments/actions/enrollments.actions';
-import { map } from 'rxjs';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -177,6 +172,7 @@ export const Instructor = {
       'READ_LESSONS',
       'READ_ONE_LESSONS',
       'MARK_LESSON_AS_COMPLETED',
+      'LIST_STUDENTS_ATTENDANCE_IN_LESSON',
     ]),
     ...mapSpecifiedEnumMembersToObjects(EnrollmentActions, EnrollmentSubject, [
       'READ_ENROLLMENTS',
@@ -185,7 +181,6 @@ export const Instructor = {
     ...mapSpecifiedEnumMembersToObjects(AttendanceActions, AttendanceSubject, [
       'CONFIRM_ATTENDANCE',
       'CREATE_ATTENDANCE',
-      'GET_ATTENDANCE_LIST_FOR_LESSON',
     ]),
   ],
 };

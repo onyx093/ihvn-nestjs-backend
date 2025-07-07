@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,6 +15,13 @@ import { PaginationResult } from '@/common/interfaces/pagination-result.interfac
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { CohortStatus } from '@/enums/cohort-status.enum';
 import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { LessonActions, LessonSubject } from './actions/lesson.actions';
+import { UsersService } from '@/users/users.service';
+import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
+import { PredefinedRoles } from '@/enums/role.enum';
+import { Instructor } from '../instructors/entities/instructor.entity';
+import { Student } from '../students/entities/student.entity';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
 
 @Injectable()
 export class LessonService {
@@ -23,7 +31,15 @@ export class LessonService {
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
     @InjectRepository(Cohort)
-    private cohortRepository: Repository<Cohort>
+    private cohortRepository: Repository<Cohort>,
+    @InjectRepository(Instructor)
+    private instructorRepository: Repository<Instructor>,
+    @InjectRepository(Student)
+    private studentRepository: Repository<Student>,
+    @InjectRepository(Enrollment)
+    private enrollmentRepository: Repository<Enrollment>,
+    private readonly userService: UsersService,
+    private readonly caslAbilityFactory: CaslAbilityFactory
   ) {}
 
   async generateLessonsForActiveCohort(cohortId: string) {
@@ -213,24 +229,133 @@ export class LessonService {
 
   async getCohortLessons(
     cohortId: string,
-    paginationDto: PaginationDto
+    paginationDto: PaginationDto,
+    user: CurrentUserInfo
   ): Promise<PaginationResult<Lesson>> {
-    const { page, limit } = paginationDto;
-    const [data, total] = await this.lessonRepository.findAndCount({
-      where: { cohort: { id: cohortId } },
-      relations: { course: { instructor: { user: true } } },
-      order: { date: 'ASC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const dbUser = await this.userService.findOne(user.id);
+    if (!dbUser) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
 
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    const ability = this.caslAbilityFactory.createForUser(dbUser);
+    if (!ability.can(LessonActions.READ_LESSONS, LessonSubject.NAME)) {
+      throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
+    }
+
+    const { page, limit } = paginationDto;
+
+    const userRoles = dbUser.roles.map((role) => role.name);
+    if (userRoles.includes(PredefinedRoles.ADMIN)) {
+      const [data, total] = await this.lessonRepository.findAndCount({
+        where: {
+          cohort: { id: cohortId },
+        },
+        relations: {
+          course: { instructor: { user: true } },
+          cohort: true,
+        },
+        order: { date: 'ASC' },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+    if (userRoles.includes(PredefinedRoles.SUPER_ADMIN)) {
+      const [data, total] = await this.lessonRepository.findAndCount({
+        where: {
+          cohort: { id: cohortId },
+        },
+        relations: {
+          course: { instructor: { user: true } },
+          cohort: true,
+        },
+        order: { date: 'ASC' },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+
+    if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
+      const instructor = await this.instructorRepository.findOneBy({
+        user: { id: dbUser.id },
+      });
+
+      if (!instructor) {
+        throw new NotFoundException(errors.notFound('Instructor not found'));
+      }
+
+      const [data, total] = await this.lessonRepository.findAndCount({
+        where: {
+          cohort: { id: cohortId },
+          course: {
+            instructor: { id: instructor.id },
+          },
+        },
+        relations: {
+          course: { instructor: { user: true } },
+          cohort: true,
+        },
+        order: { date: 'ASC' },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+
+    if (userRoles.includes(PredefinedRoles.STUDENT)) {
+      const student = await this.studentRepository.findOneBy({
+        user: { id: dbUser.id },
+      });
+
+      if (!student) {
+        throw new NotFoundException(errors.notFound('Student not found'));
+      }
+
+      const [data, total] = await this.lessonRepository.findAndCount({
+        where: {
+          course: {
+            cohortCourses: {
+              cohort: { id: cohortId },
+              enrollments: { student: { user: { id: user.id } } },
+            },
+          },
+        },
+        relations: { course: { instructor: { user: true } } },
+        order: { date: 'ASC' },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
   }
 
   async markAsCompleted(lessonId: string): Promise<Lesson> {
@@ -252,6 +377,8 @@ export class LessonService {
       },
     });
   }
+
+  async getStudentAttendance(lessonId: string) {}
 
   remove(id: string) {
     return `This action removes a #${id} lesson`;

@@ -1,6 +1,7 @@
 import { slugify } from '../../lib/helpers';
 import { setSeederFactory } from 'typeorm-extension';
 import { Cohort } from '../../cohorts/entities/cohort.entity';
+import { CohortStatus } from '../../enums/cohort-status.enum';
 
 export const CohortFactory = setSeederFactory(
   Cohort,
@@ -18,6 +19,14 @@ export const CohortFactory = setSeederFactory(
     cohort.startDate = context.startDate || new Date('2025-06-01');
     cohort.endDate = context.endDate || new Date('2026-06-01');
     cohort.isActive = context.isActive || false;
+    cohort.status =
+      context.status ||
+      fakerEN.helpers.arrayElement([
+        CohortStatus.ACTIVE,
+        CohortStatus.DRAFT,
+        CohortStatus.CANCELLED,
+        CohortStatus.COMPLETED,
+      ]);
     cohort.createdAt = context.createdAt || new Date();
     cohort.updatedAt = context.updatedAt || new Date();
     cohort.deletedAt = context.deletedAt || null;

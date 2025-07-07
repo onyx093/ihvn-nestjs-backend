@@ -16,7 +16,7 @@ export const CourseFactory = setSeederFactory(
     course.description = context.description || fakerEN.lorem.sentences(3);
     course.thumbnail = context.thumbnail || fakerEN.image.imageUrl();
     course.estimatedDurationForCompletion =
-      context.estimatedDurationForCompletion || fakerEN.datatype.number(30);
+      context.estimatedDurationForCompletion || fakerEN.datatype.number(8);
     course.status =
       context.status ||
       fakerEN.helpers.arrayElement([

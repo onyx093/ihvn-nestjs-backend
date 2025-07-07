@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'argon2';
@@ -427,6 +427,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | undefined> {
     return await this.userRepository.findOne({
       where: { email },
+      select: ['id', 'name', 'email', 'password', 'roles'],
       relations: { account: true, userSetting: true },
     });
   }
@@ -437,6 +438,7 @@ export class UsersService {
   ) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
+      select: ['id', 'hashedRefreshToken'],
     });
     const updatedUser = { ...user, hashedRefreshToken };
     return await this.userRepository.save(updatedUser);

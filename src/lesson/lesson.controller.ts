@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
   Param,
   Delete,
@@ -18,6 +17,7 @@ import { PermissionsGuard } from '@/casl/guard/permissions.guard';
 import { Permission } from '@/decorators/permission.decorator';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { CurrentUser } from '@/auth/decorators/current-user.decorator';
+import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
 
 @Subject(LessonSubject.NAME)
 @Controller('lessons')
@@ -45,14 +45,22 @@ export class LessonController {
     );
   }
 
+  @Permission(LessonActions.LIST_STUDENTS_ATTENDANCE_IN_LESSON)
+  @Get(':lessonId')
+  @HttpCode(HttpStatus.OK)
+  getStudentAttendanceInLesson(@Param('lessonId') lessonId: string) {
+    return this.lessonService.getStudentAttendance(lessonId);
+  }
+
   @Permission(LessonActions.READ_LESSONS)
   @Get('cohorts/:cohortId')
   @HttpCode(HttpStatus.OK)
   findAll(
     @Param('cohortId') cohortId: string,
-    @Query() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto,
+    @CurrentUser() user: CurrentUserInfo
   ) {
-    return this.lessonService.getCohortLessons(cohortId, paginationDto);
+    return this.lessonService.getCohortLessons(cohortId, paginationDto, user);
   }
 
   @Permission(LessonActions.READ_ONE_LESSONS)

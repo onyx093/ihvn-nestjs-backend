@@ -6,9 +6,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CASLModule } from '@/casl/casl.module';
 import { Cohort } from '../cohorts/entities/cohort.entity';
 import { Course } from '../courses/entities/course.entity';
+import { UsersModule } from '@/users/users.module';
+import { Instructor } from '../instructors/entities/instructor.entity';
+import { Student } from '../students/entities/student.entity';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lesson, Course, Cohort]), CASLModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      Lesson,
+      Course,
+      Cohort,
+      Instructor,
+      Student,
+      Enrollment,
+    ]),
+    UsersModule,
+    CASLModule,
+  ],
   controllers: [LessonController],
   providers: [LessonService],
   exports: [LessonService],

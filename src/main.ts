@@ -1,6 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './exception-filters/http-exception.filter';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
@@ -15,6 +19,7 @@ async function bootstrap() {
   const loggerInstance = app.get(Logger);
   app.useGlobalFilters(new HttpExceptionFilter(loggerInstance));
   app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
