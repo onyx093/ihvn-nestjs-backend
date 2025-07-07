@@ -229,9 +229,8 @@ export class LessonService {
 
   async getCohortLessons(
     cohortId: string,
-    paginationDto: PaginationDto,
     user: CurrentUserInfo
-  ): Promise<PaginationResult<Lesson>> {
+  ): Promise<Lesson[]> {
     const dbUser = await this.userService.findOne(user.id);
     if (!dbUser) {
       throw new NotFoundException(errors.notFound('User not found'));
@@ -242,11 +241,9 @@ export class LessonService {
       throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
     }
 
-    const { page, limit } = paginationDto;
-
     const userRoles = dbUser.roles.map((role) => role.name);
     if (userRoles.includes(PredefinedRoles.ADMIN)) {
-      const [data, total] = await this.lessonRepository.findAndCount({
+      const data = await this.lessonRepository.find({
         where: {
           cohort: { id: cohortId },
         },
@@ -255,20 +252,12 @@ export class LessonService {
           cohort: true,
         },
         order: { date: 'ASC' },
-        skip: (page - 1) * limit,
-        take: limit,
       });
 
-      return {
-        data,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      };
+      return data;
     }
     if (userRoles.includes(PredefinedRoles.SUPER_ADMIN)) {
-      const [data, total] = await this.lessonRepository.findAndCount({
+      const data = await this.lessonRepository.find({
         where: {
           cohort: { id: cohortId },
         },
@@ -277,17 +266,9 @@ export class LessonService {
           cohort: true,
         },
         order: { date: 'ASC' },
-        skip: (page - 1) * limit,
-        take: limit,
       });
 
-      return {
-        data,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      };
+      return data;
     }
 
     if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
@@ -299,7 +280,7 @@ export class LessonService {
         throw new NotFoundException(errors.notFound('Instructor not found'));
       }
 
-      const [data, total] = await this.lessonRepository.findAndCount({
+      const data = await this.lessonRepository.find({
         where: {
           cohort: { id: cohortId },
           course: {
@@ -311,17 +292,9 @@ export class LessonService {
           cohort: true,
         },
         order: { date: 'ASC' },
-        skip: (page - 1) * limit,
-        take: limit,
       });
 
-      return {
-        data,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      };
+      return data;
     }
 
     if (userRoles.includes(PredefinedRoles.STUDENT)) {
@@ -333,7 +306,7 @@ export class LessonService {
         throw new NotFoundException(errors.notFound('Student not found'));
       }
 
-      const [data, total] = await this.lessonRepository.findAndCount({
+      const data = await this.lessonRepository.find({
         where: {
           course: {
             cohortCourses: {
@@ -344,17 +317,9 @@ export class LessonService {
         },
         relations: { course: { instructor: { user: true } } },
         order: { date: 'ASC' },
-        skip: (page - 1) * limit,
-        take: limit,
       });
 
-      return {
-        data,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      };
+      return data;
     }
   }
 

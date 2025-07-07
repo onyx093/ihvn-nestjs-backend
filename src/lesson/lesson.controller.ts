@@ -57,10 +57,9 @@ export class LessonController {
   @HttpCode(HttpStatus.OK)
   findAll(
     @Param('cohortId') cohortId: string,
-    @Query() paginationDto: PaginationDto,
     @CurrentUser() user: CurrentUserInfo
   ) {
-    return this.lessonService.getCohortLessons(cohortId, paginationDto, user);
+    return this.lessonService.getCohortLessons(cohortId, user);
   }
 
   @Permission(LessonActions.READ_ONE_LESSONS)
