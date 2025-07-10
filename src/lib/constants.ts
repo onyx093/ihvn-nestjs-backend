@@ -6,3 +6,20 @@ export const FILE_UPLOAD_DIR = join(
   'uploads',
   'thumbnails'
 );
+
+export const colorCodes = [
+  'red',
+  'green',
+  'blue',
+  'yellow',
+  'purple',
+  'orange',
+  'lime',
+  'teal',
+  'cyan',
+  'indigo',
+  'violet',
+  'fuchsia',
+  'gray',
+  'rose',
+];

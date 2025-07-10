@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
@@ -44,7 +45,7 @@ export class AttendanceService {
   ) {}
 
   async markAttendance(
-    userId: string,
+    user: CurrentUserInfo,
     markAttendanceDto: MarkAttendanceDto
   ): Promise<Attendance> {
     const {
@@ -54,6 +55,11 @@ export class AttendanceService {
     } = markAttendanceDto;
 
     // Verify lesson exists
+    if (!lessonId) {
+      throw new UnauthorizedException(
+        errors.authenticationFailed('Lesson ID is required')
+      );
+    }
     const lesson = await this.lessonRepository.findOne({
       where: { id: lessonId },
       relations: {
@@ -66,8 +72,13 @@ export class AttendanceService {
       throw new NotFoundException(errors.notFound('Lesson not found'));
     }
 
+    if (!user.id) {
+      throw new UnauthorizedException(
+        errors.authenticationFailed('User ID is required')
+      );
+    }
     const student = await this.studentRepository.findOne({
-      where: { user: { id: userId } },
+      where: { user: { id: user.id } },
     });
 
     if (!student) {
@@ -125,10 +136,15 @@ export class AttendanceService {
 
   // Instructor confirms student attendance
   async confirmAttendance(
-    instructorId: string,
+    user: CurrentUserInfo,
     confirmAttendanceDto: ConfirmAttendanceDto
   ): Promise<Attendance> {
-    const { attendanceId, status, notes } = confirmAttendanceDto;
+    const { attendanceId, studentId, lessonId, status, notes } =
+      confirmAttendanceDto;
+
+    const studentAttendanceStatus = status
+      ? AttendanceStatus.PRESENT
+      : AttendanceStatus.ABSENT;
 
     const attendance = await this.attendanceRepository.findOne({
       where: { id: attendanceId },
@@ -136,8 +152,14 @@ export class AttendanceService {
     });
 
     if (!attendance) {
-      throw new NotFoundException(
-        errors.notFound('Attendance record not found')
+      return this.createAttendance(
+        {
+          studentId,
+          lessonId,
+          status,
+          notes,
+        },
+        user
       );
     }
 
@@ -145,8 +167,9 @@ export class AttendanceService {
     const course = await this.courseRepository.findOne({
       where: {
         id: attendance.lesson.course.id,
-        instructor: { id: instructorId },
+        instructor: { user: { id: user.id } },
       },
+      relations: { instructor: { user: true } },
     });
 
     if (!course) {
@@ -157,9 +180,17 @@ export class AttendanceService {
       );
     }
 
-    const instructor = await this.instructorService.findOne(instructorId);
+    const instructor = await this.instructorService.findOne(
+      course.instructor.id
+    );
 
-    attendance.status = status;
+    if (!instructor) {
+      throw new NotFoundException(errors.notFound('Instructor not found'));
+    }
+
+    // Verify student is enrolled);
+
+    attendance.status = studentAttendanceStatus;
     attendance.instructorConfirmed = true;
     attendance.confirmedBy = instructor;
     attendance.confirmedAt = new Date();
@@ -238,18 +269,17 @@ export class AttendanceService {
   ): Promise<PaginationResult<LessonWithAttendanceCounts>> {
     const { courseId, dateRange } = getAttendanceListDto;
 
+    // Build date range
+    const now = new Date();
     const start = dateRange?.startDate
       ? startOfDay(new Date(dateRange.startDate))
-      : startOfDay(new Date());
+      : startOfDay(now);
     const end = dateRange?.endDate
       ? endOfDay(new Date(dateRange.endDate))
-      : endOfDay(new Date());
+      : endOfDay(now);
 
     const where: FindOptionsWhere<Lesson> = {
       ...(courseId && { course: { id: courseId } }),
-      attendances: {
-        createdAt: Between(start, end),
-      },
     };
 
     const { page, limit } = paginationDto;
@@ -263,23 +293,24 @@ export class AttendanceService {
       },
       where,
       order: {
-        attendances: {
-          createdAt: 'DESC',
-        },
+        date: 'DESC',
       },
     });
 
-    const lessonsWithCounts = data.map((lesson) => {
-      let presentCount = 0;
-      let absentCount = 0;
+    console.log(data.length);
 
-      for (const attendance of lesson.attendances || []) {
-        if (attendance.status === AttendanceStatus.PRESENT) {
-          presentCount++;
-        } else if (attendance.status === AttendanceStatus.ABSENT) {
-          absentCount++;
-        }
-      }
+    // Now filter attendances manually by createdAt range
+    const lessonsWithCounts = data.map((lesson) => {
+      const attendances = (lesson.attendances || []).filter(
+        (a) => a.createdAt >= start && a.createdAt <= end
+      );
+
+      const presentCount = attendances.filter(
+        (a) => a.status === AttendanceStatus.PRESENT
+      ).length;
+      const absentCount = attendances.filter(
+        (a) => a.status === AttendanceStatus.ABSENT
+      ).length;
 
       return {
         ...lesson,
@@ -349,19 +380,22 @@ export class AttendanceService {
 
   // Admin/Instructor: Create attendance record
   async createAttendance(
-    createAttendanceDto: CreateAttendanceDto
+    createAttendanceDto: CreateAttendanceDto,
+    user: CurrentUserInfo
   ): Promise<Attendance> {
-    const {
-      studentId,
-      lessonId,
-      status = AttendanceStatus.ABSENT,
-      notes,
-    } = createAttendanceDto;
+    const { studentId, lessonId, status, notes } = createAttendanceDto;
+
+    const studentAttendanceStatus = status
+      ? AttendanceStatus.PRESENT
+      : AttendanceStatus.ABSENT;
 
     // Verify entities exist
     const [student, lesson] = await Promise.all([
       this.studentRepository.findOne({ where: { id: studentId } }),
-      this.lessonRepository.findOne({ where: { id: lessonId } }),
+      this.lessonRepository.findOne({
+        where: { id: lessonId },
+        relations: ['course', 'course.instructor', 'course.instructor.user'],
+      }),
     ]);
 
     if (!student) {
@@ -379,6 +413,18 @@ export class AttendanceService {
       },
     });
 
+    const courseInstructor = await this.instructorService.findOne(
+      lesson.course.instructor.id
+    );
+
+    if (courseInstructor.user.id !== user.id) {
+      throw new ForbiddenException(
+        errors.forbiddenAccess(
+          'You are not authorized to create attendance for this course'
+        )
+      );
+    }
+
     if (existingAttendance) {
       throw new BadRequestException(
         errors.badRequest(
@@ -390,7 +436,11 @@ export class AttendanceService {
     const attendance = this.attendanceRepository.create({
       student,
       lesson,
-      status,
+      status: studentAttendanceStatus,
+      instructorConfirmed: true,
+      confirmedBy: courseInstructor,
+      confirmedAt: new Date(),
+      studentMarkedAt: new Date(),
       notes,
     });
 

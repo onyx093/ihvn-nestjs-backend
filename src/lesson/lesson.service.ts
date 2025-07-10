@@ -8,11 +8,9 @@ import { Cohort } from '../cohorts/entities/cohort.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Lesson } from './entities/lesson.entity';
 import { Course } from '../courses/entities/course.entity';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { WeekDay, WeekDaysList } from '@/enums/week-day.enum';
 import errors from '@/config/errors.config';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
-import { PaginationDto } from '@/common/dto/pagination.dto';
 import { CohortStatus } from '@/enums/cohort-status.enum';
 import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
 import { LessonActions, LessonSubject } from './actions/lesson.actions';
@@ -22,6 +20,8 @@ import { PredefinedRoles } from '@/enums/role.enum';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { Student } from '../students/entities/student.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { randomize } from '@/lib/util';
+import { colorCodes } from '@/lib/constants';
 
 @Injectable()
 export class LessonService {
@@ -119,6 +119,7 @@ export class LessonService {
               name: `Lesson ${lessonNumber++}`,
               course,
               cohort: activeCohort,
+              colorCode: randomize(colorCodes),
               date: new Date(dateStr),
               startTime: schedule.startTime,
               endTime: schedule.endTime,
@@ -137,7 +138,7 @@ export class LessonService {
     }
   }
 
-  async generateLessonsForCourseInCohort(courseId: string, cohortId: string) {
+  /* async generateLessonsForCourseInCohort(courseId: string, cohortId: string) {
     const cohort = await this.cohortRepository.findOneOrFail({
       where: { id: cohortId },
       relations: ['courses'],
@@ -155,6 +156,16 @@ export class LessonService {
     ) {
       throw new BadRequestException(
         errors.validationFailed('Course not in cohort')
+      );
+    }
+
+    const cohortCourse = cohort.cohortCourses.find(
+      (cc) => cc.course.id === course.id
+    );
+
+    if (!cohortCourse) {
+      throw new NotFoundException(
+        errors.notFound('Cohort/Course combination not found')
       );
     }
 
@@ -188,6 +199,82 @@ export class LessonService {
           await this.lessonRepository.save(lesson);
         }
       }
+    }
+  } */
+
+  async generateLessonsForCourseInCohort(courseId: string, cohortId: string) {
+    const cohort = await this.cohortRepository.findOneOrFail({
+      where: { id: cohortId },
+      relations: ['courses', 'cohortCourses'],
+    });
+
+    const course = await this.courseRepository.findOneOrFail({
+      where: { id: courseId },
+      relations: ['schedules'],
+    });
+
+    // Validate course is in cohort
+    const cohortCourse = cohort.cohortCourses.find(
+      (cc) => cc.course.id === course.id
+    );
+
+    if (!cohortCourse) {
+      throw new BadRequestException(
+        errors.validationFailed('Course not in cohort')
+      );
+    }
+
+    const start = new Date(cohort.startDate);
+    const cohortEnd = new Date(cohort.endDate);
+
+    const calculatedEnd = new Date(start);
+    calculatedEnd.setDate(
+      calculatedEnd.getDate() + course.estimatedDurationForCompletion * 7
+    );
+
+    const end = new Date(
+      Math.min(calculatedEnd.getTime(), cohortEnd.getTime())
+    );
+
+    const lessonsToCreate = [];
+
+    // Pre-fetch all existing lessons to avoid per-day DB hit
+    const existingLessons = await this.lessonRepository.find({
+      where: {
+        course: { id: courseId },
+        cohort: { id: cohortId },
+      },
+    });
+
+    const existingDates = new Set(
+      existingLessons.map((l) => l.date.toISOString().split('T')[0])
+    );
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dayName = d.toLocaleDateString('en-US', {
+        weekday: 'long',
+      }) as unknown as WeekDay;
+
+      const schedule = course.schedules.find((s) => s.dayOfWeek === dayName);
+      if (!schedule) continue;
+
+      const dateStr = d.toISOString().split('T')[0];
+
+      if (!existingDates.has(dateStr)) {
+        lessonsToCreate.push(
+          this.lessonRepository.create({
+            course,
+            cohort,
+            date: new Date(dateStr),
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+          })
+        );
+      }
+    }
+
+    if (lessonsToCreate.length > 0) {
+      await this.lessonRepository.save(lessonsToCreate);
     }
   }
 
@@ -343,7 +430,90 @@ export class LessonService {
     });
   }
 
-  async getStudentAttendance(lessonId: string) {}
+  async getStudentAttendanceInLesson(lessonId: string): Promise<any> {
+    const lesson = await this.lessonRepository
+      .createQueryBuilder('lesson')
+      .leftJoinAndSelect('lesson.course', 'course')
+
+      // Join only active cohortCourse
+      .leftJoinAndSelect(
+        'course.cohortCourses',
+        'cohortCourse',
+        'cohortCourse.courseId = course.id'
+      )
+      .leftJoinAndSelect(
+        'cohortCourse.cohort',
+        'cohort',
+        'cohort.isActive = :activeStatus',
+        {
+          activeStatus: true,
+        }
+      )
+
+      // Enrollments and Students in the active cohortCourse
+      .leftJoinAndSelect('cohortCourse.enrollments', 'enrollment')
+      .leftJoinAndSelect('enrollment.student', 'student')
+      .leftJoinAndSelect('student.user', 'user')
+
+      // Attendance records for enrolled students
+      .leftJoinAndSelect(
+        'lesson.attendances',
+        'attendance',
+        'attendance.studentId = student.id'
+      )
+      .leftJoinAndSelect('attendance.student', 'attendingStudent')
+      .leftJoinAndSelect('attendingStudent.user', 'attendingUser')
+
+      .where('lesson.id = :lessonId', { lessonId })
+      .getOne();
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
+    }
+
+    const enrolledStudents = lesson.course.cohortCourses
+      // Only use cohortCourses whose cohort is active
+      .filter((cc) => cc.cohort?.status === CohortStatus.ACTIVE)
+      .flatMap((cc) => cc.enrollments)
+      .map((enrollment) => enrollment.student);
+
+    const studentAttendances = enrolledStudents.map((student) => {
+      const foundAttendance = lesson.attendances?.find(
+        (a) => a.student?.id === student.id
+      );
+
+      return {
+        student,
+        attendance: foundAttendance ?? {},
+      };
+    });
+
+    return {
+      ...lesson,
+      attendances: studentAttendances,
+    };
+  }
+
+  /* async getStudentAttendanceInLesson(lessonId: string): Promise<Lesson | null> {
+    const lesson = await this.lessonRepository.findOne({
+      where: { id: lessonId },
+      relations: [
+        'course',
+        'course.cohortCourses',
+        'course.cohortCourses.enrollments',
+        'course.cohortCourses.enrollments.student',
+        'course.cohortCourses.enrollments.student.user',
+        'attendances',
+        'attendances.student',
+        'attendances.student.user',
+      ],
+    });
+    if (!lesson) {
+      throw new NotFoundException(errors.notFound('Lesson not found'));
+    }
+
+    return lesson;
+  } */
 
   remove(id: string) {
     return `This action removes a #${id} lesson`;

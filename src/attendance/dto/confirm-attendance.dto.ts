@@ -1,6 +1,6 @@
 import { AttendanceStatus } from '@/enums/attendance.enum';
 import {
-  IsEnum,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -12,8 +12,17 @@ export class ConfirmAttendanceDto {
   @IsUUID()
   attendanceId: string;
 
-  @IsEnum(AttendanceStatus)
-  status: AttendanceStatus;
+  @IsNotEmpty()
+  @IsUUID()
+  studentId: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  lessonId: string;
+
+  // @IsEnum(AttendanceStatus)
+  @IsBoolean()
+  status: boolean;
 
   @IsString()
   @IsOptional()

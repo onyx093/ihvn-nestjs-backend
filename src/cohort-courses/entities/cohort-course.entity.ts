@@ -6,11 +6,11 @@ import { Enrollment } from '../../enrollments/entities/enrollment.entity';
 
 @Entity({ name: 'cohort_courses' })
 export class CohortCourse extends AbstractEntity<CohortCourse> {
-  @ManyToOne(() => Cohort, (cohort) => cohort.cohortCourses)
+  @ManyToOne(() => Cohort, (cohort) => cohort.cohortCourses, { eager: true })
   @JoinColumn() // Optional: Only if your column name differs
   cohort: Cohort;
 
-  @ManyToOne(() => Course, (course) => course.cohortCourses)
+  @ManyToOne(() => Course, (course) => course.cohortCourses, { eager: true })
   @JoinColumn() // Optional: Only if your column name differs
   course: Course;
 

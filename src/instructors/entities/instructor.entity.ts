@@ -5,7 +5,7 @@ import { Course } from '../../courses/entities/course.entity';
 
 @Entity({ name: 'instructors' })
 export class Instructor extends AbstractEntity<Instructor> {
-  @OneToOne(() => User)
+  @OneToOne(() => User, { eager: true })
   @JoinColumn()
   user: User;
 

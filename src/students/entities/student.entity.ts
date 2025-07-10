@@ -5,7 +5,7 @@ import { Enrollment } from '../../enrollments/entities/enrollment.entity';
 
 @Entity({ name: 'students' })
 export class Student extends AbstractEntity<Student> {
-  @OneToOne(() => User)
+  @OneToOne(() => User, { eager: true })
   @JoinColumn() // Creates a 'userId' column in the Student table
   user: User;
 

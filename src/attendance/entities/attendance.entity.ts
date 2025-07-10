@@ -17,7 +17,7 @@ import { AttendanceStatus } from '../../enums/attendance.enum';
 @Entity({ name: 'attendances' })
 @Unique(['lesson', 'student'])
 export class Attendance extends AbstractEntity<Attendance> {
-  @ManyToOne(() => Lesson, (lesson) => lesson.attendances, { eager: true })
+  @ManyToOne(() => Lesson, { eager: true })
   lesson: Lesson;
 
   @ManyToOne(() => Student, { eager: true })
@@ -33,8 +33,8 @@ export class Attendance extends AbstractEntity<Attendance> {
   @Column({ default: false })
   instructorConfirmed: boolean;
 
-  @ManyToOne(() => Instructor, { nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => Instructor, { nullable: true, eager: true })
+  @JoinColumn({ name: 'confirmedBy' })
   confirmedBy: Instructor;
 
   @Column({ nullable: true })
