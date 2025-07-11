@@ -19,7 +19,6 @@ import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
 import { PredefinedRoles } from '@/enums/role.enum';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { Student } from '../students/entities/student.entity';
-import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { randomize } from '@/lib/util';
 import { colorCodes } from '@/lib/constants';
 import { Attendance } from '../attendance/entities/attendance.entity';

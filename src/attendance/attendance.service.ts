@@ -102,6 +102,53 @@ export class AttendanceService {
       );
     }
 
+    const now = new Date();
+
+    // Combine date and time into full ISO datetime strings
+    const lessonDate = lesson.date; // '2025-06-03'
+    const lessonStart = new Date(`${lessonDate}T${lesson.startTime}`); // e.g., '2025-06-03T08:00:00'
+    const lessonEnd = new Date(`${lessonDate}T${lesson.endTime}`); // e.g., '2025-06-03T20:00:00'
+
+    // Validate datetime parsing
+    if (isNaN(lessonStart.getTime()) || isNaN(lessonEnd.getTime())) {
+      throw new BadRequestException(
+        errors.badRequest('Invalid lesson start or end time')
+      );
+    }
+    const nowDateOnly = now.toISOString().split('T')[0];
+
+    const lessonDateOnly = new Date(lesson.date).toISOString().split('T')[0];
+
+    if (nowDateOnly !== lessonDateOnly) {
+      throw new ForbiddenException(
+        errors.forbiddenAccess(
+          'Attendance can only be marked on the day of the lesson'
+        )
+      );
+    }
+
+    // Check time window
+    const fiveMinutesBeforeStart = new Date(
+      lessonStart.getTime() - 5 * 60 * 1000
+    );
+    const tenMinutesBeforeEnd = new Date(lessonEnd.getTime() - 10 * 60 * 1000);
+
+    if (now < fiveMinutesBeforeStart) {
+      throw new ForbiddenException(
+        errors.forbiddenAccess(
+          'Attendance can only be marked within 5 minutes of lesson start'
+        )
+      );
+    }
+
+    if (now > tenMinutesBeforeEnd) {
+      throw new ForbiddenException(
+        errors.forbiddenAccess(
+          'Attendance cannot be marked 10 minutes before the lesson ends'
+        )
+      );
+    }
+
     // Check if attendance already exists
     let attendance = await this.attendanceRepository.findOne({
       where: {
