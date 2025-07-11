@@ -60,6 +60,7 @@ export default class CohortSeeder implements Seeder {
     });
     const cohortRepository = dataSource.getRepository(Cohort);
     const cohortCourseRepository = dataSource.getRepository(CohortCourse);
+    const userRepository = dataSource.getRepository(User);
 
     const courses1 = await dataSource
       .getRepository(Course)
@@ -124,7 +125,18 @@ export default class CohortSeeder implements Seeder {
     const studentUsers = [];
 
     for (let i = 0; i < 50; i++) {
-      const studentName = faker.person.firstName();
+      let studentName = faker.person.firstName();
+      let email = `${studentName.toLowerCase()}@example.com`;
+      while (true) {
+        const exists = await userRepository.findOne({ where: { email } });
+        if (!exists) {
+          break;
+        } else {
+          console.log('Duplicate found', studentName, email);
+          studentName = faker.person.firstName();
+          email = `${studentName.toLowerCase()}@example.com`;
+        }
+      }
       studentUsers.push({
         name: `${studentName} ${faker.person.firstName()}`,
         username: studentName.toLowerCase(),
@@ -133,11 +145,12 @@ export default class CohortSeeder implements Seeder {
       });
     }
 
-    const userRepository = dataSource.getRepository(User);
     const studentRepository = dataSource.getRepository(Student);
     const enrollmentRepository = dataSource.getRepository(Enrollment);
     await new Promise((r) => setTimeout(r, 1000));
-    const cohortCourses = await dataSource.getRepository(CohortCourse).find();
+    const cohortCourses = await dataSource
+      .getRepository(CohortCourse)
+      .find({ relations: ['cohort'] });
 
     let counter = 1;
 
@@ -173,5 +186,9 @@ export default class CohortSeeder implements Seeder {
       });
       await enrollmentRepository.save(enrollment);
     }
+  }
+
+  private checkEmailDuplicate(email: string) {
+    return false;
   }
 }
