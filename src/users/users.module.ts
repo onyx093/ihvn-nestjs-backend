@@ -12,6 +12,7 @@ import { CASLModule } from '@/casl/casl.module';
 import { DiscoveryModule } from '@nestjs/core';
 import { Account } from './entities/account.entity';
 import { Cohort } from '../cohorts/entities/cohort.entity';
+import { StudentsModule } from '../students/students.module';
 
 const configService = new ConfigService();
 
@@ -27,6 +28,7 @@ const configService = new ConfigService();
       },
     }),
     EmailModule,
+    StudentsModule,
     CASLModule,
   ],
   controllers: [UsersController],

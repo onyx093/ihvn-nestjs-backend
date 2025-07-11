@@ -37,6 +37,9 @@ export class CourseResponseDto {
     name: string;
     email: string;
   };
+
+  lessonCount?: number;
+  attendanceCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }

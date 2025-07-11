@@ -9,7 +9,7 @@ import { Course } from '../courses/entities/course.entity';
 import { UsersModule } from '@/users/users.module';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { Student } from '../students/entities/student.entity';
-import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { Attendance } from '../attendance/entities/attendance.entity';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { Enrollment } from '../enrollments/entities/enrollment.entity';
       Cohort,
       Instructor,
       Student,
-      Enrollment,
+      Attendance,
     ]),
     UsersModule,
     CASLModule,

@@ -52,3 +52,6 @@ export const mapSpecifiedEnumMembersToObjects = (
     .filter(([key]) => keysToInclude.includes(key))
     .map(([, value]) => ({ action: value, subject: subjectValue }));
 };
+
+export const randomize = <T>(arr: T[]): T =>
+  arr[Math.floor(Math.random() * arr.length)];

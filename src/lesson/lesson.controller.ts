@@ -35,7 +35,7 @@ export class LessonController {
   @Permission(LessonActions.GENERATE_LESSONS_FOR_COURSE_IN_COHORT)
   @Post('course/:courseId/generate')
   @HttpCode(HttpStatus.CREATED)
-  generateForSpecific(
+  async generateForSpecific(
     @Param('cohortId') cohortId: string,
     @Param('courseId') courseId: string
   ) {
@@ -46,16 +46,16 @@ export class LessonController {
   }
 
   @Permission(LessonActions.LIST_STUDENTS_ATTENDANCE_IN_LESSON)
-  @Get(':lessonId')
+  @Get(':lessonId/students')
   @HttpCode(HttpStatus.OK)
-  getStudentAttendanceInLesson(@Param('lessonId') lessonId: string) {
-    return this.lessonService.getStudentAttendance(lessonId);
+  async getStudentAttendanceInLesson(@Param('lessonId') lessonId: string) {
+    return this.lessonService.getStudentAttendanceInLesson(lessonId);
   }
 
   @Permission(LessonActions.READ_LESSONS)
   @Get('cohorts/:cohortId')
   @HttpCode(HttpStatus.OK)
-  findAll(
+  async findAll(
     @Param('cohortId') cohortId: string,
     @CurrentUser() user: CurrentUserInfo
   ) {
@@ -65,14 +65,14 @@ export class LessonController {
   @Permission(LessonActions.READ_ONE_LESSONS)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string, @CurrentUser() user) {
+  async findOne(@Param('id') id: string, @CurrentUser() user) {
     return this.lessonService.findOne(id, user);
   }
 
   @Permission(LessonActions.MARK_LESSON_AS_COMPLETED)
   @Patch(':id/complete')
   @HttpCode(HttpStatus.OK)
-  markAsCompleted(@Param('id') lessonId: string) {
+  async markAsCompleted(@Param('id') lessonId: string) {
     return this.lessonService.markAsCompleted(lessonId);
   }
 

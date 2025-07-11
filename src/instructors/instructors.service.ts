@@ -37,8 +37,12 @@ export class InstructorsService {
   }
 
   findOne(id: string): Promise<Instructor | null> {
+    if (!id) {
+      return null;
+    }
     return this.instructorRepository.findOne({
       where: { id },
+      relations: { user: true },
     });
   }
 

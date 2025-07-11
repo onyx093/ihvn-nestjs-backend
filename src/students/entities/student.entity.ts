@@ -9,6 +9,9 @@ export class Student extends AbstractEntity<Student> {
   @JoinColumn() // Creates a 'userId' column in the Student table
   user: User;
 
+  @Column({ unique: true })
+  referenceNumber: string;
+
   @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
   enrollments: Enrollment[];
 

@@ -1,5 +1,5 @@
 import { AttendanceStatus } from '@/enums/attendance.enum';
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateAttendanceDto {
   @IsUUID()
@@ -8,9 +8,9 @@ export class CreateAttendanceDto {
   @IsUUID()
   lessonId: string;
 
-  @IsEnum(AttendanceStatus)
-  @IsOptional()
-  status?: AttendanceStatus;
+  // @IsEnum(AttendanceStatus)
+  @IsBoolean()
+  status: boolean;
 
   @IsString()
   @IsOptional()

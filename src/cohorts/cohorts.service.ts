@@ -90,6 +90,9 @@ export class CohortsService {
   }
 
   async findOne(id: string): Promise<Cohort | null> {
+    if (!id) {
+      return null;
+    }
     return this.cohortRepository.findOne({
       where: { id },
       relations: ['enrollments', 'lessons', 'cohortCourses.course'],

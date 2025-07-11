@@ -13,16 +13,19 @@ export class Lesson extends AbstractEntity<Lesson> {
   @Column({ type: 'date' })
   date: Date;
 
+  @Column()
+  colorCode: string;
+
   @Column({ type: 'time' })
   startTime: string;
 
   @Column({ type: 'time' })
   endTime: string;
 
-  @ManyToOne(() => Cohort, (cohort) => cohort.lessons, { eager: true })
+  @ManyToOne(() => Cohort)
   cohort: Cohort;
 
-  @ManyToOne(() => Course, (course) => course.lessons, { eager: true })
+  @ManyToOne(() => Course)
   course: Course;
 
   @Column({ default: false })

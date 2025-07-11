@@ -12,10 +12,19 @@ import { EnrollmentsModule } from '@/enrollments/enrollments.module';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
 import { Instructor } from '../instructors/entities/instructor.entity';
+import { Attendance } from '../attendance/entities/attendance.entity';
+import { Lesson } from '../lesson/entities/lesson.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Course, Enrollment, Student, Instructor]),
+    TypeOrmModule.forFeature([
+      Course,
+      Enrollment,
+      Student,
+      Instructor,
+      Attendance,
+      Lesson,
+    ]),
     InstructorsModule,
     UsersModule,
     CohortsModule,

@@ -11,7 +11,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { ILike, IsNull, Not, Repository } from 'typeorm';
+import { Brackets, ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { slugify } from '@/lib/helpers';
 import errors from '@/config/errors.config';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -37,6 +37,10 @@ import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
 import { PredefinedRoles } from '@/enums/role.enum';
 import { Instructor } from '../instructors/entities/instructor.entity';
+import { Lesson } from '../lesson/entities/lesson.entity';
+import { Attendance } from '../attendance/entities/attendance.entity';
+import { CohortStatus } from '@/enums/cohort-status.enum';
+import { AttendanceStatus } from '@/enums/attendance.enum';
 
 @Injectable()
 export class CoursesService {
@@ -45,6 +49,10 @@ export class CoursesService {
     private readonly courseRepository: Repository<Course>,
     @InjectRepository(Enrollment)
     private readonly enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(Lesson)
+    private readonly lessonRepository: Repository<Lesson>,
+    @InjectRepository(Attendance)
+    private readonly attendanceRepository: Repository<Attendance>,
     @InjectRepository(Student)
     private readonly studentRepository: Repository<Student>,
     @InjectRepository(Instructor)
@@ -176,9 +184,9 @@ export class CoursesService {
       return this.getAdminCourseSearch(searchTerm);
     }
 
-    const cohort =
-      (await this.cohortService.findOne(cohortId)) ??
-      (await this.cohortService.findActive());
+    const cohort = cohortId
+      ? await this.cohortService.findOne(cohortId)
+      : await this.cohortService.findActive();
     if (!cohort) {
       throw new NotFoundException(errors.notFound('Cohort not found'));
     }
@@ -218,6 +226,10 @@ export class CoursesService {
     cohortId?: string
   ): Promise<StudentCourseSearchResponseDto> {
     // Get enrolled courses for the student
+    const theCohortId = cohortId
+      ? cohortId
+      : (await this.cohortService.findActive()).id;
+
     const enrolledCoursesQuery = this.enrollmentRepository
       .createQueryBuilder('enrollment')
       .leftJoinAndSelect('enrollment.cohortCourse', 'cohortCourse')
@@ -226,34 +238,57 @@ export class CoursesService {
       .leftJoinAndSelect('course.instructor', 'instructor')
       .leftJoinAndSelect('instructor.user', 'user')
       .where('enrollment.studentId = :studentId', { studentId })
-      .andWhere('course.deletedAt IS NULL');
+      .andWhere('course.deletedAt IS NULL')
+      .andWhere('cohort.isActive = true')
+      .andWhere('cohort.status = :status', {
+        status: CohortStatus.ACTIVE,
+      });
 
-    if (cohortId) {
-      enrolledCoursesQuery
-        .andWhere('enrollment.cohortId = :cohortId', {
-          cohortId,
-        })
-        .andWhere('cohortCourse.cohortId = :cohortId', {
-          cohortId,
-        });
+    if (theCohortId) {
+      enrolledCoursesQuery.andWhere('enrollment.cohortId = :theCohortId', {
+        theCohortId,
+      });
     }
 
     if (searchTerm && searchTerm !== '') {
-      enrolledCoursesQuery
-        .andWhere('course.name ILIKE :searchTerm', {
-          searchTerm: `%${searchTerm}%`,
+      enrolledCoursesQuery.andWhere(
+        new Brackets((qb) => {
+          qb.where('course.name ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          }).orWhere('course.slug ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
         })
-        .orWhere('course.slug ILIKE :searchTerm', {
-          searchTerm: `%${searchTerm}%`,
-        });
+      );
     }
 
     const enrolledCoursesData = await enrolledCoursesQuery.getMany();
+    console.log('enrolledCoursesData:', enrolledCoursesData);
 
-    const enrolledCourses = enrolledCoursesData
-      .map((enrollment) => enrollment.cohortCourse.course)
-      .filter(Boolean)
-      .map((course) => this.mapCourseToDto(course));
+    const enrolledCourses = await Promise.all(
+      enrolledCoursesData.map(async (enrollment) => {
+        const course = enrollment.cohortCourse.course;
+        // const cohortCourseId = enrollment.cohortCourse.id;
+
+        // Count lessons for this cohortCourse
+        const lessonCount = await this.lessonRepository.count({
+          where: { course: { id: course.id }, cohort: { id: theCohortId } },
+        });
+
+        // Count attendance for this student in this cohortCourse
+        const attendanceCount = await this.attendanceRepository.count({
+          where: {
+            student: { id: studentId },
+            lesson: { course: { id: course.id }, cohort: { id: theCohortId } },
+          },
+        });
+
+        console.log('lessonCount:', lessonCount);
+        console.log('attendanceCount:', attendanceCount);
+
+        return this.mapCourseToDto(course, lessonCount, attendanceCount);
+      })
+    );
 
     // Get enrolled course IDs to exclude from available courses
     const enrolledCourseIds = enrolledCourses.map((course) => course.id);
@@ -265,8 +300,14 @@ export class CoursesService {
       .leftJoinAndSelect('cohortCourse.cohort', 'cohort')
       .leftJoinAndSelect('course.instructor', 'instructor')
       .leftJoinAndSelect('instructor.user', 'user')
-      .where('course.status = :status', { status: CourseStatus.PUBLISHED })
-      .andWhere('course.deletedAt IS NULL');
+      .where('course.status = :courseStatus', {
+        courseStatus: CourseStatus.PUBLISHED,
+      })
+      .andWhere('course.deletedAt IS NULL')
+      .andWhere('cohort.isActive = true')
+      .andWhere('cohort.status = :cohortStatus', {
+        cohortStatus: CohortStatus.ACTIVE,
+      });
 
     if (enrolledCourseIds.length > 0) {
       availableCoursesQuery.andWhere(
@@ -277,20 +318,22 @@ export class CoursesService {
       );
     }
 
-    if (cohortId) {
-      availableCoursesQuery.andWhere('cohortCourse.cohortId = :cohortId', {
-        cohortId,
+    if (theCohortId) {
+      availableCoursesQuery.andWhere('cohortCourse.cohortId = :theCohortId', {
+        theCohortId,
       });
     }
 
     if (searchTerm && searchTerm !== '') {
-      availableCoursesQuery
-        .andWhere('course.name ILIKE :searchTerm', {
-          searchTerm: `%${searchTerm}%`,
+      availableCoursesQuery.andWhere(
+        new Brackets((qb) => {
+          qb.where('course.name ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          }).orWhere('course.slug ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          });
         })
-        .orWhere('course.slug ILIKE :searchTerm', {
-          searchTerm: `%${searchTerm}%`,
-        });
+      );
     }
 
     const availableCoursesData = await availableCoursesQuery.getMany();
@@ -400,7 +443,11 @@ export class CoursesService {
     };
   }
 
-  private mapCourseToDto(course: Course): CourseResponseDto {
+  private mapCourseToDto(
+    course: Course,
+    lessonCount = 0,
+    attendanceCount = 0
+  ): CourseResponseDto {
     return {
       id: course.id,
       name: course.name,
@@ -416,6 +463,8 @@ export class CoursesService {
         : undefined,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
+      lessonCount,
+      attendanceCount,
     };
   }
 
@@ -528,7 +577,7 @@ export class CoursesService {
       });
     }
     if (userRoles.includes(PredefinedRoles.STUDENT)) {
-      return this.courseRepository.findOne({
+      const course = await this.courseRepository.findOne({
         where: { id },
         relations: {
           instructor: {
@@ -536,8 +585,64 @@ export class CoursesService {
           },
           lessons: true,
         },
+        order: {
+          lessons: {
+            date: 'ASC',
+          },
+        },
       });
+
+      if (!course) return null;
+
+      // Check if student is enrolled
+      const enrollment = await this.enrollmentRepository.findOne({
+        where: {
+          student: { user: { id: dbUser.id } },
+          cohort: {
+            cohortCourses: {
+              course: { id: course.id },
+            },
+          },
+        },
+        relations: {
+          cohort: {
+            cohortCourses: {
+              course: true,
+            },
+          },
+          student: {
+            user: true,
+          },
+        },
+      });
+
+      const isEnrolled = !!enrollment;
+
+      // Calculate attendance count if enrolled
+      let attendanceCount = 0;
+
+      if (isEnrolled && course.lessons?.length > 0) {
+        const lessonIds = course.lessons.map((lesson) => lesson.id);
+
+        attendanceCount = await this.attendanceRepository.count({
+          where: {
+            lesson: { id: In(lessonIds) },
+            student: { user: { id: dbUser.id } },
+            status: AttendanceStatus.PRESENT, // Adjust if you're using a boolean or enum
+          },
+        });
+      }
+
+      return {
+        ...course,
+        isEnrolled,
+        attendanceCount,
+      } as Course & {
+        isEnrolled: boolean;
+        attendanceCount: number;
+      };
     }
+
     return null;
   }
 

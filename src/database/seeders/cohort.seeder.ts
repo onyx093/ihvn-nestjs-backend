@@ -139,6 +139,8 @@ export default class CohortSeeder implements Seeder {
     await new Promise((r) => setTimeout(r, 1000));
     const cohortCourses = await dataSource.getRepository(CohortCourse).find();
 
+    let counter = 1;
+
     for (const studentUser of studentUsers) {
       const userFactory = await factoryManager.get(User).make(studentUser);
       userFactory.account = await factoryManager.get(Account).make({
@@ -147,20 +149,27 @@ export default class CohortSeeder implements Seeder {
       });
 
       const savedUser = await userRepository.save(userFactory);
-      const studentEntityFactory = await factoryManager
-        .get(Student)
-        .make({ user: savedUser });
+      const studentEntityFactory = await factoryManager.get(Student).make({
+        user: savedUser,
+        referenceNumber: `IHVN-${new Date().getFullYear()}-00${++counter}`,
+      });
 
       const savedStudent = await studentRepository.save(studentEntityFactory);
 
+      const randomCohort = faker.helpers.arrayElement([
+        savedCohort1,
+        savedCohort2,
+        savedCohort3,
+      ]);
+
+      const randomCohortCourse = cohortCourses.find(
+        (cc) => cc.cohort.id === randomCohort.id
+      );
+
       const enrollment = new Enrollment({
         student: savedStudent,
-        cohort: faker.helpers.arrayElement([
-          savedCohort1,
-          savedCohort2,
-          savedCohort3,
-        ]),
-        cohortCourse: faker.helpers.arrayElement(cohortCourses),
+        cohort: randomCohort,
+        cohortCourse: randomCohortCourse,
       });
       await enrollmentRepository.save(enrollment);
     }

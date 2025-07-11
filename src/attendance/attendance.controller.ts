@@ -43,10 +43,7 @@ export class AttendanceController {
     @Body() markAttendanceDto: MarkAttendanceDto,
     @CurrentUser() user: CurrentUserInfo
   ): Promise<Attendance> {
-    return await this.attendanceService.markAttendance(
-      user.id,
-      markAttendanceDto
-    );
+    return await this.attendanceService.markAttendance(user, markAttendanceDto);
   }
 
   // Endpoint to mark attendance as a student.
@@ -58,7 +55,7 @@ export class AttendanceController {
     @CurrentUser() user: CurrentUserInfo
   ): Promise<Attendance> {
     return await this.attendanceService.confirmAttendance(
-      user.id,
+      user,
       confirmAttendanceDto
     );
   }
@@ -68,9 +65,13 @@ export class AttendanceController {
   @Post('create-attendance')
   @HttpCode(HttpStatus.CREATED)
   async createAttendance(
-    @Body() createAttendanceDto: CreateAttendanceDto
+    @Body() createAttendanceDto: CreateAttendanceDto,
+    @CurrentUser() user: CurrentUserInfo
   ): Promise<Attendance> {
-    return await this.attendanceService.createAttendance(createAttendanceDto);
+    return await this.attendanceService.createAttendance(
+      createAttendanceDto,
+      user
+    );
   }
 
   // Get attendance records for a specific user.

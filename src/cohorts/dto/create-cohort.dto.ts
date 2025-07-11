@@ -53,7 +53,7 @@ export class CreateCohortDto {
   name: string;
 
   @IsDateString()
-  @IsAfterDate('today')
+  // @IsAfterDate('today')
   startDate: Date;
 
   @IsDateString()

@@ -79,6 +79,7 @@ export default class UserSeeder implements Seeder {
       roles: [guestRole],
     };
 
+    // Repository managers
     const userRepository = dataSource.getRepository(User);
     const studentRepository = dataSource.getRepository(Student);
 
@@ -118,6 +119,7 @@ export default class UserSeeder implements Seeder {
 
     const studentEntityFactory = await factoryManager.get(Student).make({
       user: studentFactory,
+      referenceNumber: `IHVN-${new Date().getFullYear()}-001`,
     });
 
     const guestFactory = await factoryManager.get(User).make(guestUser);

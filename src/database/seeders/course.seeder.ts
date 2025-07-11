@@ -7,6 +7,7 @@ import { PredefinedRoles } from '../../enums/role.enum';
 import { User } from '../../users/entities/user.entity';
 import { Account } from '../../users/entities/account.entity';
 import { Instructor } from '../../instructors/entities/instructor.entity';
+import { faker } from '@faker-js/faker';
 
 export default class CourseSeeder implements Seeder {
   public async run(
@@ -43,6 +44,14 @@ export default class CourseSeeder implements Seeder {
     await userRepository.save(instructorFactory);
     await instructorRepository.save(instructorEntityFactory);
 
+    const admins = await dataSource
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .where('role.name = :name', { name: PredefinedRoles.ADMIN })
+      .orWhere('role.name = :name', { name: PredefinedRoles.SUPER_ADMIN })
+      .getMany();
+
     const courseEntity1 = new Course({
       name: 'Catering & Hospitality',
       slug: 'catering-hospitality',
@@ -55,6 +64,7 @@ export default class CourseSeeder implements Seeder {
       publishedAt: null,
       deletedAt: null,
       instructor: instructorEntityFactory,
+      createdBy: faker.helpers.arrayElement(admins),
     });
 
     const courseEntity2 = new Course({
@@ -69,6 +79,7 @@ export default class CourseSeeder implements Seeder {
       publishedAt: new Date(),
       deletedAt: null,
       instructor: instructorEntityFactory,
+      createdBy: faker.helpers.arrayElement(admins),
     });
 
     const courseEntity3 = new Course({
@@ -83,6 +94,7 @@ export default class CourseSeeder implements Seeder {
       publishedAt: new Date(),
       deletedAt: null,
       instructor: instructorEntityFactory,
+      createdBy: faker.helpers.arrayElement(admins),
     });
 
     const courseEntity4 = new Course({
@@ -97,6 +109,7 @@ export default class CourseSeeder implements Seeder {
       publishedAt: new Date(),
       deletedAt: null,
       instructor: instructorEntityFactory,
+      createdBy: faker.helpers.arrayElement(admins),
     });
 
     const courseEntity5 = new Course({
@@ -111,6 +124,7 @@ export default class CourseSeeder implements Seeder {
       publishedAt: new Date(),
       deletedAt: new Date(),
       instructor: instructorEntityFactory,
+      createdBy: faker.helpers.arrayElement(admins),
     });
 
     const courseEntity6 = new Course({
@@ -125,6 +139,7 @@ export default class CourseSeeder implements Seeder {
       publishedAt: new Date(),
       deletedAt: null,
       instructor: instructorEntityFactory,
+      createdBy: faker.helpers.arrayElement(admins),
     });
 
     await Promise.all([
