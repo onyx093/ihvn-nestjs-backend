@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'argon2';
@@ -23,6 +23,7 @@ import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { StudentsService } from '@/students/students.service';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +32,7 @@ export class UsersService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    private readonly studentsService: StudentsService,
     @InjectQueue('email') private readonly emailQueue: Queue
   ) {}
 
@@ -129,7 +131,7 @@ export class UsersService {
     });
 
     const newUser = await this.userRepository.manager.transaction(
-      async (transactionalEntityManager) => {
+      async (transactionalEntityManager: EntityManager) => {
         const user = await transactionalEntityManager.create(User, {
           password: hashedPassword,
           ...createStudentUserDto,
@@ -156,11 +158,17 @@ export class UsersService {
         });
         await transactionalEntityManager.save(account);
 
+        const referenceNumber =
+          await this.studentsService.generateReferenceNumber(
+            transactionalEntityManager,
+            new Date().getFullYear()
+          );
         const student = await transactionalEntityManager.create(Student, {
           user: savedUser,
+          referenceNumber,
         });
         const savedStudent = await transactionalEntityManager.save(student);
-        console.log('Saved Student ID:', savedStudent.id);
+        console.log('Saved Student ID:', savedStudent.referenceNumber);
         await transactionalEntityManager.query('SELECT 1');
 
         // CRITICAL: Verify the student was actually saved

@@ -15,7 +15,7 @@ export class CourseSchedule extends AbstractEntity<CourseSchedule> {
   @Column({ type: 'time' })
   endTime: string;
 
-  @ManyToOne(() => Course, (course) => course.schedules, { eager: true })
+  @ManyToOne(() => Course, (course) => course.schedules)
   course: Course;
 
   @Column({ default: new Date() })

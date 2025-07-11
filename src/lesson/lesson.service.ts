@@ -8,7 +8,7 @@ import { Cohort } from '../cohorts/entities/cohort.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Lesson } from './entities/lesson.entity';
 import { Course } from '../courses/entities/course.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { WeekDay, WeekDaysList } from '@/enums/week-day.enum';
 import errors from '@/config/errors.config';
 import { CohortStatus } from '@/enums/cohort-status.enum';
@@ -22,6 +22,7 @@ import { Student } from '../students/entities/student.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { randomize } from '@/lib/util';
 import { colorCodes } from '@/lib/constants';
+import { Attendance } from '../attendance/entities/attendance.entity';
 
 @Injectable()
 export class LessonService {
@@ -36,8 +37,8 @@ export class LessonService {
     private instructorRepository: Repository<Instructor>,
     @InjectRepository(Student)
     private studentRepository: Repository<Student>,
-    @InjectRepository(Enrollment)
-    private enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(Attendance)
+    private attendanceRepository: Repository<Attendance>,
     private readonly userService: UsersService,
     private readonly caslAbilityFactory: CaslAbilityFactory
   ) {}
@@ -385,15 +386,15 @@ export class LessonService {
     }
 
     if (userRoles.includes(PredefinedRoles.STUDENT)) {
-      const student = await this.studentRepository.findOneBy({
-        user: { id: dbUser.id },
+      const student = await this.studentRepository.findOne({
+        where: { user: { id: dbUser.id } },
       });
 
       if (!student) {
         throw new NotFoundException(errors.notFound('Student not found'));
       }
 
-      const data = await this.lessonRepository.find({
+      const lessons = await this.lessonRepository.find({
         where: {
           course: {
             cohortCourses: {
@@ -402,11 +403,36 @@ export class LessonService {
             },
           },
         },
-        relations: { course: { instructor: { user: true } } },
+        relations: {
+          course: { instructor: { user: true } },
+        },
         order: { date: 'ASC' },
       });
 
-      return data;
+      if (!lessons.length) return [];
+
+      const lessonIds = lessons.map((lesson) => lesson.id);
+
+      const attendanceRecords = await this.attendanceRepository.find({
+        where: {
+          lesson: { id: In(lessonIds) },
+          student: { id: student.id },
+        },
+        relations: {
+          lesson: true, // ✅ Ensure lesson is loaded
+        },
+      });
+
+      const attendedLessonIds = new Set(
+        attendanceRecords.map((att) => att.lesson.id)
+      );
+
+      const lessonsWithFlags = lessons.map((lesson) => ({
+        ...lesson,
+        hasMarkedAttendance: attendedLessonIds.has(lesson.id),
+      }));
+
+      return lessonsWithFlags as (Lesson & { hasMarkedAttendance: boolean })[];
     }
   }
 

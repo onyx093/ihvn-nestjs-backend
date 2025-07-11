@@ -56,7 +56,6 @@ export class User extends AbstractEntity<User> {
 
   @OneToOne(() => Account, (account) => account.user, {
     cascade: true,
-    eager: true,
   })
   account: Account;
 

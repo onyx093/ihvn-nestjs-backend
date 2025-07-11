@@ -5,9 +5,12 @@ import { Enrollment } from '../../enrollments/entities/enrollment.entity';
 
 @Entity({ name: 'students' })
 export class Student extends AbstractEntity<Student> {
-  @OneToOne(() => User, { eager: true })
+  @OneToOne(() => User)
   @JoinColumn() // Creates a 'userId' column in the Student table
   user: User;
+
+  @Column({ unique: true })
+  referenceNumber: string;
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.student)
   enrollments: Enrollment[];

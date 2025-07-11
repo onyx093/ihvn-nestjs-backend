@@ -16,17 +16,15 @@ import { CohortCourse } from '../../cohort-courses/entities/cohort-course.entity
 @Entity({ name: 'enrollments' })
 @Unique(['student', 'cohort'])
 export class Enrollment extends AbstractEntity<Enrollment> {
-  @ManyToOne(() => Student, (student) => student.enrollments, { eager: true })
+  @ManyToOne(() => Student, (student) => student.enrollments)
   @JoinColumn()
   student: Student;
 
-  @ManyToOne(() => Cohort, (cohort) => cohort.enrollments, { eager: true })
+  @ManyToOne(() => Cohort, (cohort) => cohort.enrollments)
   @JoinColumn()
   cohort: Cohort;
 
-  @ManyToOne(() => CohortCourse, (cohortCourse) => cohortCourse.enrollments, {
-    eager: true,
-  })
+  @ManyToOne(() => CohortCourse, (cohortCourse) => cohortCourse.enrollments)
   @JoinColumn({ name: 'cohortCourseId' })
   cohortCourse: CohortCourse;
 

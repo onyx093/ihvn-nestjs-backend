@@ -22,10 +22,10 @@ export class Lesson extends AbstractEntity<Lesson> {
   @Column({ type: 'time' })
   endTime: string;
 
-  @ManyToOne(() => Cohort, { eager: true })
+  @ManyToOne(() => Cohort)
   cohort: Cohort;
 
-  @ManyToOne(() => Course, { eager: true })
+  @ManyToOne(() => Course)
   course: Course;
 
   @Column({ default: false })

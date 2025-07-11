@@ -34,6 +34,10 @@ import {
   EnrollmentActions,
   EnrollmentSubject,
 } from '../enrollments/actions/enrollments.actions';
+import {
+  StudentActions,
+  StudentSubject,
+} from '../students/actions/students.actions';
 
 export enum RoleType {
   PREDEFINED = 'predefined',
@@ -65,6 +69,7 @@ export const SuperAdmin = {
     ...mapEnumToObjects(InstructorActions, InstructorSubject),
     ...mapEnumToObjects(LessonActions, LessonSubject),
     ...mapEnumToObjects(EnrollmentActions, EnrollmentSubject),
+    ...mapEnumToObjects(StudentActions, StudentSubject),
   ],
 };
 
@@ -83,6 +88,7 @@ export const Admin = {
     ...mapEnumToObjects(InstructorActions, InstructorSubject),
     ...mapEnumToObjects(LessonActions, LessonSubject),
     ...mapEnumToObjects(EnrollmentActions, EnrollmentSubject),
+    ...mapEnumToObjects(StudentActions, StudentSubject),
   ],
 };
 

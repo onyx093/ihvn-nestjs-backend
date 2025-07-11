@@ -59,12 +59,10 @@ export class Course extends AbstractEntity<Course> {
   @OneToMany(() => CohortCourse, (cohortCourse) => cohortCourse.course)
   cohortCourses: CohortCourse[];
 
-  @ManyToOne(() => Instructor, (instructor) => instructor.courses, {
-    eager: true,
-  })
+  @ManyToOne(() => Instructor, (instructor) => instructor.courses)
   instructor: Instructor;
 
-  @ManyToOne(() => User, (user) => user.createdCourses, { eager: true })
+  @ManyToOne(() => User, (user) => user.createdCourses)
   @JoinColumn({ name: 'createdBy' })
   createdBy: User;
 }

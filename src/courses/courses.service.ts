@@ -11,7 +11,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { Brackets, ILike, IsNull, Not, Repository } from 'typeorm';
+import { Brackets, ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { slugify } from '@/lib/helpers';
 import errors from '@/config/errors.config';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -40,6 +40,7 @@ import { Instructor } from '../instructors/entities/instructor.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
 import { CohortStatus } from '@/enums/cohort-status.enum';
+import { AttendanceStatus } from '@/enums/attendance.enum';
 
 @Injectable()
 export class CoursesService {
@@ -229,13 +230,6 @@ export class CoursesService {
       ? cohortId
       : (await this.cohortService.findActive()).id;
 
-    console.log('studentId:', studentId);
-    console.log('theCohortId:', theCohortId);
-    console.log('searchTerm:', searchTerm);
-    console.log('CourseStatus.PUBLISHED:', CourseStatus.PUBLISHED);
-    console.log('CohortStatus.ACTIVE:', CohortStatus.ACTIVE);
-    console.log('cohortId:', cohortId);
-
     const enrolledCoursesQuery = this.enrollmentRepository
       .createQueryBuilder('enrollment')
       .leftJoinAndSelect('enrollment.cohortCourse', 'cohortCourse')
@@ -268,8 +262,6 @@ export class CoursesService {
       );
     }
 
-    // console.log(enrolledCoursesQuery.getSql());
-
     const enrolledCoursesData = await enrolledCoursesQuery.getMany();
     console.log('enrolledCoursesData:', enrolledCoursesData);
 
@@ -290,6 +282,9 @@ export class CoursesService {
             lesson: { course: { id: course.id }, cohort: { id: theCohortId } },
           },
         });
+
+        console.log('lessonCount:', lessonCount);
+        console.log('attendanceCount:', attendanceCount);
 
         return this.mapCourseToDto(course, lessonCount, attendanceCount);
       })
@@ -582,7 +577,7 @@ export class CoursesService {
       });
     }
     if (userRoles.includes(PredefinedRoles.STUDENT)) {
-      return this.courseRepository.findOne({
+      const course = await this.courseRepository.findOne({
         where: { id },
         relations: {
           instructor: {
@@ -596,7 +591,58 @@ export class CoursesService {
           },
         },
       });
+
+      if (!course) return null;
+
+      // Check if student is enrolled
+      const enrollment = await this.enrollmentRepository.findOne({
+        where: {
+          student: { user: { id: dbUser.id } },
+          cohort: {
+            cohortCourses: {
+              course: { id: course.id },
+            },
+          },
+        },
+        relations: {
+          cohort: {
+            cohortCourses: {
+              course: true,
+            },
+          },
+          student: {
+            user: true,
+          },
+        },
+      });
+
+      const isEnrolled = !!enrollment;
+
+      // Calculate attendance count if enrolled
+      let attendanceCount = 0;
+
+      if (isEnrolled && course.lessons?.length > 0) {
+        const lessonIds = course.lessons.map((lesson) => lesson.id);
+
+        attendanceCount = await this.attendanceRepository.count({
+          where: {
+            lesson: { id: In(lessonIds) },
+            student: { user: { id: dbUser.id } },
+            status: AttendanceStatus.PRESENT, // Adjust if you're using a boolean or enum
+          },
+        });
+      }
+
+      return {
+        ...course,
+        isEnrolled,
+        attendanceCount,
+      } as Course & {
+        isEnrolled: boolean;
+        attendanceCount: number;
+      };
     }
+
     return null;
   }
 
