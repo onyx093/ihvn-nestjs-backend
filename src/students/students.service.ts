@@ -44,6 +44,7 @@ export class StudentsService {
       skip: (page - 1) * limit,
       take: limit,
       order: { referenceNumber: 'ASC' },
+      relations: { user: true },
     });
 
     return {

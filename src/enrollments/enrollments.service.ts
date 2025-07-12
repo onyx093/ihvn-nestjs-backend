@@ -167,7 +167,10 @@ export class EnrollmentsService {
   }
 
   async restore(id: string): Promise<void> {
-    const enrollment = await this.enrollmentRepository.findOneBy({ id });
+    const enrollment = await this.enrollmentRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!enrollment) {
       throw new NotFoundException(errors.notFound('Enrollment not found'));
     }
@@ -178,19 +181,30 @@ export class EnrollmentsService {
     studentId: string,
     cohortId: string,
     courseId: string
-  ): Promise<boolean> {
+  ): Promise<{ isDeleted: boolean; enrollment: Enrollment | null }> {
     const enrollment = await this.enrollmentRepository.findOne({
       where: {
         student: { id: studentId },
         cohort: { id: cohortId },
         cohortCourse: { course: { id: courseId } },
       },
+      relations: {
+        student: true,
+        cohort: true,
+        cohortCourse: { course: true },
+      },
+      withDeleted: true, // 👈 Include soft-deleted rows
     });
 
     if (!enrollment) {
-      return false;
+      return { isDeleted: false, enrollment };
     }
 
-    return true;
+    // Explicitly check if soft-deleted
+    if (enrollment.unenrolledAt !== null) {
+      return { isDeleted: true, enrollment };
+    }
+
+    return { isDeleted: false, enrollment };
   }
 }
