@@ -87,22 +87,34 @@ export class LessonService {
 
     const preparedLessons: Lesson[] = [];
 
-    for (const course of activeCohort.cohortCourses.map((cc) => cc.course)) {
+    for (const cohortCourse of activeCohort.cohortCourses) {
+      const course = cohortCourse.course;
       const schedules = course.schedules;
 
       const start = new Date(activeCohort.startDate);
-      const end = new Date(activeCohort.endDate);
+      const cohortEnd = new Date(activeCohort.endDate);
+
+      const courseDurationWeeks = course.estimatedDurationForCompletion || 0;
+      const courseDurationMs = courseDurationWeeks * 7 * 24 * 60 * 60 * 1000;
+
+      // Calculate course end date limited by cohort end date
+      const tentativeEndDate = new Date(start.getTime() + courseDurationMs);
+      const courseEndDate =
+        tentativeEndDate > cohortEnd ? cohortEnd : tentativeEndDate;
 
       let lessonNumber = 1;
 
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dayName = d.toLocaleDateString('en-US', {
-          weekday: 'long',
-        });
+      for (
+        let d = new Date(start);
+        d <= courseEndDate;
+        d.setDate(d.getDate() + 1)
+      ) {
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
 
         const schedule = schedules.find(
           (s) => WeekDaysList[s.dayOfWeek] === dayName
         );
+
         if (schedule) {
           const dateStr = d.toISOString().split('T')[0];
 
@@ -131,6 +143,7 @@ export class LessonService {
     }
 
     const savedLessons = await this.lessonRepository.save(preparedLessons);
+
     if (savedLessons) {
       return {
         message: 'Lessons generated successfully',
@@ -277,42 +290,6 @@ export class LessonService {
       await this.lessonRepository.save(lessonsToCreate);
     }
   }
-
-  /* async generateLessons(cohortId: string): Promise<Lesson[]> {
-    const cohort = await this.cohortRepository.findOne({
-      where: { id: cohortId },
-      relations: ['course', 'course.schedules'],
-    });
-    
-    if (!cohort) throw new NotFoundException('Cohort not found');
-    if (!cohort.isActive) throw new Error('Cohort is not active');
-
-    // Delete existing lessons for regeneration
-    await this.lessonRepository.delete({ cohort: { id: cohortId } });
-
-    const lessons: Lesson[] = [];
-    const startDate = parseISO(cohort.startDate);
-    const endDate = parseISO(cohort.endDate);
-
-    for (const schedule of cohort.course.schedules) {
-      const dayNumber = this.getDayNumber(schedule.day);
-      let lessonDate = nextDay(startDate, dayNumber);
-
-      while (isBefore(lessonDate, endDate) {
-        lessons.push(this.lessonRepository.create({
-          cohort,
-          schedule,
-          date: formatISO(lessonDate, { representation: 'date' }),
-          startTime: schedule.startTime,
-          endTime: schedule.endTime,
-        }));
-        
-        lessonDate = addDays(lessonDate, 7); // Add 1 week
-      }
-    }
-
-    return this.lessonRepository.save(lessons);
-  } */
 
   async getCohortLessons(
     cohortId: string,
