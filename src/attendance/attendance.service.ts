@@ -340,6 +340,7 @@ export class AttendanceService {
       },
       where,
       order: {
+        name: 'ASC',
         date: 'DESC',
       },
     });

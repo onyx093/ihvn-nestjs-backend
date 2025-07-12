@@ -270,6 +270,10 @@ export const Student = {
       'READ_LESSONS',
       'READ_ONE_LESSONS',
     ]),
+    ...mapSpecifiedEnumMembersToObjects(EnrollmentActions, EnrollmentSubject, [
+      'READ_ENROLLMENTS',
+      'READ_ONE_ENROLLMENTS',
+    ]),
     ...mapSpecifiedEnumMembersToObjects(AttendanceActions, AttendanceSubject, [
       'MARK_ATTENDANCE',
     ]),

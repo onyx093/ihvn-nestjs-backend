@@ -187,9 +187,9 @@ export class CoursesService {
     const cohort = cohortId
       ? await this.cohortService.findOne(cohortId)
       : await this.cohortService.findActive();
-    if (!cohort) {
+    /* if (!cohort) {
       throw new NotFoundException(errors.notFound('Cohort not found'));
-    }
+    } */
 
     if (userRoles.includes(PredefinedRoles.INSTRUCTOR)) {
       const instructor = await this.instructorRepository.findOneBy({
@@ -198,6 +198,10 @@ export class CoursesService {
 
       if (!instructor) {
         throw new NotFoundException(errors.notFound('Instructor not found'));
+      }
+
+      if (!cohort) {
+        return {} as InstructorCourseSearchResponseDto;
       }
 
       return this.getInstructorCourseSearch(
@@ -214,6 +218,10 @@ export class CoursesService {
 
       if (!student) {
         throw new NotFoundException(errors.notFound('Student not found'));
+      }
+
+      if (!cohort) {
+        return {} as StudentCourseSearchResponseDto;
       }
 
       return this.getStudentCourseSearch(student.id, searchTerm, cohort.id);
@@ -263,7 +271,6 @@ export class CoursesService {
     }
 
     const enrolledCoursesData = await enrolledCoursesQuery.getMany();
-    console.log('enrolledCoursesData:', enrolledCoursesData);
 
     const enrolledCourses = await Promise.all(
       enrolledCoursesData.map(async (enrollment) => {
@@ -830,28 +837,31 @@ export class CoursesService {
     }
 
     // Check if user is already enrolled in the course
-    const isAlreadyEnrolled =
+    const { isDeleted, enrollment: existEnrollment } =
       await this.enrollmentsService.isUserEnrolledInCourse(
-        dbUser.id,
+        student.id,
         cohort.id,
         course.id
       );
-    if (isAlreadyEnrolled) {
+
+    if (existEnrollment && !isDeleted) {
       throw new ConflictException(
         errors.conflictError('User already enrolled in course')
       );
-    }
-
-    // Create enrollment for the user
-    const enrollment = await this.enrollmentsService.create({
-      studentId: student.id,
-      cohortId: cohort.id,
-      courseId: course.id,
-    });
-    if (!enrollment) {
-      throw new InternalServerErrorException(
-        errors.serverError('Failed to enroll user in course')
-      );
+    } else if (existEnrollment && isDeleted) {
+      await this.enrollmentsService.restore(existEnrollment.id);
+    } else {
+      // Create enrollment for the user
+      const enrollment = await this.enrollmentsService.create({
+        studentId: student.id,
+        cohortId: cohort.id,
+        courseId: course.id,
+      });
+      if (!enrollment) {
+        throw new InternalServerErrorException(
+          errors.serverError('Failed to enroll user in course')
+        );
+      }
     }
   }
 
@@ -871,10 +881,17 @@ export class CoursesService {
       throw new ForbiddenException(errors.forbiddenAccess('Permission denied'));
     }
 
+    const student = await this.studentRepository.findOneBy({
+      user: { id: dbUser.id },
+    });
+    if (!student) {
+      throw new NotFoundException(errors.notFound('Student not found'));
+    }
+
     const cohort = await this.cohortService.findActive();
     if (!cohort) {
       throw new BadRequestException(
-        errors.validationFailed('No cohort is active a the moment')
+        errors.validationFailed('No cohort is active at the moment')
       );
     }
 
@@ -886,13 +903,14 @@ export class CoursesService {
       throw new NotFoundException(errors.notFound('Cohort course not found'));
     }
 
-    const isAlreadyEnrolled = this.enrollmentsService.isUserEnrolledInCourse(
-      dbUser.id,
-      cohort.id,
-      course.id
-    );
-    if (isAlreadyEnrolled) {
-      await this.enrollmentsService.softDelete(id);
+    const { isDeleted, enrollment: existingEnrollment } =
+      await this.enrollmentsService.isUserEnrolledInCourse(
+        student.id,
+        cohort.id,
+        course.id
+      );
+    if (existingEnrollment && !isDeleted) {
+      await this.enrollmentsService.softDelete(existingEnrollment.id);
     } else {
       throw new NotFoundException(
         errors.notFound('User not enrolled in course')
