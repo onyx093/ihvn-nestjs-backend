@@ -13,9 +13,9 @@ import {
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { Subject } from '@/decorators/subject.decorator';
-import { Permission } from '@/decorators/permission.decorator';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
+import { Subject } from '../decorators/subject.decorator';
+import { Permission } from '../decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
 import {
   PermissionActions,
   PermissionSubject,

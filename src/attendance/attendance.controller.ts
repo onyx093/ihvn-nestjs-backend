@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
   Post,
   Query,
   UseGuards,
@@ -13,21 +12,19 @@ import {
 import { AttendanceService } from './attendance.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { Attendance } from './entities/attendance.entity';
-import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import {
   AttendanceActions,
   AttendanceSubject,
 } from './actions/attendance.action';
-import { Subject } from '@/decorators/subject.decorator';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
+import { Subject } from '../decorators/subject.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
-import { CurrentUser } from '@/auth/decorators/current-user.decorator';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 import { ConfirmAttendanceDto } from './dto/confirm-attendance.dto';
-import { get } from 'http';
 import { GetAttendanceListDto } from './dto/get-attendance-list.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Subject(AttendanceSubject.NAME)
 @Controller('attendance')

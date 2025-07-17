@@ -1,4 +1,4 @@
-import { WeekDay } from '@/enums/week-day.enum';
+import { WeekDay } from '../../enums/week-day.enum';
 import {
   IsEnum,
   IsNotEmpty,

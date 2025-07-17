@@ -13,13 +13,13 @@ import {
 import { CohortCoursesService } from './cohort-courses.service';
 import { CreateCohortCourseDto } from './dto/create-cohort-course.dto';
 import { UpdateCohortCourseDto } from './dto/update-cohort-course.dto';
-import { Subject } from '@/decorators/subject.decorator';
+import { Subject } from '../decorators/subject.decorator';
 import {
   CohortCourseActions,
   CohortCourseSubject,
 } from './actions/cohort-courses.actions';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
 
 @Subject(CohortCourseSubject.NAME)
 @Controller('cohorts/:cohortId/cohort-courses')

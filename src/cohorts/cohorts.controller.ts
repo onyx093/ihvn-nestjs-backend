@@ -14,11 +14,11 @@ import {
 import { CohortsService } from './cohorts.service';
 import { CreateCohortDto } from './dto/create-cohort.dto';
 import { UpdateCohortDto } from './dto/update-cohort.dto';
-import { Subject } from '@/decorators/subject.decorator';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
+import { Subject } from '../decorators/subject.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
 import { CohortActions, CohortSubject } from './actions/cohort.actions';
-import { Permission } from '@/decorators/permission.decorator';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { Permission } from '../decorators/permission.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Subject(CohortSubject.NAME)
 @Controller('cohorts')

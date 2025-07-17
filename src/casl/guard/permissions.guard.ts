@@ -1,7 +1,7 @@
-import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
-import errors from '@/config/errors.config';
-import { PERMISSION_METADATA } from '@/decorators/permission.decorator';
-import { SUBJECT_METADATA } from '@/decorators/subject.decorator';
+import { CaslAbilityFactory } from '../../casl/casl-ability.factory';
+import errors from '../../config/errors.config';
+import { PERMISSION_METADATA } from '../../decorators/permission.decorator';
+import { SUBJECT_METADATA } from '../../decorators/subject.decorator';
 import {
   CanActivate,
   ExecutionContext,

@@ -3,7 +3,7 @@ import { CourseSchedulesService } from './course-schedules.service';
 import { CourseSchedulesController } from './course-schedules.controller';
 import { CourseSchedule } from './entities/course-schedule.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CASLModule } from '@/casl/casl.module';
+import { CASLModule } from '../casl/casl.module';
 import { Course } from '../courses/entities/course.entity';
 
 @Module({

@@ -1,4 +1,4 @@
-import { AttendanceStatus } from '@/enums/attendance.enum';
+import { AttendanceStatus } from '../../enums/attendance.enum';
 import {
   IsEnum,
   IsNotEmpty,

@@ -10,9 +10,9 @@ import { UpdateCohortCourseDto } from './dto/update-cohort-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CohortCourse } from './entities/cohort-course.entity';
-import errors from '@/config/errors.config';
-import { CohortsService } from '@/cohorts/cohorts.service';
-import { CoursesService } from '@/courses/courses.service';
+import errors from '../config/errors.config';
+import { CohortsService } from '../cohorts/cohorts.service';
+import { CoursesService } from '../courses/courses.service';
 
 @Injectable()
 export class CohortCoursesService {

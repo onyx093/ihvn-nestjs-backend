@@ -55,3 +55,22 @@ export const mapSpecifiedEnumMembersToObjects = (
 
 export const randomize = <T>(arr: T[]): T =>
   arr[Math.floor(Math.random() * arr.length)];
+
+// Function to get database host based on context
+export const getDatabaseHost = (): string => {
+  // Check if we're running in a seeder context (you can set this env var when running seeders)
+  if (process.env.SEEDER_CONTEXT === 'true') {
+    return process.env.POSTGRES_HOST || 'localhost';
+  }
+
+  // Check if we're in Docker (app context)
+  if (
+    process.env.NODE_ENV === 'production' ||
+    process.env.DOCKER_CONTEXT === 'true'
+  ) {
+    return process.env.DOCKER_POSTGRES_HOST || 'postgres';
+  }
+
+  // Default to localhost for development
+  return process.env.DOCKER_POSTGRES_HOST || 'postgres';
+};

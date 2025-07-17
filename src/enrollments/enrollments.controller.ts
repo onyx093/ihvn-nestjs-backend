@@ -14,14 +14,14 @@ import {
 import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { Subject } from '@/decorators/subject.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { Subject } from '../decorators/subject.decorator';
 import {
   EnrollmentActions,
   EnrollmentSubject,
 } from './actions/enrollments.actions';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
 
 @Subject(EnrollmentSubject.NAME)
 @Controller('enrollments')

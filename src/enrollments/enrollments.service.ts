@@ -11,11 +11,11 @@ import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enrollment } from './entities/enrollment.entity';
 import { Repository } from 'typeorm';
-import { CohortsService } from '@/cohorts/cohorts.service';
-import { StudentsService } from '@/students/students.service';
-import errors from '@/config/errors.config';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { CohortsService } from '../cohorts/cohorts.service';
+import { StudentsService } from '../students/students.service';
+import errors from '../config/errors.config';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { CohortCourse } from '../cohort-courses/entities/cohort-course.entity';
 
 @Injectable()

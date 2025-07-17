@@ -8,5 +8,5 @@ export const pgConfig: PostgresConnectionOptions = {
   url: configService.getOrThrow('DATABASE_URL'),
   port: configService.getOrThrow('POSTGRES_PORT'),
   entities: [],
-  synchronize: configService.get('MODE') === 'DEV' ? true : false,
+  synchronize: configService.get('MODE') === 'DEV' ? false : false,
 };

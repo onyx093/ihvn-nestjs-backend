@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 import { In, Repository } from 'typeorm';
 import { Permission } from '../permissions/entities/permission.entity';
-import errors from '@/config/errors.config';
+import errors from '../config/errors.config';
 
 @Injectable()
 export class RolesService {

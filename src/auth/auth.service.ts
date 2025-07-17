@@ -12,10 +12,10 @@ import { AuthJWTPayload } from './types/auth-jwt-payload';
 import { JwtService } from '@nestjs/jwt';
 import refreshConfig from './config/refresh.config';
 import { ConfigType } from '@nestjs/config';
-import { AuthCredentialsSchema } from '@/schemas/auth.schema';
+import { AuthCredentialsSchema } from '../schemas/auth.schema';
 import { ZodError } from 'zod';
-import errors from '@/config/errors.config';
-import { CreateStudentUserDto } from '@/users/dto/create-student-user.dto';
+import errors from '../config/errors.config';
+import { CreateStudentUserDto } from '../users/dto/create-student-user.dto';
 
 @Injectable()
 export class AuthService {

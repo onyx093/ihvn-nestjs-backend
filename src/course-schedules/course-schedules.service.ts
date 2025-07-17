@@ -11,10 +11,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CourseSchedule } from './entities/course-schedule.entity';
 import { Repository } from 'typeorm';
 import { Course } from '../courses/entities/course.entity';
-import { WeekDay } from '@/enums/week-day.enum';
-import errors from '@/config/errors.config';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { WeekDay } from '../enums/week-day.enum';
+import errors from '../config/errors.config';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class CourseSchedulesService {

@@ -14,15 +14,14 @@ import {
 import { InstructorsService } from './instructors.service';
 import { CreateInstructorDto } from './dto/create-instructor.dto';
 import { UpdateInstructorDto } from './dto/update-instructor.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { Subject } from '@/decorators/subject.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { Subject } from '../decorators/subject.decorator';
 import {
   InstructorActions,
   InstructorSubject,
 } from './actions/instructors.actions';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { permission } from 'process';
-import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
 
 @Subject(InstructorSubject.NAME)
 @Controller('instructors')

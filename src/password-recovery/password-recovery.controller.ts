@@ -3,7 +3,7 @@ import { PasswordRecoveryService } from './password-recovery.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { Public } from '@/auth/decorators/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('password-recovery')
 export class PasswordRecoveryController {

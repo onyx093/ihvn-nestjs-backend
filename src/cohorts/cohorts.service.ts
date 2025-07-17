@@ -9,13 +9,13 @@ import { UpdateCohortDto } from './dto/update-cohort.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, Repository } from 'typeorm';
 import { Cohort } from './entities/cohort.entity';
-import { slugify } from '@/lib/helpers';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
-import errors from '@/config/errors.config';
+import { slugify } from '../lib/helpers';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
+import errors from '../config/errors.config';
 import { Course } from '../courses/entities/course.entity';
-import { CohortCourse } from '@/cohort-courses/entities/cohort-course.entity';
-import { CohortStatus } from '@/enums/cohort-status.enum';
+import { CohortCourse } from '../cohort-courses/entities/cohort-course.entity';
+import { CohortStatus } from '../enums/cohort-status.enum';
 
 @Injectable()
 export class CohortsService {

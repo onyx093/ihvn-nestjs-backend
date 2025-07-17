@@ -16,14 +16,14 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Subject } from '@/decorators/subject.decorator';
-import { Permission } from '@/decorators/permission.decorator';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
+import { Subject } from '../decorators/subject.decorator';
+import { Permission } from '../decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
 import { UserActions, UserSubject } from './actions/users.action';
-import errors from '@/config/errors.config';
+import errors from '../config/errors.config';
 import { CreateStudentUserDto } from './dto/create-student-user.dto';
 import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Subject(UserSubject.NAME)
 @Controller('users')

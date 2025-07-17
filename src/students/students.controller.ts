@@ -14,11 +14,11 @@ import {
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { Subject } from '@/decorators/subject.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { Subject } from '../decorators/subject.decorator';
 import { StudentActions, StudentSubject } from './actions/students.actions';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
 
 @Subject(StudentSubject.NAME)
 @Controller('students')

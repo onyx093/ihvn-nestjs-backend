@@ -13,7 +13,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Role } from '../roles/entities/role.entity';
 import { PredefinedRoles } from '../enums/role.enum';
-import errors from '@/config/errors.config';
+import errors from '../config/errors.config';
 import { Account } from './entities/account.entity';
 import { generate } from 'generate-password';
 import { Student } from '../students/entities/student.entity';
@@ -21,9 +21,9 @@ import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { CreateStudentUserDto } from './dto/create-student-user.dto';
 import { CreateNonStudentUserDto } from './dto/create-non-student-user.dto';
 import { Instructor } from '../instructors/entities/instructor.entity';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
-import { StudentsService } from '@/students/students.service';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
+import { StudentsService } from '../students/students.service';
 
 @Injectable()
 export class UsersService {

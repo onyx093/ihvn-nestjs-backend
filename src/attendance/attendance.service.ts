@@ -8,24 +8,24 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { Attendance } from './entities/attendance.entity';
-import errors from '@/config/errors.config';
+import errors from '../config/errors.config';
 import { Student } from '../students/entities/student.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
-import { AttendanceStatus } from '@/enums/attendance.enum';
+import { AttendanceStatus } from '../enums/attendance.enum';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
 import { ConfirmAttendanceDto } from './dto/confirm-attendance.dto';
-import { InstructorsService } from '@/instructors/instructors.service';
-import { Course } from '@/courses/entities/course.entity';
-import { CohortsService } from '@/cohorts/cohorts.service';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { InstructorsService } from '../instructors/instructors.service';
+import { Course } from '../courses/entities/course.entity';
+import { CohortsService } from '../cohorts/cohorts.service';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { endOfDay, startOfDay } from 'date-fns';
 import { GetAttendanceListDto } from './dto/get-attendance-list.dto';
-import { LessonWithAttendanceCounts } from '@/types/lesson.type';
+import { LessonWithAttendanceCounts } from '../types/lesson.type';
 
 @Injectable()
 export class AttendanceService {
@@ -316,7 +316,7 @@ export class AttendanceService {
   ): Promise<PaginationResult<LessonWithAttendanceCounts>> {
     const { courseId, dateRange } = getAttendanceListDto;
 
-    // Build date range
+    // Build date range for lesson dates
     const now = new Date();
     const start = dateRange?.startDate
       ? startOfDay(new Date(dateRange.startDate))
@@ -325,11 +325,15 @@ export class AttendanceService {
       ? endOfDay(new Date(dateRange.endDate))
       : endOfDay(now);
 
+    // Build where clause - filter lessons by their date, not attendance createdAt
     const where: FindOptionsWhere<Lesson> = {
       ...(courseId && { course: { id: courseId } }),
+      date: Between(start, end), // Filter lessons by their scheduled date
     };
 
     const { page, limit } = paginationDto;
+
+    // Get lessons with their attendances
     const [data, total] = await this.lessonRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
@@ -340,22 +344,19 @@ export class AttendanceService {
       },
       where,
       order: {
+        date: 'DESC', // Order by lesson date primarily
         name: 'ASC',
-        date: 'DESC',
       },
     });
 
-    console.log(data.length);
-
-    // Now filter attendances manually by createdAt range
+    // Calculate attendance counts for each lesson
     const lessonsWithCounts = data.map((lesson) => {
-      const attendances = (lesson.attendances || []).filter(
-        (a) => a.createdAt >= start && a.createdAt <= end
-      );
+      const attendances = lesson.attendances || [];
 
       const presentCount = attendances.filter(
         (a) => a.status === AttendanceStatus.PRESENT
       ).length;
+
       const absentCount = attendances.filter(
         (a) => a.status === AttendanceStatus.ABSENT
       ).length;
@@ -364,6 +365,7 @@ export class AttendanceService {
         ...lesson,
         presentCount,
         absentCount,
+        totalStudents: attendances.length, // Total students who have attendance records
       };
     });
 

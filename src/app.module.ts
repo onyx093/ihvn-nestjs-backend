@@ -11,9 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { CoursesModule } from './courses/courses.module';
-import { EventsModule } from './events/events.module';
 import { AttendanceModule } from './attendance/attendance.module';
-import { FileUploadModule } from './file-upload/file-upload.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CohortsModule } from './cohorts/cohorts.module';
 import { LessonModule } from './lesson/lesson.module';
@@ -76,9 +74,7 @@ const configService = new ConfigService();
     PermissionsModule,
     RolesModule,
     CoursesModule,
-    EventsModule,
     AttendanceModule,
-    FileUploadModule,
     CohortsModule,
     LessonModule,
     EnrollmentsModule,

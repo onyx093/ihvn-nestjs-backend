@@ -12,19 +12,19 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
 import { Brackets, ILike, In, IsNull, Not, Repository } from 'typeorm';
-import { slugify } from '@/lib/helpers';
-import errors from '@/config/errors.config';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { slugify } from '../lib/helpers';
+import errors from '../config/errors.config';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { CourseStatus } from '../enums/course-status.enum';
-import { InstructorsService } from '@/instructors/instructors.service';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
-import { UsersService } from '@/users/users.service';
-import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
+import { InstructorsService } from '../instructors/instructors.service';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
+import { UsersService } from '../users/users.service';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { CourseActions, CourseSubject } from './actions/courses.actions';
-import { CohortsService } from '@/cohorts/cohorts.service';
-import { CohortCoursesService } from '@/cohort-courses/cohort-courses.service';
-import { EnrollmentsService } from '@/enrollments/enrollments.service';
+import { CohortsService } from '../cohorts/cohorts.service';
+import { CohortCoursesService } from '../cohort-courses/cohort-courses.service';
+import { EnrollmentsService } from '../enrollments/enrollments.service';
 import {
   AdminCourseSearchResponseDto,
   CourseResponseDto,
@@ -35,12 +35,12 @@ import {
 } from './dto/search-course.dto';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
-import { PredefinedRoles } from '@/enums/role.enum';
+import { PredefinedRoles } from '../enums/role.enum';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
-import { CohortStatus } from '@/enums/cohort-status.enum';
-import { AttendanceStatus } from '@/enums/attendance.enum';
+import { CohortStatus } from '../enums/cohort-status.enum';
+import { AttendanceStatus } from '../enums/attendance.enum';
 
 @Injectable()
 export class CoursesService {
@@ -67,17 +67,15 @@ export class CoursesService {
 
   async create(
     createCourseDto: CreateCourseDto,
-    file: Express.Multer.File,
     user: CurrentUserInfo
   ): Promise<Course> {
-    /* if (!file) {
-      throw new BadRequestException(
-        errors.validationFailed('A thumbnail is required')
-      );
-    } */
-
-    const { name, description, instructorId, estimatedDurationForCompletion } =
-      createCourseDto;
+    const {
+      name,
+      description,
+      instructorId,
+      estimatedDurationForCompletion,
+      thumbnail,
+    } = createCourseDto;
 
     const instructor = await this.instructorService.findOne(instructorId);
 
@@ -96,28 +94,13 @@ export class CoursesService {
     }
 
     const slug = slugify(name);
-    let thumbnailPath = null;
-    /* console.log('File:', file);
-    console.log('File.path:', file.path);
-    console.log('File.filename:', file.filename);
-    console.log('File.originalname:', file.originalname);
-    console.log('File.mimetype:', file.mimetype);
-    console.log('File.size:', file.size);
-    console.log('File.destination:', file.destination);
-    console.log('File.buffer:', file.buffer);
-    console.log('File.encoding:', file.encoding);
-    console.log('File.fieldname:', file.fieldname);
-    console.log('File.stream:', file.stream); */
 
-    if (file) {
-      thumbnailPath = `/thumbnails/${file.filename}`;
-    }
     const course = this.courseRepository.create({
       name,
       description,
       estimatedDurationForCompletion,
       slug,
-      thumbnail: thumbnailPath,
+      thumbnail,
     });
     course.instructor = instructor;
     course.createdBy = dbUser;
@@ -125,7 +108,6 @@ export class CoursesService {
       return this.courseRepository.save(course);
     } catch (error) {
       // Cleanup uploaded file if save fails
-      fs.unlinkSync(file.path);
       throw new InternalServerErrorException(
         errors.serverError('Failed to create course')
       );
@@ -662,7 +644,6 @@ export class CoursesService {
   async update(
     id: string,
     updateCourseDto: UpdateCourseDto,
-    file: Express.Multer.File,
     user: CurrentUserInfo
   ): Promise<Course> {
     const course = await this.courseRepository.findOneBy({ id });
@@ -670,8 +651,13 @@ export class CoursesService {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
 
-    const { name, description, instructorId, estimatedDurationForCompletion } =
-      updateCourseDto;
+    const {
+      name,
+      description,
+      instructorId,
+      estimatedDurationForCompletion,
+      thumbnail,
+    } = updateCourseDto;
 
     let instructor = await this.instructorService.findOne(instructorId);
 
@@ -686,33 +672,21 @@ export class CoursesService {
       }
     }
 
-    /* if (!course.thumbnail && !thumbnail?.filename) {
-      throw new BadRequestException(
-        errors.validationFailed('A valid thumbnail is required')
-      );
-    } */
-
-    let thumbnailPath = null;
-    if (file) {
-      thumbnailPath = `/thumbnails/${file.filename}`;
-    }
     const updatedCourse = {
       ...course,
       name: updateCourseDto.name ?? course.name,
-      description: updateCourseDto.description ?? course.description,
+      description: description ?? course.description,
       estimatedDurationForCompletion:
-        updateCourseDto.estimatedDurationForCompletion ??
-        course.estimatedDurationForCompletion,
+        estimatedDurationForCompletion ?? course.estimatedDurationForCompletion,
       instructor: instructor ?? course.instructor,
       slug: updateCourseDto.name ? slugify(name) : course.slug,
-      thumbnail: thumbnailPath ?? null,
+      thumbnail,
       updatedAt: new Date(),
     };
     try {
       return this.courseRepository.save(updatedCourse);
     } catch (error) {
       // Cleanup uploaded file if save fails
-      fs.unlinkSync(file.path);
       throw new InternalServerErrorException(
         errors.serverError('Failed to update course')
       );

@@ -4,8 +4,8 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './entities/student.entity';
 import { Between, EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 
 @Injectable()
 export class StudentsService {

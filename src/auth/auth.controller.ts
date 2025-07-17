@@ -16,7 +16,7 @@ import { RefreshAuthGuard } from './guards/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response } from 'express';
 import { Public } from './decorators/public.decorator';
-import { CreateStudentUserDto } from '@/users/dto/create-student-user.dto';
+import { CreateStudentUserDto } from '../users/dto/create-student-user.dto';
 // import { Role } from '../enums/role.enum';
 
 @Controller('auth')
