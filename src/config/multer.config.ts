@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { extname } from 'path';
 import * as mkdirp from 'mkdirp';
 import { MulterModuleOptions } from '@nestjs/platform-express';
-import { FILE_UPLOAD_DIR } from '@/lib/constants';
+import { FILE_UPLOAD_DIR } from '../lib/constants';
 
 const uploadDir = FILE_UPLOAD_DIR;
 

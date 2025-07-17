@@ -11,13 +11,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { LessonService } from './lesson.service';
-import { Subject } from '@/decorators/subject.decorator';
+import { Subject } from '../decorators/subject.decorator';
 import { LessonActions, LessonSubject } from './actions/lesson.actions';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
 import { PaginationDto } from '@/common/dto/pagination.dto';
-import { CurrentUser } from '@/auth/decorators/current-user.decorator';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 
 @Subject(LessonSubject.NAME)
 @Controller('lessons')

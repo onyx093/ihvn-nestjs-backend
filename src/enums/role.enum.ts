@@ -1,4 +1,3 @@
-import { EventActions, EventSubject } from '../events/actions/events.action';
 import {
   CourseActions,
   CourseSubject,
@@ -61,7 +60,6 @@ export const SuperAdmin = {
     ...mapEnumToObjects(UserActions, UserSubject),
     ...mapEnumToObjects(RoleActions, RoleSubject),
     ...mapEnumToObjects(CourseActions, CourseSubject),
-    ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
@@ -80,7 +78,6 @@ export const Admin = {
     ...mapEnumToObjects(UserActions, UserSubject),
     ...mapEnumToObjects(RoleActions, RoleSubject),
     ...mapEnumToObjects(CourseActions, CourseSubject),
-    ...mapEnumToObjects(EventActions, EventSubject),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapEnumToObjects(CohortActions, CohortSubject),
     ...mapEnumToObjects(CourseScheduleActions, CourseScheduleSubject),
@@ -105,12 +102,6 @@ export const Editor = {
       'READ_ONE_COURSES',
       'CREATE_COURSES',
       'UPDATE_COURSES',
-    ]),
-    ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
-      'READ_EVENTS',
-      'READ_ONE_EVENTS',
-      'CREATE_EVENTS',
-      'UPDATE_EVENTS',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',
@@ -150,10 +141,6 @@ export const Instructor = {
       'READ_COURSES',
       'READ_ONE_COURSES',
       'SEARCH_COURSES',
-    ]),
-    ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
-      'READ_EVENTS',
-      'READ_ONE_EVENTS',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',
@@ -207,10 +194,6 @@ export const Receptionist = {
       'READ_COURSES',
       'READ_ONE_COURSES',
     ]),
-    ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
-      'READ_EVENTS',
-      'READ_ONE_EVENTS',
-    ]),
     ...mapEnumToObjects(AttendanceActions, AttendanceSubject),
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',
@@ -242,10 +225,6 @@ export const Student = {
       'ENROLL_COURSES',
       'UNENROLL_COURSES',
       'SEARCH_COURSES',
-    ]),
-    ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
-      'READ_EVENTS',
-      'READ_ONE_EVENTS',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',
@@ -291,10 +270,6 @@ export const Guest = {
     ...mapSpecifiedEnumMembersToObjects(CourseActions, CourseSubject, [
       'READ_COURSES',
       'READ_ONE_COURSES',
-    ]),
-    ...mapSpecifiedEnumMembersToObjects(EventActions, EventSubject, [
-      'READ_EVENTS',
-      'READ_ONE_EVENTS',
     ]),
     ...mapSpecifiedEnumMembersToObjects(CohortActions, CohortSubject, [
       'READ_COHORTS',

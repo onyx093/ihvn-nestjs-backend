@@ -8,24 +8,24 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { Attendance } from './entities/attendance.entity';
-import errors from '@/config/errors.config';
+import errors from '../config/errors.config';
 import { Student } from '../students/entities/student.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
-import { AttendanceStatus } from '@/enums/attendance.enum';
+import { AttendanceStatus } from '../enums/attendance.enum';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
 import { ConfirmAttendanceDto } from './dto/confirm-attendance.dto';
-import { InstructorsService } from '@/instructors/instructors.service';
-import { Course } from '@/courses/entities/course.entity';
-import { CohortsService } from '@/cohorts/cohorts.service';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { InstructorsService } from '../instructors/instructors.service';
+import { Course } from '../courses/entities/course.entity';
+import { CohortsService } from '../cohorts/cohorts.service';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { endOfDay, startOfDay } from 'date-fns';
 import { GetAttendanceListDto } from './dto/get-attendance-list.dto';
-import { LessonWithAttendanceCounts } from '@/types/lesson.type';
+import { LessonWithAttendanceCounts } from '../types/lesson.type';
 
 @Injectable()
 export class AttendanceService {

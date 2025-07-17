@@ -17,16 +17,16 @@ import {
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { Subject } from '@/decorators/subject.decorator';
+import { Subject } from '../decorators/subject.decorator';
 import { CourseActions, CourseSubject } from './actions/courses.actions';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
-import errors from '@/config/errors.config';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
+import errors from '../config/errors.config';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileCleanupInterceptor } from '@/interceptors/file-cleanup.interceptor';
-import { CurrentUser } from '@/auth/decorators/current-user.decorator';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { FileCleanupInterceptor } from '../interceptors/file-cleanup.interceptor';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 import { SearchCourseDto } from './dto/search-course.dto';
 
 @Subject(CourseSubject.NAME)

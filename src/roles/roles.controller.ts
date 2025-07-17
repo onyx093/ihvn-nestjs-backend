@@ -13,9 +13,9 @@ import {
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Subject } from '@/decorators/subject.decorator';
-import { Permission } from '@/decorators/permission.decorator';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
+import { Subject } from '../decorators/subject.decorator';
+import { Permission } from '../decorators/permission.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
 import { RoleActions, RoleSubject } from './actions/roles.action';
 
 @Subject(RoleSubject.NAME)

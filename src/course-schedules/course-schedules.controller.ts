@@ -18,10 +18,10 @@ import {
   CourseScheduleActions,
   CourseScheduleSubject,
 } from './actions/course-schedules.actions';
-import { Subject } from '@/decorators/subject.decorator';
-import { PermissionsGuard } from '@/casl/guard/permissions.guard';
-import { Permission } from '@/decorators/permission.decorator';
-import { PaginationDto } from '@/common/dto/pagination.dto';
+import { Subject } from '../decorators/subject.decorator';
+import { PermissionsGuard } from '../casl/guard/permissions.guard';
+import { Permission } from '../decorators/permission.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Subject(CourseScheduleSubject.NAME)
 @Controller('courses/:courseId/schedules')

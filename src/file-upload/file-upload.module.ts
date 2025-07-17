@@ -1,4 +1,4 @@
-import { multerConfig } from '@/config/multer.config';
+import { multerConfig } from '../config/multer.config';
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 

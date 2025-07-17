@@ -9,18 +9,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Lesson } from './entities/lesson.entity';
 import { Course } from '../courses/entities/course.entity';
 import { In, Repository } from 'typeorm';
-import { WeekDay, WeekDaysList } from '@/enums/week-day.enum';
-import errors from '@/config/errors.config';
-import { CohortStatus } from '@/enums/cohort-status.enum';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
+import { WeekDay, WeekDaysList } from '../enums/week-day.enum';
+import errors from '../config/errors.config';
+import { CohortStatus } from '../enums/cohort-status.enum';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 import { LessonActions, LessonSubject } from './actions/lesson.actions';
-import { UsersService } from '@/users/users.service';
-import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
-import { PredefinedRoles } from '@/enums/role.enum';
+import { UsersService } from '../users/users.service';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { PredefinedRoles } from '../enums/role.enum';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { Student } from '../students/entities/student.entity';
-import { randomize } from '@/lib/util';
-import { colorCodes } from '@/lib/constants';
+import { randomize } from '../lib/util';
+import { colorCodes } from '../lib/constants';
 import { Attendance } from '../attendance/entities/attendance.entity';
 
 @Injectable()

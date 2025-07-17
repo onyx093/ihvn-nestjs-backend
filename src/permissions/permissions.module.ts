@@ -4,8 +4,8 @@ import { PermissionsController } from './permissions.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';
 import { DiscoveryModule } from '@nestjs/core';
-import { PermissionsExplorerService } from '@/services/explorer.service';
-import { CASLModule } from '@/casl/casl.module';
+import { PermissionsExplorerService } from '../services/explorer.service';
+import { CASLModule } from '../casl/casl.module';
 import { Role } from '../roles/entities/role.entity';
 
 @Module({

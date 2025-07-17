@@ -12,19 +12,19 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
 import { Brackets, ILike, In, IsNull, Not, Repository } from 'typeorm';
-import { slugify } from '@/lib/helpers';
-import errors from '@/config/errors.config';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { PaginationResult } from '@/common/interfaces/pagination-result.interface';
+import { slugify } from '../lib/helpers';
+import errors from '../config/errors.config';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationResult } from '../common/interfaces/pagination-result.interface';
 import { CourseStatus } from '../enums/course-status.enum';
-import { InstructorsService } from '@/instructors/instructors.service';
-import { CurrentUserInfo } from '@/common/interfaces/current-user-info.interface';
-import { UsersService } from '@/users/users.service';
-import { CaslAbilityFactory } from '@/casl/casl-ability.factory';
+import { InstructorsService } from '../instructors/instructors.service';
+import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
+import { UsersService } from '../users/users.service';
+import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { CourseActions, CourseSubject } from './actions/courses.actions';
-import { CohortsService } from '@/cohorts/cohorts.service';
-import { CohortCoursesService } from '@/cohort-courses/cohort-courses.service';
-import { EnrollmentsService } from '@/enrollments/enrollments.service';
+import { CohortsService } from '../cohorts/cohorts.service';
+import { CohortCoursesService } from '../cohort-courses/cohort-courses.service';
+import { EnrollmentsService } from '../enrollments/enrollments.service';
 import {
   AdminCourseSearchResponseDto,
   CourseResponseDto,
@@ -35,12 +35,12 @@ import {
 } from './dto/search-course.dto';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { Student } from '../students/entities/student.entity';
-import { PredefinedRoles } from '@/enums/role.enum';
+import { PredefinedRoles } from '../enums/role.enum';
 import { Instructor } from '../instructors/entities/instructor.entity';
 import { Lesson } from '../lesson/entities/lesson.entity';
 import { Attendance } from '../attendance/entities/attendance.entity';
-import { CohortStatus } from '@/enums/cohort-status.enum';
-import { AttendanceStatus } from '@/enums/attendance.enum';
+import { CohortStatus } from '../enums/cohort-status.enum';
+import { AttendanceStatus } from '../enums/attendance.enum';
 
 @Injectable()
 export class CoursesService {

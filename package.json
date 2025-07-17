@@ -20,10 +20,14 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
     "migration:create": "yarn typeorm migration:create",
-    "migration:generate": "yarn typeorm migration:generate --dataSource ./typeorm.config.ts ./src/database/migrations/${MIGRATION_NAME}",
-    "migration:run": "yarn typeorm migration:run -d ./typeorm.config.ts",
-    "migration:revert": "yarn typeorm migration:revert -d ./typeorm.config.ts",
-    "db:seed": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run  -d src/database/data-source.ts"
+    "premigration:generate": "yarn build",
+    "migration:generate": "yarn typeorm migration:generate -d src/database/data-source.ts -p",
+    "migration:run": "yarn typeorm migration:run -d src/database/data-source.ts",
+    "migration:revert": "yarn typeorm migration:revert -d src/database/data-source.ts",
+    "migration:show": "yarn typeorm migration:show -d src/database/data-source.ts",
+    "seed:run": "yarn typeorm seed:run -d src/database/data-source.ts",
+    "db:seed": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run  -d ./typeorm.config.ts",
+    "db:seed:permissions": "typeorm-extension seed:run -d ./typeorm.config.ts --seed=PermissionsRolesSeeder"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",

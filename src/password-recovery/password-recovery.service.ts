@@ -13,7 +13,7 @@ import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { hash } from 'argon2';
-import errors from '@/config/errors.config';
+import errors from '../config/errors.config';
 
 @Injectable()
 export class PasswordRecoveryService {

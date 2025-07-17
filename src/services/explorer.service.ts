@@ -1,5 +1,5 @@
-import { PERMISSION_METADATA } from '@/decorators/permission.decorator';
-import { SUBJECT_METADATA } from '@/decorators/subject.decorator';
+import { PERMISSION_METADATA } from '../decorators/permission.decorator';
+import { SUBJECT_METADATA } from '../decorators/subject.decorator';
 import {
   Admin,
   Editor,
@@ -75,16 +75,18 @@ export class PermissionsExplorerService implements OnApplicationBootstrap {
       const permissionList = permissionsBySubject[subject];
       for (const permission of permissionList) {
         // Check if the permission already exists
-        const existing = await this.permissionRepository.findOne({
-          where: { name: permission, subject },
-        });
-        if (!existing) {
-          const newPermission = this.permissionRepository.create({
-            name: permission,
-            subject: subject,
+        try {
+          const existing = await this.permissionRepository.findOne({
+            where: { name: permission, subject },
           });
-          await this.permissionRepository.save(newPermission);
-        }
+          if (!existing) {
+            const newPermission = this.permissionRepository.create({
+              name: permission,
+              subject: subject,
+            });
+            await this.permissionRepository.save(newPermission);
+          }
+        } catch (error) {}
       }
     }
   }
@@ -115,7 +117,7 @@ export class PermissionsExplorerService implements OnApplicationBootstrap {
           });
           if (!permissionEntity) {
             throw new Error(
-              `Permission not found for action "${permObj.action}" and subject "${permObj.subject}"`
+              `Permission is not found for action "${permObj.action}" and subject "${permObj.subject}"`
             );
           }
           return permissionEntity;
@@ -147,10 +149,10 @@ export class PermissionsExplorerService implements OnApplicationBootstrap {
 
   /**
    * Automatically called by Nest once the application is bootstrapped.
-   * You can also call persistPermissions() elsewhere if needed.
+   * You can also call persistPermissions() elsewhere if needed
    */
   async onApplicationBootstrap() {
-    await this.persistPermissions();
-    await this.persistRoles();
+    // await this.persistPermissions();
+    // await this.persistRoles();
   }
 }

@@ -8,7 +8,7 @@ import { BullModule } from '@nestjs/bull';
 import { EmailModule } from '../queues/email.module';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
-import { CASLModule } from '@/casl/casl.module';
+import { CASLModule } from '../casl/casl.module';
 import { DiscoveryModule } from '@nestjs/core';
 import { Account } from './entities/account.entity';
 import { Cohort } from '../cohorts/entities/cohort.entity';

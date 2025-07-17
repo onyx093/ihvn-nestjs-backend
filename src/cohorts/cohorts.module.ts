@@ -3,8 +3,8 @@ import { CohortsService } from './cohorts.service';
 import { CohortsController } from './cohorts.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cohort } from './entities/cohort.entity';
-import { CASLModule } from '@/casl/casl.module';
-import { LessonModule } from '@/lesson/lesson.module';
+import { CASLModule } from '../casl/casl.module';
+import { LessonModule } from '../lesson/lesson.module';
 import { Course } from '../courses/entities/course.entity';
 
 @Module({

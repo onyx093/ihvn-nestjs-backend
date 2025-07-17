@@ -148,7 +148,7 @@ describe('UserController (e2e)', () => {
           password: 'testpassword', // PostgreSQL password
           database: 'testdb', // Test database name
           entities: [__dirname + '/../src/**/*.entity{.ts,.js}'],
-          synchronize: true, // Sync schema (use only in tests)
+          synchronize: false, // Sync schema (use only in tests)
         }),
         BullModule.forRoot({
           redis: {
