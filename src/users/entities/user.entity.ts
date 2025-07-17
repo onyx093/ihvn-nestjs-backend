@@ -1,11 +1,13 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
   OneToOne,
+  UpdateDateColumn,
 } from 'typeorm';
 import { UserSetting } from './user-setting.entity';
 import { AbstractEntity } from '../../database/entities/abstract.entity';
@@ -47,8 +49,11 @@ export class User extends AbstractEntity<User> {
   @Column({ default: new Date() })
   createdAt: Date;
 
-  @Column({ default: new Date() })
+  @UpdateDateColumn({ default: new Date() })
   updatedAt: Date;
+
+  @DeleteDateColumn({ nullable: true, default: null })
+  deletedAt: Date;
 
   @OneToOne(() => UserSetting, { cascade: true })
   @JoinColumn()

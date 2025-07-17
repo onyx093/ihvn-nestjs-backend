@@ -187,8 +187,4 @@ export default class CohortSeeder implements Seeder {
       await enrollmentRepository.save(enrollment);
     }
   }
-
-  private checkEmailDuplicate(email: string) {
-    return false;
-  }
 }

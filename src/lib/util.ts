@@ -1,4 +1,5 @@
 import { ActionSubject } from '@/types/action-subject.type';
+import { config } from 'dotenv';
 
 export const enumToFilteredArray = <T extends Record<string, string | number>>(
   enumObj: T,
@@ -58,6 +59,7 @@ export const randomize = <T>(arr: T[]): T =>
 
 // Function to get database host based on context
 export const getDatabaseHost = (): string => {
+  config();
   // Check if we're running in a seeder context (you can set this env var when running seeders)
   if (process.env.SEEDER_CONTEXT === 'true') {
     return process.env.POSTGRES_HOST || 'localhost';
