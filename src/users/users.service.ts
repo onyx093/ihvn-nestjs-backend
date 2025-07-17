@@ -425,6 +425,25 @@ export class UsersService {
     await this.userRepository.delete(id);
   }
 
+  async softDelete(id: string): Promise<void> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+    await this.userRepository.softDelete(id);
+  }
+
+  async restore(id: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+    if (!user) {
+      throw new NotFoundException(errors.notFound('User not found'));
+    }
+    await this.userRepository.restore(id);
+  }
+
   async assignRoles(userId: string, roleIds: string[]): Promise<User> {
     const user = await this.findOne(userId);
     const roles = await this.roleRepository.findByIds(roleIds);
