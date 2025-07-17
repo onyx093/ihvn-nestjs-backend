@@ -23,8 +23,6 @@ import { PermissionsGuard } from '../casl/guard/permissions.guard';
 import { Permission } from '../decorators/permission.decorator';
 import errors from '../config/errors.config';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { FileCleanupInterceptor } from '../interceptors/file-cleanup.interceptor';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CurrentUserInfo } from '../common/interfaces/current-user-info.interface';
 import { SearchCourseDto } from './dto/search-course.dto';
@@ -36,15 +34,13 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Permission(CourseActions.CREATE_COURSES)
-  @UseInterceptors(FileInterceptor('thumbnail'), FileCleanupInterceptor)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @UploadedFile('thumbnail') file: Express.Multer.File,
     @Body() createCourseDto: CreateCourseDto,
     @CurrentUser() user: CurrentUserInfo
   ) {
-    return await this.coursesService.create(createCourseDto, file, user);
+    return await this.coursesService.create(createCourseDto, user);
   }
 
   @Permission(CourseActions.READ_COURSES)
@@ -79,16 +75,14 @@ export class CoursesController {
   }
 
   @Permission(CourseActions.UPDATE_COURSES)
-  @UseInterceptors(FileInterceptor('thumbnail'), FileCleanupInterceptor)
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   async update(
-    @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
     @Body() updateCourseDto: UpdateCourseDto,
     @CurrentUser() user: CurrentUserInfo
   ) {
-    return await this.coursesService.update(id, updateCourseDto, file, user);
+    return await this.coursesService.update(id, updateCourseDto, user);
   }
 
   @Permission(CourseActions.DELETE_COURSES)

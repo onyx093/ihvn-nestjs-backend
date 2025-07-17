@@ -67,17 +67,15 @@ export class CoursesService {
 
   async create(
     createCourseDto: CreateCourseDto,
-    file: Express.Multer.File,
     user: CurrentUserInfo
   ): Promise<Course> {
-    /* if (!file) {
-      throw new BadRequestException(
-        errors.validationFailed('A thumbnail is required')
-      );
-    } */
-
-    const { name, description, instructorId, estimatedDurationForCompletion } =
-      createCourseDto;
+    const {
+      name,
+      description,
+      instructorId,
+      estimatedDurationForCompletion,
+      thumbnail,
+    } = createCourseDto;
 
     const instructor = await this.instructorService.findOne(instructorId);
 
@@ -96,28 +94,13 @@ export class CoursesService {
     }
 
     const slug = slugify(name);
-    let thumbnailPath = null;
-    /* console.log('File:', file);
-    console.log('File.path:', file.path);
-    console.log('File.filename:', file.filename);
-    console.log('File.originalname:', file.originalname);
-    console.log('File.mimetype:', file.mimetype);
-    console.log('File.size:', file.size);
-    console.log('File.destination:', file.destination);
-    console.log('File.buffer:', file.buffer);
-    console.log('File.encoding:', file.encoding);
-    console.log('File.fieldname:', file.fieldname);
-    console.log('File.stream:', file.stream); */
 
-    if (file) {
-      thumbnailPath = `/thumbnails/${file.filename}`;
-    }
     const course = this.courseRepository.create({
       name,
       description,
       estimatedDurationForCompletion,
       slug,
-      thumbnail: thumbnailPath,
+      thumbnail,
     });
     course.instructor = instructor;
     course.createdBy = dbUser;
@@ -125,7 +108,6 @@ export class CoursesService {
       return this.courseRepository.save(course);
     } catch (error) {
       // Cleanup uploaded file if save fails
-      fs.unlinkSync(file.path);
       throw new InternalServerErrorException(
         errors.serverError('Failed to create course')
       );
@@ -662,7 +644,6 @@ export class CoursesService {
   async update(
     id: string,
     updateCourseDto: UpdateCourseDto,
-    file: Express.Multer.File,
     user: CurrentUserInfo
   ): Promise<Course> {
     const course = await this.courseRepository.findOneBy({ id });
@@ -670,8 +651,13 @@ export class CoursesService {
       throw new NotFoundException(errors.notFound('Course not found'));
     }
 
-    const { name, description, instructorId, estimatedDurationForCompletion } =
-      updateCourseDto;
+    const {
+      name,
+      description,
+      instructorId,
+      estimatedDurationForCompletion,
+      thumbnail,
+    } = updateCourseDto;
 
     let instructor = await this.instructorService.findOne(instructorId);
 
@@ -686,33 +672,21 @@ export class CoursesService {
       }
     }
 
-    /* if (!course.thumbnail && !thumbnail?.filename) {
-      throw new BadRequestException(
-        errors.validationFailed('A valid thumbnail is required')
-      );
-    } */
-
-    let thumbnailPath = null;
-    if (file) {
-      thumbnailPath = `/thumbnails/${file.filename}`;
-    }
     const updatedCourse = {
       ...course,
       name: updateCourseDto.name ?? course.name,
-      description: updateCourseDto.description ?? course.description,
+      description: description ?? course.description,
       estimatedDurationForCompletion:
-        updateCourseDto.estimatedDurationForCompletion ??
-        course.estimatedDurationForCompletion,
+        estimatedDurationForCompletion ?? course.estimatedDurationForCompletion,
       instructor: instructor ?? course.instructor,
       slug: updateCourseDto.name ? slugify(name) : course.slug,
-      thumbnail: thumbnailPath ?? null,
+      thumbnail,
       updatedAt: new Date(),
     };
     try {
       return this.courseRepository.save(updatedCourse);
     } catch (error) {
       // Cleanup uploaded file if save fails
-      fs.unlinkSync(file.path);
       throw new InternalServerErrorException(
         errors.serverError('Failed to update course')
       );
