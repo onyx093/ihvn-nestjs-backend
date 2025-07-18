@@ -50,6 +50,7 @@ const options: DataSourceOptions & SeederOptions = {
     Student,
     Instructor,
   ],
+  logging: ['query', 'error', 'schema', 'migration', 'log', 'info'],
 };
 
 export const dataSource = new DataSource(options);
