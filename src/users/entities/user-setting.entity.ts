@@ -1,7 +1,7 @@
 import { AbstractEntity } from '../../database/entities/abstract.entity';
 import { Column, Entity } from 'typeorm';
 
-@Entity({ name: 'user-settings' })
+@Entity({ name: 'user_settings' })
 export class UserSetting extends AbstractEntity<UserSetting> {
   @Column({ default: 'light' })
   theme: string;

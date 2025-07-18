@@ -8,5 +8,5 @@ export default registerAs(
     signOptions: {
       expiresIn: process.env.JWT_EXPIRES_IN,
     },
-  }),
+  })
 );

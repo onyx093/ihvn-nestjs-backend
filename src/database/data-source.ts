@@ -1,31 +1,15 @@
-import { Comment } from '../users/entities/comment.entity';
-import { UserSetting } from '../users/entities/user-setting.entity';
-import { User } from '../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { SeederOptions } from 'typeorm-extension';
+import { DataSource } from 'typeorm';
 
 config();
 
-const configService = new ConfigService();
-
-const options: DataSourceOptions & SeederOptions = {
-  type: 'postgres',
-  host: configService.getOrThrow('POSTGRES_HOST'),
-  port: configService.getOrThrow('POSTGRES_PORT'),
-  database: configService.getOrThrow('POSTGRES_DB'),
-  username: configService.getOrThrow('POSTGRES_USER'),
-  password: configService.getOrThrow('POSTGRES_PASSWORD'),
-
-  seeds: ['src/database/seeders/**/*{.ts,.js}'],
-  factories: ['src/database/factories/**/*{.ts,.js}'],
-};
-
-export const dataSource = new DataSource(options);
-
 export default new DataSource({
   type: 'postgres',
-
-  entities: [User, UserSetting, Comment],
+  url: process.env.DATASOURCE_URL,
+  synchronize: process.env.SYNCHRONIZE === 'false',
+  entities: ['src/**/*.entity{.ts,.js}'],
+  migrations: ['src/database/migrations/*{.ts,.js}'],
+  migrationsTableName: 'migrations',
+  migrationsRun: process.env.RUN_MIGRATIONS === 'true',
+  logging: true,
 });
