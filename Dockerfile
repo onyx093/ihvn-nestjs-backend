@@ -4,22 +4,32 @@ ARG NODE_VERSION=22.14.0
 
 ################################################################################
 # Use node image for base image for all stages.
-FROM node:${NODE_VERSION}-alpine AS base
+FROM node:${NODE_VERSION}-alpine AS builder
 
 # Set working directory for all build stages.
-WORKDIR /usr/src/app
+WORKDIR /app
 
-RUN mkdir -p ./uploads
+COPY package.json yarn.lock ./
 
-COPY package*.json ./
+# Install all your dependencies.
+RUN yarn install --production --frozen-lockfile
 
 # Copy the rest of the source files into the image.
 COPY . .
 
-RUN chmod -R 777 ./uploads
+# Build the application.
+RUN yarn build
 
-# Install all your dependencies.
-RUN yarn
+FROM node:${NODE_VERSION}-alpine
+
+# Set working directory for all build stages.
+WORKDIR /app
+
+# Copy the rest of the source files into the image.
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+EXPOSE 8080
 
 # Run the application.
-CMD ["yarn", "start:dev"]
+CMD ["yarn", "start:prod"]
