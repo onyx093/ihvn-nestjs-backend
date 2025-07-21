@@ -23,7 +23,7 @@ import { getDatabaseHost } from '../lib/util';
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: `postgres://${configService.getOrThrow('POSTGRES_USER')}:${configService.getOrThrow('POSTGRES_PASSWORD')}@${getDatabaseHost()}:${configService.getOrThrow('POSTGRES_PORT')}/${configService.getOrThrow('POSTGRES_DB')}`,
+        url: `postgresql://${configService.getOrThrow('POSTGRES_USER')}:${configService.getOrThrow('POSTGRES_PASSWORD')}@${getDatabaseHost()}:${configService.getOrThrow('POSTGRES_PORT')}/${configService.getOrThrow('POSTGRES_DB')}`,
         autoLoadEntities: false,
         entities: [
           Account,
