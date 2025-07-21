@@ -17,7 +17,9 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter(loggerInstance));
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -33,7 +35,7 @@ async function bootstrap() {
     // await runSeeders();
     // You can uncomment the line below to run seeders
   }
-  const port = configService.get('PORT');
+  const port = configService.get('SERVER_PORT');
   await app.listen(port);
 }
 bootstrap();
