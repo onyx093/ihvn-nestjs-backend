@@ -31,6 +31,7 @@ async function bootstrap() {
     const connection = app.get(Connection);
     console.log('Seeding database...');
     // await runSeeders();
+    // You can uncomment the line below to run seeders
   }
   const port = configService.get('PORT');
   await app.listen(port);
