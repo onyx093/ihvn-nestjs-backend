@@ -58,11 +58,11 @@ export const randomize = <T>(arr: T[]): T =>
   arr[Math.floor(Math.random() * arr.length)];
 
 // Function to get database host based on context
-export const getDatabaseConnectionString = (): string => {
+export const getDatabaseHost = (): string => {
   config();
   // Check if we're running in a seeder context (you can set this env var when running seeders)
   if (process.env.SEEDER_CONTEXT === 'true') {
-    return process.env.DATABASE_CONNECTION_NAME || 'localhost:5432';
+    return process.env.POSTGRES_HOST;
   }
 
   // Check if we're in Docker (app context)
@@ -70,9 +70,9 @@ export const getDatabaseConnectionString = (): string => {
     process.env.NODE_ENV === 'production' ||
     process.env.DOCKER_CONTEXT === 'true'
   ) {
-    return process.env.DATABASE_CONNECTION_NAME || 'postgres:5432';
+    return process.env.DOCKER_POSTGRES_HOST;
   }
 
   // Default to localhost for development
-  return process.env.DATABASE_CONNECTION_NAME || 'postgres:5432';
+  return process.env.DOCKER_POSTGRES_HOST;
 };
