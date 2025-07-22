@@ -16,14 +16,25 @@ import { Role } from '../roles/entities/role.entity';
 import { Student } from '../students/entities/student.entity';
 import { CourseSchedule } from '../course-schedules/entities/course-schedule.entity';
 import { UserSetting } from '../users/entities/user-setting.entity';
-import { getDatabaseConnectionString } from '../lib/util';
+import { getDatabaseHost } from '../lib/util';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: `postgresql://${configService.getOrThrow('POSTGRES_USER')}:${configService.getOrThrow('POSTGRES_PASSWORD')}@${getDatabaseConnectionString()}/${configService.getOrThrow('POSTGRES_DB')}`,
+        host:
+          configService.getOrThrow('NODE_ENV') === 'production'
+            ? `/cloudsql/${configService.getOrThrow('CLOUD_SQL_CONNECTION_NAME')}`
+            : getDatabaseHost(),
+        port:
+          configService.getOrThrow('NODE_ENV') === 'production'
+            ? undefined
+            : configService.getOrThrow('POSTGRES_PORT'),
+        username: configService.getOrThrow('POSTGRES_USER'),
+        password: configService.getOrThrow('POSTGRES_PASSWORD'),
+        database: configService.getOrThrow('POSTGRES_DB'),
+        ssl: false,
         autoLoadEntities: false,
         entities: [
           Account,
