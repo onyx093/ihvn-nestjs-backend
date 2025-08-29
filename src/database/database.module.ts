@@ -54,7 +54,6 @@ import { getDatabaseHost } from '../lib/util';
         ],
         synchronize: false,
         migrationsRun: configService.getOrThrow('RUN_MIGRATIONS'),
-        logging: ['query', 'error', 'schema', 'migration', 'log', 'info'],
       }),
       inject: [ConfigService],
     }),

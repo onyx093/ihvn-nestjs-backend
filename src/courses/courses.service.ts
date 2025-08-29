@@ -1,4 +1,3 @@
-import fs from 'fs';
 import {
   BadRequestException,
   ConflictException,
@@ -713,12 +712,6 @@ export class CoursesService {
       throw new InternalServerErrorException(
         errors.serverError('Course cannot be deleted because it has lessons')
       );
-    }
-    if (course.thumbnail) {
-      const thumbnailPath = `./uploads${course.thumbnail}`;
-      if (fs.existsSync(thumbnailPath)) {
-        fs.unlinkSync(thumbnailPath);
-      }
     }
 
     await this.courseRepository.delete(id);
